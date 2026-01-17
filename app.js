@@ -7,7 +7,7 @@ tg.ready();
 tg.expand();
 document.body.style.touchAction = "manipulation";
 
-/* USER */
+/* USER INFO */
 const user = tg.initDataUnsafe.user;
 const uid = String(user.id);
 const username = "@" + (user.username || user.first_name);
@@ -21,13 +21,13 @@ const app = initializeApp({
 const db = getDatabase(app);
 const userRef = ref(db, "users/" + uid);
 
-/* INIT USER & BALANCE */
+/* INIT USER BALANCE */
 get(userRef).then(s=>{
   if(!s.exists()) set(userRef,{username,balance:0});
   else if(typeof s.val().balance !== "number") update(userRef,{balance:0});
 });
 
-/* UPDATE BALANCE ON SCREEN */
+/* DISPLAY BALANCE */
 onValue(userRef,s=>{
   if(s.exists()){
     const bal = Number(s.val().balance || 0);
@@ -61,7 +61,7 @@ Object.keys(pages).forEach(p=>{
   document.getElementById("page-"+p).innerHTML=pages[p];
 });
 
-/* FAST PAGE OPEN */
+/* OPEN PAGE FAST */
 window.openPage = p => {
   requestAnimationFrame(()=>{
     document.querySelectorAll(".page").forEach(e=>e.style.display="none");
@@ -70,7 +70,7 @@ window.openPage = p => {
   });
 };
 
-/* SAFE AD PLAY & REWARD */
+/* PLAY AD & REWARD */
 window.playAd=(zone,amount,key,cd)=>{
   try{
     const fn=window["show_"+zone];
@@ -79,25 +79,26 @@ window.playAd=(zone,amount,key,cd)=>{
   setTimeout(()=>reward(amount,key,cd),5000);
 };
 
+/* REWARD FUNCTION */
 async function reward(amount,key,cd){
-  const cRef=ref(db,"cooldowns/"+uid+"/"+key);
-  const now=Date.now();
-  const s=await get(cRef);
-  if(s.exists() && now<s.val()) return alert("⏳ Cooldown active");
+  const cRef = ref(db,"cooldowns/"+uid+"/"+key);
+  const now = Date.now();
+  const s = await get(cRef);
+  if(s.exists() && now < s.val()) return alert("⏳ Cooldown active");
 
-  await runTransaction(userRef,u=>{
+  await runTransaction(userRef, u=>{
     if(!u) u={username,balance:0};
     if(!u.balance) u.balance=0;
-    u.balance+=amount;
+    u.balance += amount;
     return u;
   });
 
   await set(cRef,now+cd);
-  alert("🎉 Earned ₱"+amount.toFixed(2));
+  alert("🎉 You earned ₱"+amount.toFixed(2));
 }
 
 /* WITHDRAW */
-window.withdraw = async()=>{
+window.withdraw=async()=>{
   const s=await get(userRef);
   const bal = Number(s.val().balance || 0);
   if(bal <= 0) return alert("No balance to withdraw");
@@ -110,7 +111,7 @@ window.withdraw = async()=>{
   alert("💸 Withdraw request sent: ₱"+bal.toFixed(2));
 };
 
-/* USER TABLE */
+/* USER WITHDRAWALS TABLE */
 window.loadUserWithdrawals=p=>{
   const size=10;
   onValue(ref(db,"userWithdrawals/"+uid),s=>{
@@ -131,7 +132,7 @@ window.loadUserWithdrawals=p=>{
   });
 };
 
-/* OWNER */
+/* OWNER DASHBOARD */
 const OWNER_PASSWORD="propetas6";
 window.ownerLogin=()=>{
   if(ownerPass.value!==OWNER_PASSWORD) return alert("Wrong");
