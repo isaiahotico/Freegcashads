@@ -6,80 +6,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<!-- Monetag SDKs -->
 <script src="//libtl.com/sdk.js" data-zone="10276123" data-sdk="show_10276123"></script>
 <script src="//libtl.com/sdk.js" data-zone="10337795" data-sdk="show_10337795"></script>
 <script src="//libtl.com/sdk.js" data-zone="10337853" data-sdk="show_10337853"></script>
 
 <style>
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
-body{
-  margin:0;
-  font-family:Arial;
-  background:#f4f6f9;
-}
-.header{
-  background:#111;
-  color:#fff;
-  padding:12px;
-  text-align:center;
-}
-.container{
-  padding:12px;
-  position:relative;
-  z-index:10;
-}
-button{
-  width:100%;
-  padding:14px;
-  margin:6px 0;
-  border:none;
-  border-radius:10px;
-  font-weight:bold;
-  background:#ffcc00;
-  cursor:pointer;
-  position:relative;
-  z-index:20;
-}
-button:active{transform:scale(0.98)}
-
+body{margin:0;font-family:Arial;background:#f5f7fa}
+.header{background:#111;color:#fff;padding:12px;text-align:center}
+.container{padding:12px}
+button{width:100%;padding:10px;margin:6px 0;border:none;border-radius:8px;font-weight:bold}
 .hidden{display:none}
 
-/* TABLE */
-table{
-  width:100%;
-  border-collapse:collapse;
-  background:#fff;
-  margin-top:8px;
-}
-th,td{
-  padding:8px;
-  border:1px solid #ddd;
-  font-size:13px;
-  text-align:center;
-}
-th{
-  background:#f1f1f1;
-}
-
-.nav{
-  display:flex;
-  gap:6px;
-  margin-top:6px;
-}
-.nav button{width:50%}
-
-/* prevent ads overlay blocking */
-iframe, .ad-container{
-  pointer-events:auto !important;
-}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid #ccc;padding:6px;font-size:13px;text-align:center}
+th{background:#eee}
+.card{background:#fff;padding:10px;border-radius:10px}
 </style>
 </head>
 
@@ -92,75 +33,30 @@ iframe, .ad-container{
 </div>
 
 <div class="container">
-
 <button onclick="openPage('ads')">🍍 ADS AREA</button>
-<button onclick="openPage('signin')">🍍 PAPER HOUSE SIGN IN</button>
-<button onclick="openPage('gift')">🎁 PAPER HOUSE GIFT</button>
-<button onclick="openPage('withdraw')">💸 WITHDRAW</button>
-<button onclick="openPage('owner')">🔐 OWNER DASHBOARD</button>
+<button onclick="openPage('signin')">🍍 SIGN IN</button>
+<button onclick="openPage('gift')">🍍 GIFTS</button>
+<button onclick="openPage('withdraw')">💸 Withdraw</button>
+<button onclick="openPage('owner')">🔐 Owner Dashboard</button>
 
-<!-- ADS -->
-<div id="page-ads" class="hidden">
-  <button onclick="playAd('10276123',0.02)">🤑 Task #1</button>
-  <button onclick="playAd('10337795',0.02)">🤑 Task #2</button>
-  <button onclick="playAd('10337853',0.02)">🤑 Task #3</button>
-</div>
+<div id="page-ads" class="hidden"></div>
+<div id="page-signin" class="hidden"></div>
+<div id="page-gift" class="hidden"></div>
+<div id="page-withdraw" class="hidden"></div>
 
-<!-- SIGN IN -->
-<div id="page-signin" class="hidden">
-  <button onclick="playAd('10276123',0.025)">🍍 Sign Task #1</button>
-  <button onclick="playAd('10337795',0.025)">🍍 Sign Task #2</button>
-  <button onclick="playAd('10337853',0.025)">🍍 Sign Task #3</button>
-</div>
-
-<!-- GIFTS -->
-<div id="page-gift" class="hidden">
-  <button onclick="playPopup('10276123',0.02)">🎁 Gift #1</button>
-  <button onclick="playPopup('10337795',0.02)">🎁 Gift #2</button>
-  <button onclick="playPopup('10337853',0.02)">🎁 Gift #3</button>
-</div>
-
-<!-- WITHDRAW -->
-<div id="page-withdraw" class="hidden">
-  <button onclick="withdraw()">Withdraw All</button>
-
-  <table>
-    <thead>
-      <tr><th>Amount</th><th>Status</th><th>Date</th></tr>
-    </thead>
-    <tbody id="userTable"></tbody>
-  </table>
-
-  <div class="nav">
-    <button onclick="userPrev()">⬅ Prev</button>
-    <button onclick="userNext()">Next ➡</button>
-  </div>
-  <div id="userPage"></div>
-</div>
-
-<!-- OWNER -->
 <div id="page-owner" class="hidden">
-  <input id="ownerPass" type="password" placeholder="Owner password" style="width:100%;padding:10px">
+  <h3>Owner Dashboard</h3>
+  <input id="ownerPass" type="password" placeholder="Password">
   <button onclick="ownerLogin()">Login</button>
 
   <div id="ownerPanel" class="hidden">
-    <table>
-      <thead>
-        <tr><th>User</th><th>Amount</th><th>Status</th><th>Action</th></tr>
-      </thead>
-      <tbody id="ownerTable"></tbody>
-    </table>
-
-    <div class="nav">
-      <button onclick="ownerPrev()">⬅ Prev</button>
-      <button onclick="ownerNext()">Next ➡</button>
-    </div>
-    <div id="ownerPage"></div>
+    <div id="ownerTotal"></div>
+    <div id="ownerTable"></div>
+    <div id="ownerPager"></div>
   </div>
 </div>
-
 </div>
 
-<script src="app.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
