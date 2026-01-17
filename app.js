@@ -21,15 +21,21 @@ const app = initializeApp({
 const db = getDatabase(app);
 const userRef = ref(db, "users/" + uid);
 
-/* INIT USER */
+/* INIT USER & BALANCE */
 get(userRef).then(s=>{
   if(!s.exists()) set(userRef,{username,balance:0});
-});
-onValue(userRef,s=>{
-  if(s.exists()) balanceBar.innerText="💰 ₱"+s.val().balance.toFixed(2);
+  else if(typeof s.val().balance !== "number") update(userRef,{balance:0});
 });
 
-/* PRELOAD ALL PAGES ONCE */
+/* UPDATE BALANCE ON SCREEN */
+onValue(userRef,s=>{
+  if(s.exists()){
+    const bal = Number(s.val().balance || 0);
+    balanceBar.innerText="💰 ₱"+bal.toFixed(2);
+  }
+});
+
+/* PRELOAD PAGES */
 const pages = {
   ads: `
     <h3>ADS</h3>
@@ -52,10 +58,10 @@ const pages = {
 };
 
 Object.keys(pages).forEach(p=>{
-  document.getElementById("page-"+p).innerHTML = pages[p];
+  document.getElementById("page-"+p).innerHTML=pages[p];
 });
 
-/* FAST PAGE SWITCH */
+/* FAST PAGE OPEN */
 window.openPage = p => {
   requestAnimationFrame(()=>{
     document.querySelectorAll(".page").forEach(e=>e.style.display="none");
@@ -64,7 +70,7 @@ window.openPage = p => {
   });
 };
 
-/* SAFE AD PLAY */
+/* SAFE AD PLAY & REWARD */
 window.playAd=(zone,amount,key,cd)=>{
   try{
     const fn=window["show_"+zone];
@@ -73,34 +79,42 @@ window.playAd=(zone,amount,key,cd)=>{
   setTimeout(()=>reward(amount,key,cd),5000);
 };
 
-/* REWARD */
-async function reward(a,k,c){
-  const r=ref(db,"cooldowns/"+uid+"/"+k);
-  const n=Date.now();
-  const s=await get(r);
-  if(s.exists() && n<s.val()) return alert("Cooldown active");
-  await runTransaction(userRef,u=>{u.balance+=a;return u});
-  set(r,n+c);
-  alert("🎉 Earned ₱"+a);
+async function reward(amount,key,cd){
+  const cRef=ref(db,"cooldowns/"+uid+"/"+key);
+  const now=Date.now();
+  const s=await get(cRef);
+  if(s.exists() && now<s.val()) return alert("⏳ Cooldown active");
+
+  await runTransaction(userRef,u=>{
+    if(!u) u={username,balance:0};
+    if(!u.balance) u.balance=0;
+    u.balance+=amount;
+    return u;
+  });
+
+  await set(cRef,now+cd);
+  alert("🎉 Earned ₱"+amount.toFixed(2));
 }
 
 /* WITHDRAW */
-window.withdraw=async()=>{
+window.withdraw = async()=>{
   const s=await get(userRef);
-  if(s.val().balance<=0) return alert("No balance");
-  const id=push(ref(db,"withdrawals")).key;
-  const d={uid,username,amount:s.val().balance,status:"pending",time:Date.now()};
-  set(ref(db,"withdrawals/"+id),d);
-  set(ref(db,"userWithdrawals/"+uid+"/"+id),d);
-  update(userRef,{balance:0});
+  const bal = Number(s.val().balance || 0);
+  if(bal <= 0) return alert("No balance to withdraw");
+
+  const id = push(ref(db,"withdrawals")).key;
+  const data = {uid,username,amount:bal,status:"pending",time:Date.now()};
+  await set(ref(db,"withdrawals/"+id),data);
+  await set(ref(db,"userWithdrawals/"+uid+"/"+id),data);
+  await update(userRef,{balance:0});
+  alert("💸 Withdraw request sent: ₱"+bal.toFixed(2));
 };
 
-/* USER HISTORY */
+/* USER TABLE */
 window.loadUserWithdrawals=p=>{
   const size=10;
   onValue(ref(db,"userWithdrawals/"+uid),s=>{
-    let a=[];
-    s.forEach(c=>a.push(c.val()));
+    let a=[]; s.forEach(c=>a.push(c.val()));
     a.sort((x,y)=>y.time-x.time);
     const pages=Math.max(1,Math.ceil(a.length/size));
     const slice=a.slice((p-1)*size,p*size);
@@ -109,9 +123,7 @@ window.loadUserWithdrawals=p=>{
     <button onclick="withdraw()">Withdraw All</button>
     <table>
       <tr><th>Amount</th><th>Status</th><th>Date</th></tr>
-      ${slice.map(w=>`
-        <tr><td>₱${w.amount}</td><td>${w.status}</td><td>${new Date(w.time).toLocaleString()}</td></tr>
-      `).join("")}
+      ${slice.map(w=>`<tr><td>₱${w.amount}</td><td>${w.status}</td><td>${new Date(w.time).toLocaleString()}</td></tr>`).join("")}
     </table>
     <button onclick="loadUserWithdrawals(${p-1})" ${p<=1?"disabled":""}>Prev</button>
     ${p}/${pages}
