@@ -23,7 +23,7 @@ body{
 body.active{
   background:linear-gradient(135deg,#ffd700,#ffb700,#ffd700);
   background-size:300% 300%;
-  animation:shine 1.5s infinite;
+  animation:shine 1.4s infinite;
 }
 @keyframes shine{
   0%{background-position:0% 50%}
@@ -62,6 +62,7 @@ input{
   border:none;
   margin:6px 0;
 }
+.timer{color:#ffd700;font-weight:bold;text-align:center}
 table{
   width:100%;
   border-collapse:collapse;
@@ -73,7 +74,6 @@ th,td{
   text-align:center;
 }
 th{color:#ffd700}
-.timer{color:#ffd700;font-weight:bold;text-align:center}
 </style>
 </head>
 
@@ -86,24 +86,30 @@ th{color:#ffd700}
 </div>
 
 <div class="container">
-  <button onclick="openPage('ads')">🍍 ADS</button>
-  <button onclick="openPage('withdraw')">💸 Withdraw</button>
-  <button onclick="openPage('history')">📜 Withdrawal History</button>
-  <button onclick="openPage('owner')">🔐 Owner Dashboard</button>
 
-  <div id="page-ads" class="hidden"></div>
-  <div id="page-withdraw" class="hidden"></div>
-  <div id="page-history" class="hidden"></div>
+<button onclick="openPage('ads')">🍍 ADS</button>
+<button onclick="openPage('signin')">🍍 SIGN IN</button>
+<button onclick="openPage('gift')">🎁 GIFTS</button>
+<button onclick="openPage('withdraw')">💸 WITHDRAW</button>
+<button onclick="openPage('history')">📜 HISTORY</button>
+<button onclick="openPage('owner')">🔐 OWNER</button>
 
-  <div id="page-owner" class="hidden">
-    <input id="ownerPass" type="password" placeholder="Owner Password">
-    <button onclick="ownerLogin()">Login</button>
-    <div id="ownerPanel" class="hidden">
-      <div id="ownerTotal"></div>
-      <div id="ownerList"></div>
-      <div id="ownerPager"></div>
-    </div>
+<div id="page-ads" class="hidden"></div>
+<div id="page-signin" class="hidden"></div>
+<div id="page-gift" class="hidden"></div>
+<div id="page-withdraw" class="hidden"></div>
+<div id="page-history" class="hidden"></div>
+
+<div id="page-owner" class="hidden">
+  <input id="ownerPass" type="password" placeholder="Owner Password">
+  <button onclick="ownerLogin()">Login</button>
+  <div id="ownerPanel" class="hidden">
+    <div id="ownerTotal"></div>
+    <div id="ownerList"></div>
+    <div id="ownerPager"></div>
   </div>
+</div>
+
 </div>
 
 <script type="module" src="app.js"></script>
