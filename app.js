@@ -1,211 +1,182 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, get, set, update, push, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, get, set, push, update, query, orderByChild, limitToFirst, startAt } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-/* CLICK GOLD EFFECT */
-document.addEventListener("click",()=>{
-  document.body.classList.add("active");
-  clearTimeout(window.gold);
-  window.gold=setTimeout(()=>document.body.classList.remove("active"),1000);
-});
+/* ===== FIREBASE CONFIG ===== */
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+};
 
-/* TELEGRAM */
-const tg = window.Telegram.WebApp;
-tg.ready();
-const user = tg.initDataUnsafe.user;
-const uid = String(user.id);
-const username = "@"+(user.username||user.first_name);
-userBar.innerText = "👤 "+username;
-
-/* FIREBASE */
-const app = initializeApp({
-  apiKey:"AIzaSyBwpa8mA83JAv2A2Dj0rh5VHwodyv5N3dg",
-  databaseURL:"https://freegcash-ads-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId:"freegcash-ads"
-});
+const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const userRef = ref(db,"users/"+uid);
+const auth = getAuth(app);
+await signInAnonymously(auth);
 
-/* PAGE CACHE */
-const pages={
-  ads:page_ads,
-  signin:page_signin,
-  gift:page_gift,
-  withdraw:page_withdraw,
-  history:page_history,
-  owner:page_owner
-};
+const uid = auth.currentUser.uid;
 
-/* USER INIT */
-get(userRef).then(s=>{
-  if(!s.exists()) set(userRef,{username,balance:0});
-});
-onValue(userRef,s=>{
-  if(s.exists()) balanceBar.innerText="💰 Balance ₱"+s.val().balance.toFixed(2);
-});
+/* ===== TELEGRAM USER ===== */
+const tg = window.Telegram?.WebApp;
+tg?.ready();
+const user = tg?.initDataUnsafe?.user;
+if(user) document.getElementById("userBar").innerText = `👤 ${user.first_name}`;
 
-/* NAV */
-window.openPage=function(p){
-  Object.values(pages).forEach(e=>e.classList.add("hidden"));
-  pages[p].classList.remove("hidden");
-  render(p);
-};
+/* ===== ELEMENTS ===== */
+const watchBtn = document.getElementById("watchAdBtn");
+const timerEl = document.getElementById("timer");
+const balanceBar = document.getElementById("balanceBar");
+const ownerPass = document.getElementById("ownerPass");
+const ownerPanel = document.getElementById("ownerPanel");
+const ownerTable = document.getElementById("ownerTable");
 
-/* ADS */
-window.playAd=function(zone,amt,key,cd){
-  window["show_"+zone]();
+/* ===== NAVIGATION ===== */
+function openPage(page){
+  ["ads","history","withdraw","owner"].forEach(p=>{
+    document.getElementById(`page-${p}`).classList.add("hidden");
+  });
+  document.getElementById(`page-${page}`).classList.remove("hidden");
+}
+
+/* ===== USER INIT ===== */
+async function initUser(referrer=null){
+  const userRef = ref(db, `users/${uid}`);
+  const snapshot = await get(userRef);
+  if(!snapshot.exists()){
+    await set(userRef,{
+      balance:0,
+      lastAd:0,
+      referrer:referrer||null
+    });
+  }
+}
+initUser(); // auto init
+
+/* ===== MULTIPLE AD ZONES ===== */
+const adZones = [()=>show_10276123(), ()=>show_10337795(), ()=>show_10337853()];
+function showRandomAd(){
+  adZones[Math.floor(Math.random()*adZones.length)]();
+}
+
+/* ===== REWARD LOGIC ===== */
+const REWARD = 0.02;
+const COOLDOWN = 12*60*60*1000;
+let adRunning = false;
+
+watchBtn.onclick = async () => {
+  if(adRunning) return;
+  adRunning=true;
+  watchBtn.disabled=true;
+
+  const userRef = ref(db, `users/${uid}`);
+  const snap = await get(userRef);
+  const now = Date.now();
+  if(now - (snap.val().lastAd||0) < COOLDOWN){
+    alert("⏱ Come back later!");
+    adRunning=false;
+    watchBtn.disabled=false;
+    return;
+  }
+
   let t=5;
-  document.getElementById("timer-"+key).innerText="⏳ "+t;
-  const i=setInterval(()=>{
+  timerEl.innerText=`⏳ Watching ad ${t}s`;
+  showRandomAd();
+
+  const interval = setInterval(async ()=>{
     t--;
-    document.getElementById("timer-"+key).innerText="⏳ "+t;
-    if(t<=0){clearInterval(i);reward(amt,key,cd);}
+    timerEl.innerText=`⏳ Watching ad ${t}s`;
+    if(t<=0){
+      clearInterval(interval);
+      const newBalance = (snap.val().balance||0)+REWARD;
+      await update(userRef,{balance:newBalance,lastAd:now});
+      await rewardReferral(REWARD);
+      await push(ref(db, `history/${uid}`), {type:'ad', amount:REWARD, timestamp:now});
+      balanceBar.innerText=`💰 Balance: ₱${newBalance.toFixed(2)}`;
+      timerEl.innerText=`✅ You earned ₱${REWARD}`;
+      adRunning=false;
+      watchBtn.disabled=false;
+    }
   },1000);
 };
 
-async function reward(amt,key,cd){
-  const c=ref(db,"cooldowns/"+uid+"/"+key);
-  const now=Date.now();
-  const s=await get(c);
-  if(s.exists() && s.val()>now) return alert("Cooldown active");
-  await runTransaction(userRef,u=>{u.balance+=amt;return u});
-  set(c,now+cd);
+/* ===== REFERRAL ===== */
+async function rewardReferral(amount){
+  const snap = await get(ref(db, `users/${uid}`));
+  const referrerUid = snap.val().referrer;
+  if(referrerUid){
+    const refSnap = await get(ref(db, `users/${referrerUid}/balance`));
+    const currentBal = refSnap.val()||0;
+    await set(ref(db, `users/${referrerUid}/balance`), currentBal + amount*0.1);
+  }
 }
 
-/* RENDER */
-function render(p){
+/* ===== WITHDRAW ===== */
+async function requestWithdrawUI(){
+  const amt = parseFloat(document.getElementById("withdrawAmount").value);
+  const method = document.getElementById("withdrawMethod").value;
+  const account = document.getElementById("withdrawAccount").value;
+  if(!amt || !method || !account) return alert("Fill all fields");
 
-if(p==="ads"){
-pages.ads.innerHTML=`
-<div class="box">
-<div class="timer" id="timer-a1"></div>
-<button onclick="playAd('10276123',0.02,'a1',300000)">Ad #1</button>
-</div>`;
+  const userRef = ref(db, `users/${uid}`);
+  const snap = await get(userRef);
+  if(amt > (snap.val().balance||0)) return alert("Insufficient balance");
+
+  await update(userRef,{balance:snap.val().balance-amt});
+  await push(ref(db, 'withdrawals'),{uid,amount:amt,method,account,status:'pending',timestamp:Date.now()});
+  await push(ref(db, `history/${uid}`),{type:'withdraw',amount:amt,timestamp:Date.now()});
+  alert("✅ Withdrawal requested");
 }
 
-if(p==="signin"){
-pages.signin.innerHTML=`
-<div class="box">
-<div class="timer" id="timer-s1"></div>
-<button onclick="playAd('10337795',0.025,'s1',10800000)">Sign In Reward</button>
-</div>`;
+/* ===== HISTORY ===== */
+async function loadHistory(){
+  const snap = await get(ref(db, `history/${uid}`));
+  const data = snap.val()||{};
+  let html="<table><tr><th>Type</th><th>Amount</th></tr>";
+  Object.values(data).forEach(h=>{
+    html+=`<tr><td>${h.type}</td><td>₱${h.amount}</td></tr>`;
+  });
+  html+="</table>";
+  document.getElementById("page-history").innerHTML=html;
 }
+loadHistory();
 
-if(p==="gift"){
-pages.gift.innerHTML=`
-<div class="box">
-<div class="timer" id="timer-g1"></div>
-<button onclick="playAd('10337853',0.02,'g1',1200000)">Gift Reward</button>
-</div>`;
-}
+/* ===== OWNER DASHBOARD ===== */
+const OWNER_PASS="ADMIN123";
+let page=0;
+const PAGE_SIZE=10;
 
-if(p==="withdraw"){
-pages.withdraw.innerHTML=`
-<h3>GCash Withdraw</h3>
-<input id="wname" placeholder="Full Name">
-<input id="wgcash" placeholder="GCash Number">
-<button onclick="withdraw()">Withdraw (Min ₱0.05)</button>`;
-}
-
-if(p==="history"){
-pages.history.innerHTML=`
-<h3>Withdrawal History</h3>
-<div id="histTable"></div>
-<div id="histPager"></div>`;
-loadHistory(1);
-}
-}
-
-/* WITHDRAW */
-window.withdraw=async()=>{
-const s=await get(userRef);
-if(s.val().balance<0.05) return alert("Minimum ₱0.05");
-const id=push(ref(db,"withdrawals")).key;
-const data={
-  uid,username,
-  name:wname.value,
-  gcash:wgcash.value,
-  amount:s.val().balance,
-  status:"pending",
-  time:Date.now()
-};
-set(ref(db,"withdrawals/"+id),data);
-set(ref(db,"userWithdrawals/"+uid+"/"+id),data);
-update(userRef,{balance:0});
-alert("Withdrawal submitted");
-};
-
-/* USER HISTORY */
-window.loadHistory=function(page){
-onValue(ref(db,"userWithdrawals/"+uid),s=>{
-let arr=[];
-s.forEach(c=>arr.push(c.val()));
-arr.sort((a,b)=>b.time-a.time);
-const size=10;
-const pagesCount=Math.max(1,Math.ceil(arr.length/size));
-const slice=arr.slice((page-1)*size,page*size);
-
-histTable.innerHTML=`
-<table>
-<tr><th>Amount</th><th>Status</th><th>Date</th></tr>
-${slice.map(w=>`
-<tr>
-<td>₱${w.amount}</td>
-<td>${w.status}</td>
-<td>${new Date(w.time).toLocaleString()}</td>
-</tr>`).join("")}
-</table>`;
-
-histPager.innerHTML=`
-<button ${page<=1?"disabled":""} onclick="loadHistory(${page-1})">Prev</button>
-${page}/${pagesCount}
-<button ${page>=pagesCount?"disabled":""} onclick="loadHistory(${page+1})">Next</button>`;
+ownerPass.addEventListener('keypress',(e)=>{
+  if(e.key==='Enter') ownerLogin();
 });
-};
 
-/* OWNER */
-const OWNER_PASS="propetas6";
-window.ownerLogin=function(){
-if(ownerPass.value!==OWNER_PASS) return alert("Wrong password");
-ownerPanel.classList.remove("hidden");
-loadOwner(1);
-};
-
-function loadOwner(page){
-onValue(ref(db,"withdrawals"),s=>{
-let arr=[],total=0;
-s.forEach(c=>{
-arr.push({id:c.key,...c.val()});
-if(c.val().status==="paid") total+=c.val().amount;
-});
-arr.sort((a,b)=>b.time-a.time);
-const size=10;
-const pagesCount=Math.max(1,Math.ceil(arr.length/size));
-const slice=arr.slice((page-1)*size,page*size);
-
-ownerTotal.innerText="Total Paid ₱"+total.toFixed(2);
-
-ownerTable.innerHTML=`
-<table>
-<tr><th>User</th><th>Amount</th><th>Status</th><th>Action</th></tr>
-${slice.map(w=>`
-<tr>
-<td>${w.username}</td>
-<td>₱${w.amount}</td>
-<td>${w.status}</td>
-<td>
-<button onclick="setStatus('${w.id}','paid')">Approve</button>
-<button onclick="setStatus('${w.id}','denied')">Deny</button>
-</td>
-</tr>`).join("")}
-</table>`;
-
-ownerPager.innerHTML=`
-<button ${page<=1?"disabled":""} onclick="loadOwner(${page-1})">Prev</button>
-${page}/${pagesCount}
-<button ${page>=pagesCount?"disabled":""} onclick="loadOwner(${page+1})">Next</button>`;
-});
+async function ownerLogin(){
+  if(ownerPass.value!==OWNER_PASS) return alert("Wrong password");
+  ownerPanel.classList.remove("hidden");
+  loadWithdrawals();
 }
 
-window.setStatus=function(id,status){
-update(ref(db,"withdrawals/"+id),{status});
-};
+async function loadWithdrawals(){
+  const snap = await get(ref(db, 'withdrawals'));
+  const data = snap.val()||{};
+  const keys = Object.keys(data).sort((a,b)=>data[b].timestamp - data[a].timestamp);
+  const start=page*PAGE_SIZE;
+  const pageData = keys.slice(start,start+PAGE_SIZE);
+  let html="<table><tr><th>UID</th><th>₱</th><th>Status</th></tr>";
+  pageData.forEach(k=>{
+    const w=data[k];
+    html+=`<tr><td>${w.uid}</td><td>${w.amount}</td><td>${w.status}</td></tr>`;
+  });
+  html+="</table>";
+  ownerTable.innerHTML=html;
+}
+
+/* ===== OWNER PAGINATION ===== */
+document.getElementById('nextPage').onclick=()=>{
+  page++;
+  loadWithdrawals();
+}
+document.getElementById('prevPage').onclick=()=>{
+  if(page>0) page--;
+  loadWithdrawals();
+}
