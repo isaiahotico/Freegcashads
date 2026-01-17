@@ -11,14 +11,15 @@
 <script src="//libtl.com/sdk.js" data-zone="10337853" data-sdk="show_10337853"></script>
 
 <style>
-body{margin:0;font-family:Arial;background:#f5f7fa;touch-action:manipulation;}
-.header{background:#111;color:#fff;padding:12px;text-align:center;}
-.container{padding:12px;}
-button{width:100%;padding:12px;margin:6px 0;border:none;border-radius:10px;font-weight:bold;cursor:pointer;pointer-events:auto !important;-webkit-tap-highlight-color:transparent;}
+body{margin:0;font-family:Arial;background:#f5f7fa;touch-action:manipulation}
+.header{background:#111;color:#fff;padding:12px;text-align:center}
+.container{padding:12px}
+button{width:100%;padding:12px;margin:6px 0;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
 .page{display:none}
 table{width:100%;border-collapse:collapse;margin-top:8px}
 th,td{border:1px solid #ccc;padding:6px;font-size:13px;text-align:center}
 th{background:#eee}
+input{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #ccc}
 </style>
 </head>
 
@@ -31,22 +32,24 @@ th{background:#eee}
 </div>
 
 <div class="container">
-<button onclick="openPage('ads')">🍍 ADS AREA</button>
+<button onclick="openPage('ads')">🍍 ADS</button>
 <button onclick="openPage('signin')">🍍 SIGN IN</button>
 <button onclick="openPage('gift')">🍍 GIFTS</button>
-<button onclick="openPage('withdraw')">💸 Withdrawal History</button>
+<button onclick="openPage('withdraw')">💸 Withdrawal</button>
 <button onclick="openPage('owner')">🔐 Owner Dashboard</button>
 
 <div id="page-ads" class="page"></div>
 <div id="page-signin" class="page"></div>
 <div id="page-gift" class="page"></div>
+
 <div id="page-withdraw" class="page">
+  <h3>GCash Withdrawal</h3>
+  <input id="fullName" placeholder="Full Name">
+  <input id="gcashNumber" placeholder="GCash Number">
+  <input id="withdrawAmount" type="number" step="0.01" placeholder="Amount (min ₱0.05)">
+  <button id="requestWithdrawal">Request Withdrawal</button>
+
   <h3>Withdrawal History</h3>
-  <div>
-    <input id="gcash" placeholder="Enter GCash Number">
-    <input id="withdrawAmount" type="number" placeholder="Amount to withdraw" step="0.01">
-    <button id="requestWithdrawal">Request Withdrawal</button>
-  </div>
   <div id="withdrawTable"></div>
   <div id="withdrawPager"></div>
 </div>
@@ -61,6 +64,7 @@ th{background:#eee}
     <div id="ownerPager"></div>
   </div>
 </div>
+
 </div>
 
 <script type="module" src="app.js"></script>
