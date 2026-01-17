@@ -6,20 +6,74 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <script src="//libtl.com/sdk.js" data-zone="10276123" data-sdk="show_10276123"></script>
 <script src="//libtl.com/sdk.js" data-zone="10337795" data-sdk="show_10337795"></script>
 <script src="//libtl.com/sdk.js" data-zone="10337853" data-sdk="show_10337853"></script>
 
 <style>
-body{margin:0;font-family:Arial;background:#f5f7fa;touch-action:manipulation}
-.header{background:#111;color:#fff;padding:12px;text-align:center}
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#0f9d58,#1dbf73);
+  color:#fff;
+  min-height:100vh;
+  transition:.3s;
+}
+body.active{
+  background:linear-gradient(135deg,#ffd700,#ffb700,#ffd700);
+  background-size:300% 300%;
+  animation:shine 1.5s infinite;
+}
+@keyframes shine{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+.header{
+  background:#111;
+  padding:12px;
+  text-align:center;
+}
 .container{padding:12px}
-button{width:100%;padding:12px;margin:6px 0;border:none;border-radius:10px;font-weight:bold;cursor:pointer}
-.page{display:none}
-table{width:100%;border-collapse:collapse;margin-top:8px}
-th,td{border:1px solid #ccc;padding:6px;font-size:13px;text-align:center}
-th{background:#eee}
-input{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #ccc}
+button{
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border:none;
+  border-radius:12px;
+  font-weight:bold;
+  background:linear-gradient(135deg,#1e88e5,#1565c0);
+  color:#fff;
+  cursor:pointer;
+}
+button:active{transform:scale(.96)}
+.hidden{display:none}
+.card,.adBox{
+  background:rgba(255,255,255,.15);
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:10px;
+}
+input{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  margin:6px 0;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+th,td{
+  padding:8px;
+  border-bottom:1px solid rgba(255,255,255,.25);
+  text-align:center;
+}
+th{color:#ffd700}
+.timer{color:#ffd700;font-weight:bold;text-align:center}
 </style>
 </head>
 
@@ -32,39 +86,24 @@ input{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #c
 </div>
 
 <div class="container">
-<button onclick="openPage('ads')">🍍 ADS</button>
-<button onclick="openPage('signin')">🍍 SIGN IN</button>
-<button onclick="openPage('gift')">🍍 GIFTS</button>
-<button onclick="openPage('withdraw')">💸 Withdrawal</button>
-<button onclick="openPage('owner')">🔐 Owner Dashboard</button>
+  <button onclick="openPage('ads')">🍍 ADS</button>
+  <button onclick="openPage('withdraw')">💸 Withdraw</button>
+  <button onclick="openPage('history')">📜 Withdrawal History</button>
+  <button onclick="openPage('owner')">🔐 Owner Dashboard</button>
 
-<div id="page-ads" class="page"></div>
-<div id="page-signin" class="page"></div>
-<div id="page-gift" class="page"></div>
+  <div id="page-ads" class="hidden"></div>
+  <div id="page-withdraw" class="hidden"></div>
+  <div id="page-history" class="hidden"></div>
 
-<div id="page-withdraw" class="page">
-  <h3>GCash Withdrawal</h3>
-  <input id="fullName" placeholder="Full Name">
-  <input id="gcashNumber" placeholder="GCash Number">
-  <input id="withdrawAmount" type="number" step="0.01" placeholder="Amount (min ₱0.05)">
-  <button id="requestWithdrawal">Request Withdrawal</button>
-
-  <h3>Withdrawal History</h3>
-  <div id="withdrawTable"></div>
-  <div id="withdrawPager"></div>
-</div>
-
-<div id="page-owner" class="page">
-  <h3>Owner Dashboard</h3>
-  <input id="ownerPass" type="password" placeholder="Password">
-  <button onclick="ownerLogin()">Login</button>
-  <div id="ownerPanel" style="display:none">
-    <div id="ownerTotal"></div>
-    <div id="ownerTable"></div>
-    <div id="ownerPager"></div>
+  <div id="page-owner" class="hidden">
+    <input id="ownerPass" type="password" placeholder="Owner Password">
+    <button onclick="ownerLogin()">Login</button>
+    <div id="ownerPanel" class="hidden">
+      <div id="ownerTotal"></div>
+      <div id="ownerList"></div>
+      <div id="ownerPager"></div>
+    </div>
   </div>
-</div>
-
 </div>
 
 <script type="module" src="app.js"></script>
