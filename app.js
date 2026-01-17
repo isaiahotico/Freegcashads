@@ -1,13 +1,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, get, set, update, push, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-/* TELEGRAM FAST MODE */
+/* TELEGRAM */
 const tg = Telegram.WebApp;
-tg.ready();
-tg.expand();
-document.body.style.touchAction = "manipulation";
+tg.ready(); tg.expand();
 
-/* USER INFO */
+/* USER */
 const user = tg.initDataUnsafe.user;
 const uid = String(user.id);
 const username = "@" + (user.username || user.first_name);
@@ -21,180 +19,136 @@ const app = initializeApp({
 const db = getDatabase(app);
 const userRef = ref(db, "users/" + uid);
 
-/* INIT USER BALANCE */
+/* INIT USER */
 get(userRef).then(s=>{
   if(!s.exists()) set(userRef,{username,balance:0});
-  else if(typeof s.val().balance !== "number") update(userRef,{balance:0});
 });
 
-/* DISPLAY BALANCE */
+/* BALANCE LIVE */
 onValue(userRef,s=>{
-  if(s.exists()){
-    const bal = Number(s.val().balance || 0);
-    balanceBar.innerText="💰 ₱"+bal.toFixed(2);
-  }
+  balanceBar.innerText="💰 ₱"+Number(s.val()?.balance||0).toFixed(2);
 });
 
 /* PRELOAD PAGES */
-const pages = {
-  ads: `
-    <h3>ADS</h3>
-    <button onclick="playAd('10276123',0.02,'a1',300000)">Task 1</button>
-    <button onclick="playAd('10337795',0.02,'a2',300000)">Task 2</button>
-    <button onclick="playAd('10337853',0.02,'a3',300000)">Task 3</button>
-  `,
-  signin: `
-    <h3>SIGN IN</h3>
-    <button onclick="playAd('10276123',0.025,'s1',10800000)">Task 1</button>
-    <button onclick="playAd('10337795',0.025,'s2',10800000)">Task 2</button>
-    <button onclick="playAd('10337853',0.025,'s3',10800000)">Task 3</button>
-  `,
-  gift: `
-    <h3>GIFTS</h3>
-    <button onclick="playAd('10276123',0.02,'g1',1200000)">Gift 1</button>
-    <button onclick="playAd('10337795',0.02,'g2',1200000)">Gift 2</button>
-    <button onclick="playAd('10337853',0.02,'g3',1200000)">Gift 3</button>
-  `
+const pages={
+ads:`<h3>ADS</h3>
+<button onclick="playAd('10276123',0.02,'a1',300000)">Task 1</button>
+<button onclick="playAd('10337795',0.02,'a2',300000)">Task 2</button>
+<button onclick="playAd('10337853',0.02,'a3',300000)">Task 3</button>`,
+signin:`<h3>SIGN IN</h3>
+<button onclick="playAd('10276123',0.025,'s1',10800000)">Task 1</button>
+<button onclick="playAd('10337795',0.025,'s2',10800000)">Task 2</button>
+<button onclick="playAd('10337853',0.025,'s3',10800000)">Task 3</button>`,
+gift:`<h3>GIFTS</h3>
+<button onclick="playAd('10276123',0.02,'g1',1200000)">Gift 1</button>
+<button onclick="playAd('10337795',0.02,'g2',1200000)">Gift 2</button>
+<button onclick="playAd('10337853',0.02,'g3',1200000)">Gift 3</button>`
+};
+Object.keys(pages).forEach(p=>document.getElementById("page-"+p).innerHTML=pages[p]);
+
+/* NAV */
+window.openPage=p=>{
+  document.querySelectorAll(".page").forEach(x=>x.style.display="none");
+  document.getElementById("page-"+p).style.display="block";
+  if(p==="withdraw") loadUserWithdrawals(1);
 };
 
-Object.keys(pages).forEach(p=>{
-  document.getElementById("page-"+p).innerHTML=pages[p];
-});
+/* ADS */
+window.playAd=(z,a,k,c)=>{
+  try{window["show_"+z]();}catch{}
+  setTimeout(()=>reward(a,k,c),5000);
+};
 
-/* OPEN PAGE FAST */
-window.openPage = p => {
-  requestAnimationFrame(()=>{
-    document.querySelectorAll(".page").forEach(e=>e.style.display="none");
-    document.getElementById("page-"+p).style.display="block";
-    if(p==="withdraw") loadUserWithdrawals(1);
+async function reward(a,k,c){
+  const cd=ref(db,"cooldowns/"+uid+"/"+k);
+  const now=Date.now();
+  const s=await get(cd);
+  if(s.exists() && now<s.val()) return alert("Cooldown active");
+
+  await runTransaction(userRef,u=>{
+    if(!u)u={username,balance:0};
+    u.balance+=a; return u;
   });
-};
-
-/* PLAY AD & REWARD */
-window.playAd=(zone,amount,key,cd)=>{
-  try{
-    const fn=window["show_"+zone];
-    if(typeof fn==="function") setTimeout(fn,50);
-  }catch(e){}
-  setTimeout(()=>reward(amount,key,cd),5000);
-};
-
-/* REWARD FUNCTION */
-async function reward(amount,key,cd){
-  const cRef = ref(db,"cooldowns/"+uid+"/"+key);
-  const now = Date.now();
-  const s = await get(cRef);
-  if(s.exists() && now < s.val()) return alert("⏳ Cooldown active");
-
-  await runTransaction(userRef, u=>{
-    if(!u) u={username,balance:0};
-    if(!u.balance) u.balance=0;
-    u.balance += amount;
-    return u;
-  });
-
-  await set(cRef,now+cd);
-  alert("🎉 You earned ₱"+amount.toFixed(2));
+  await set(cd,now+c);
 }
 
-/* REQUEST WITHDRAWAL */
-document.getElementById("requestWithdrawal").addEventListener("click", async ()=>{
-  const gcash = document.getElementById("gcash").value.trim();
-  const amount = parseFloat(document.getElementById("withdrawAmount").value);
-  if(!gcash || !amount || amount<=0) return alert("Enter GCash number and amount");
-  
-  const s = await get(userRef);
-  const bal = Number(s.val().balance || 0);
-  if(amount>bal) return alert("Not enough balance");
+/* WITHDRAW REQUEST (MIN ₱0.05) */
+requestWithdrawal.onclick=async()=>{
+  const name=fullName.value.trim();
+  const gcash=gcashNumber.value.trim();
+  const amount=parseFloat(withdrawAmount.value);
 
-  const id = push(ref(db,"withdrawals")).key;
-  const data = {uid,username,amount,status:"pending",gcash,time:Date.now()};
+  if(!name||!gcash||!amount) return alert("Fill all fields");
+  if(amount<0.05) return alert("Minimum withdrawal is ₱0.05");
+
+  const s=await get(userRef);
+  if(amount>Number(s.val().balance)) return alert("Insufficient balance");
+
+  const id=push(ref(db,"withdrawals")).key;
+  const data={uid,username,name,gcash,amount,status:"pending",time:Date.now()};
+
   await set(ref(db,"withdrawals/"+id),data);
-  await update(userRef,{balance:bal-amount});
-  alert("💸 Withdrawal request sent: ₱"+amount);
-  loadUserWithdrawals(1);
-});
+  await set(ref(db,"userWithdrawals/"+uid+"/"+id),data);
+  await update(userRef,{balance:s.val().balance-amount});
+  alert("Withdrawal submitted");
+};
 
-/* USER WITHDRAWALS TABLE WITH PAGINATION */
-window.loadUserWithdrawals = function(page=1){
-  const size = 10;
-  onValue(ref(db,"withdrawals"), s=>{
-    let arr = [];
-    s.forEach(c=>arr.push(c.val()));
-    arr.sort((a,b)=>b.time-a.time);
-    const pages = Math.max(1, Math.ceil(arr.length/size));
-    const slice = arr.slice((page-1)*size,page*size);
+/* USER HISTORY (10/page) */
+window.loadUserWithdrawals=(p=1)=>{
+  const size=10;
+  onValue(ref(db,"userWithdrawals/"+uid),s=>{
+    let a=[]; s.forEach(c=>a.push(c.val()));
+    a.sort((x,y)=>y.time-x.time);
+    const pages=Math.max(1,Math.ceil(a.length/size));
+    const slice=a.slice((p-1)*size,p*size);
 
-    withdrawTable.innerHTML = `
-      <table>
-        <tr><th>User</th><th>Amount</th><th>GCash</th><th>Status</th><th>Date</th></tr>
-        ${slice.map(w=>`
-          <tr>
-            <td>${w.username}</td>
-            <td>₱${w.amount}</td>
-            <td>${w.gcash||""}</td>
-            <td>${w.status}</td>
-            <td>${new Date(w.time).toLocaleString()}</td>
-          </tr>
-        `).join("")}
-      </table>
-    `;
-    withdrawPager.innerHTML = `
-      <button ${page<=1?"disabled":""} onclick="loadUserWithdrawals(${page-1})">Prev</button>
-      ${page}/${pages}
-      <button ${page>=pages?"disabled":""} onclick="loadUserWithdrawals(${page+1})">Next</button>
-    `;
+    withdrawTable.innerHTML=`
+    <table><tr><th>Name</th><th>GCash</th><th>Amount</th><th>Status</th><th>Date</th></tr>
+    ${slice.map(w=>`
+    <tr><td>${w.name}</td><td>${w.gcash}</td>
+    <td>₱${w.amount}</td><td>${w.status}</td>
+    <td>${new Date(w.time).toLocaleString()}</td></tr>`).join("")}</table>`;
+    withdrawPager.innerHTML=`<button ${p<=1?"disabled":""} onclick="loadUserWithdrawals(${p-1})">Prev</button>
+    ${p}/${pages}
+    <button ${p>=pages?"disabled":""} onclick="loadUserWithdrawals(${p+1})">Next</button>`;
   });
 };
 
-/* OWNER DASHBOARD */
+/* OWNER */
 const OWNER_PASSWORD="propetas6";
 window.ownerLogin=()=>{
-  if(ownerPass.value!==OWNER_PASSWORD) return alert("Wrong");
+  if(ownerPass.value!==OWNER_PASSWORD) return alert("Wrong password");
   ownerPanel.style.display="block";
   loadAllWithdrawals(1);
 };
 
-/* LOAD ALL USERS WITHDRAWALS FOR OWNER WITH PAGINATION */
-window.loadAllWithdrawals = function(page=1){
+window.loadAllWithdrawals=(p=1)=>{
   const size=10;
-  onValue(ref(db,"withdrawals"), s=>{
+  onValue(ref(db,"withdrawals"),s=>{
     let a=[],total=0;
-    s.forEach(c=>{
-      a.push({id:c.key,...c.val()});
-      if(c.val().status==="paid") total+=c.val().amount;
-    });
+    s.forEach(c=>{a.push({id:c.key,...c.val()}); if(c.val().status==="paid") total+=c.val().amount;});
     a.sort((x,y)=>y.time-x.time);
     const pages=Math.max(1,Math.ceil(a.length/size));
-    const slice=a.slice((page-1)*size,page*size);
+    const slice=a.slice((p-1)*size,p*size);
 
-    ownerTotal.innerText="Total Paid: ₱"+total.toFixed(2);
-    ownerTable.innerHTML=`
-      <table>
-        <tr><th>User</th><th>Amount</th><th>GCash</th><th>Status</th><th>Action</th></tr>
-        ${slice.map(w=>`
-          <tr>
-            <td>${w.username}</td>
-            <td>₱${w.amount}</td>
-            <td>${w.gcash||""}</td>
-            <td>${w.status}</td>
-            <td>
-              <button onclick="setWithdraw('${w.id}','paid')">Approve</button>
-              <button onclick="setWithdraw('${w.id}','denied')">Deny</button>
-            </td>
-          </tr>`).join("")}
-      </table>
-      <button onclick="loadAllWithdrawals(${page-1})" ${page<=1?"disabled":""}>Prev</button>
-      ${page}/${pages}
-      <button onclick="loadAllWithdrawals(${page+1})" ${page>=pages?"disabled":""}>Next</button>
-    `;
+    ownerTotal.innerText="Total Paid ₱"+total.toFixed(2);
+    ownerTable.innerHTML=`<table>
+    <tr><th>User</th><th>Name</th><th>GCash</th><th>Amount</th><th>Status</th><th>Action</th></tr>
+    ${slice.map(w=>`
+    <tr><td>${w.username}</td><td>${w.name}</td><td>${w.gcash}</td>
+    <td>₱${w.amount}</td><td>${w.status}</td>
+    <td><button onclick="setWithdraw('${w.id}','paid')">Approve</button>
+    <button onclick="setWithdraw('${w.id}','denied')">Deny</button></td></tr>`).join("")}
+    </table>`;
+    ownerPager.innerHTML=`<button ${p<=1?"disabled":""} onclick="loadAllWithdrawals(${p-1})">Prev</button>
+    ${p}/${pages}
+    <button ${p>=pages?"disabled":""} onclick="loadAllWithdrawals(${p+1})">Next</button>`;
   });
 };
 
-/* OWNER APPROVE/DENY */
-window.setWithdraw=(id,status)=>{
-  get(ref(db,"withdrawals/"+id)).then(s=>{
-    const d=s.val(); d.status=status;
-    update(ref(db,"withdrawals/"+id),d);
-  });
+window.setWithdraw=async(id,status)=>{
+  const s=await get(ref(db,"withdrawals/"+id));
+  const d=s.val(); d.status=status;
+  await update(ref(db,"withdrawals/"+id),d);
+  await update(ref(db,"userWithdrawals/"+d.uid+"/"+id),d);
 };
