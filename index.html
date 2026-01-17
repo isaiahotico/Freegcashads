@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAPERHOUSE INC</title>
+    
+    <!-- Telegram & Monetag SDKs -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
+
+    <link rel="stylesheet" href="style.css"> <!-- You can keep CSS external or internal -->
+    <style>
+        :root { --p: #2ecc71; --bg: #121212; --gold: #f1c40f; }
+        body { font-family: sans-serif; background: var(--bg); color: white; margin: 0; text-align: center; }
+        #topBar { background: #000; padding: 10px; border-bottom: 2px solid var(--p); position: sticky; top:0; z-index:100; }
+        .container { padding: 20px; display: none; }
+        .active { display: block; }
+        .btn { background: var(--p); color: white; border: none; padding: 15px; width: 85%; border-radius: 12px; margin: 10px 0; font-weight: bold; cursor: pointer; }
+        .card { background: #1e1e1e; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; }
+        input { width: 80%; padding: 12px; margin: 5px 0; border-radius: 8px; border: none; background: #222; color: white; }
+        table { width: 100%; font-size: 0.75rem; margin-top: 10px; border-collapse: collapse; }
+        th, td { border: 1px solid #333; padding: 8px; }
+        .status-paid { color: var(--p); }
+        .status-pending { color: orange; }
+    </style>
+</head>
+<body>
+
+    <div id="topBar">
+        <div id="userBar">👤 User: Loading...</div>
+        <div id="balanceDisplay">💰 Balance: ₱<span id="balVal">0.000</span></div>
+    </div>
+
+    <!-- MAIN MENU -->
+    <div id="menuPage" class="container active">
+        <h1 style="color:var(--gold)">PAPERHOUSE INC</h1>
+        <button class="btn" onclick="nav('adsPage')">🍍 ADS AREA 🍍</button>
+        <button class="btn" onclick="nav('signInPage')">🍍 Paper house Sign In 🍍</button>
+        <button class="btn" onclick="nav('giftPage')">🍍 Paper house Gift 🍍</button>
+        <button class="btn" style="background:#3498db" onclick="nav('withdrawPage')">🏦 Withdraw Money</button>
+        <br><br>        <button onclick="adminLogin()" style="background:none; border:none; color:#333;">Owner Dashboard</button>
+    </div>
+
+    <!-- TASK PAGES -->
+    <div id="adsPage" class="container"><button onclick="nav('menuPage')">⬅ Back</button><h2>ADS AREA</h2><div id="adsList"></div></div>
+    <div id="signInPage" class="container"><button onclick="nav('menuPage')">⬅ Back</button><h2>SIGN IN</h2><div id="signInList"></div></div>
+    <div id="giftPage" class="container"><button onclick="nav('menuPage')">⬅ Back</button><h2>GIFT</h2><div id="giftList"></div></div>
+
+    <!-- WITHDRAW PAGE -->
+    <div id="withdrawPage" class="container">
+        <button onclick="nav('menuPage')">⬅ Back</button>
+        <h2 style="color:var(--gold)">Withdraw your Money here</h2>
+        
+        <div class="card">
+            <h3>GCash</h3>
+            <input type="number" id="gcashNum" placeholder="GCash Number">
+            <input type="number" id="gcashAmt" placeholder="Amount (₱)">
+            <button class="btn" onclick="handleWithdraw('GCash')">Withdraw GCash</button>
+        </div>
+
+        <div class="card">
+            <h3>FaucetPay</h3>
+            <input type="email" id="fpEmail" placeholder="FaucetPay Email">
+            <input type="number" id="fpAmt" placeholder="Amount (₱)">
+            <p id="usdtDisplay" style="font-size:0.7rem">0.00 USDT</p>
+            <button class="btn" onclick="handleWithdraw('FaucetPay')">Withdraw USDT</button>
+        </div>
+
+        <h3>History (Recent 10)</h3>
+        <table>
+            <thead><tr><th>Date</th><th>Method</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody id="historyBody"></tbody>
+        </table>
+    </div>
+
+    <!-- OWNER DASHBOARD -->
+    <div id="adminPage" class="container">
+        <button onclick="nav('menuPage')">Logout</button>
+        <h2 style="color:red">OWNER DASHBOARD</h2>
+        <div class="card"><h3>Total Withdrawn: ₱<span id="globalPaid">0.00</span></h3></div>
+        <div id="adminList"></div>
+    </div>
+
+    <!-- FIREBASE SDKS -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
