@@ -1,21 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>PAPERHOUSE INC</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<!-- Telegram -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<!-- Monetag -->
 <script src="//libtl.com/sdk.js" data-zone="10276123" data-sdk="show_10276123"></script>
 <script src="//libtl.com/sdk.js" data-zone="10337795" data-sdk="show_10337795"></script>
 <script src="//libtl.com/sdk.js" data-zone="10337853" data-sdk="show_10337853"></script>
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <style>
-body{margin:0;font-family:Arial;background:#f5f7fa}
+body{margin:0;font-family:Arial;background:#f4f6f9}
 .header{background:#111;color:#fff;padding:12px;text-align:center}
-.balance{font-size:14px;margin-top:4px}
 .container{padding:12px}
-button{width:100%;padding:10px;margin:6px 0;border:none;border-radius:8px;font-weight:bold}
+button{width:100%;padding:12px;margin:6px 0;border:none;border-radius:10px;font-weight:bold}
 .card{background:#fff;padding:10px;border-radius:10px;margin-bottom:8px}
 .hidden{display:none}
 </style>
@@ -26,7 +32,7 @@ button{width:100%;padding:10px;margin:6px 0;border:none;border-radius:8px;font-w
 <div class="header">
   <h2>PAPERHOUSE INC</h2>
   <div id="userBar"></div>
-  <div id="balanceBar" class="balance"></div>
+  <div id="balanceBar"></div>
 </div>
 
 <div class="container">
@@ -44,7 +50,7 @@ button{width:100%;padding:10px;margin:6px 0;border:none;border-radius:8px;font-w
 
 <div id="page-owner" class="hidden">
   <h3>Owner Dashboard</h3>
-  <div id="ownerLogin">
+  <div id="ownerLoginBox">
     <input id="ownerPass" type="password" placeholder="Password">
     <button onclick="ownerLogin()">Login</button>
   </div>
@@ -57,6 +63,6 @@ button{width:100%;padding:10px;margin:6px 0;border:none;border-radius:8px;font-w
 
 </div>
 
-<script type="module" src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
