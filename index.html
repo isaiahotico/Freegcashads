@@ -2,43 +2,221 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PAPERHOUSE INC</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<!-- Telegram -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<!-- Ads SDK -->
 <script src="//libtl.com/sdk.js" data-zone="10276123" data-sdk="show_10276123"></script>
-<script src="//libtl.com/sdk.js" data-zone="10337795" data-sdk="show_10337795"></script>
-<script src="//libtl.com/sdk.js" data-zone="10337853" data-sdk="show_10337853"></script>
-
 <style>
-body{margin:0;font-family:Arial;background:linear-gradient(135deg,#0f9d58,#1dbf73);color:#fff}
-.header{background:#111;padding:12px;text-align:center}
-.container{padding:12px}
-button{width:100%;padding:12px;margin:6px 0;border:none;border-radius:12px;font-weight:bold;background:#1e88e5;color:#fff;cursor:pointer}
-button:disabled{background:#555}
-.card{background:rgba(255,255,255,.15);padding:12px;border-radius:12px;margin-bottom:10px}
-.hidden{display:none}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,.25);text-align:center}
-th{color:#ffd700}
-.timer{color:#ffd700;text-align:center;font-weight:bold;margin:8px 0}
-.nav{display:flex;justify-content:space-between;margin-bottom:6px}
-.nav button{width:48%}
+  body { font-family: Arial, sans-serif; background:#f5f5f5; margin:0; padding:0;}
+  header { background:#ffcc00; padding:12px; text-align:center; font-size:20px; font-weight:bold;}
+  #userBar, #balanceBar { font-size:16px; margin-top:6px;}
+  .container { max-width:640px; margin:auto; padding:16px;}
+  .btn { display:block; width:100%; padding:12px; margin:8px 0; border:none; border-radius:10px; font-size:16px; cursor:pointer; background:#ff9900; color:#fff;}
+  .rewardBtn { display:none; background:green; }
+  .page, .adsPage, .withdrawPage, .adminPage { display:none; }
+  table { width:100%; border-collapse: collapse; margin-top:10px; }
+  th, td { border:1px solid #ccc; padding:8px; text-align:center; }
+  th { background:#eee; }
+  .pagination { margin:10px 0; text-align:center; }
+  .pageBtn { margin:0 3px; cursor:pointer; padding:5px 10px; background:#ff9900; color:#fff; border:none; border-radius:5px; }
 </style>
 </head>
-
 <body>
-<div class="header">
-  <h2>PAPERHOUSE INC</h2>
-  <div id="userBar">👤 Guest</div>
+
+<header>
+  PAPERHOUSE INC
+  <div id="userBar">👤 User: Loading...</div>
   <div id="balanceBar">💰 Balance: ₱0.00</div>
+</header>
+
+<!-- MAIN PAGE -->
+<div class="container page mainPage">
+  <button id="adsAreaBtn" class="btn">🍍 ADS AREA 🍍</button>
+  <button id="withdrawBtn" class="btn">💸 Withdraw 💸</button>
 </div>
 
-<div class="container">
-  <button onclick="openPage('ads')">🎬 ADS</button>
-  <button onclick="openPage('history')">📜 HISTORY</button>
-  <button onclick="openPage('withdraw')">💸 WITHDRAW</button>
-  <button onclick=
+<!-- ADS PAGE -->
+<div class="container page adsPage">
+  <h3>🍍 Ads Tasks 🍍</h3>
+  <button id="task1" class="btn">🤑 Task #1 🤑</button>
+  <button id="claim1" class="btn rewardBtn">Claim ₱0.02</button>
+
+  <button id="task2" class="btn">🤑 Task #2 🤑</button>
+  <button id="claim2" class="btn rewardBtn">Claim ₱0.02</button>
+
+  <button id="task3" class="btn">🤑 Task #3 🤑</button>
+  <button id="claim3" class="btn rewardBtn">Claim ₱0.02</button>
+  <button id="adsBackBtn" class="btn">⬅ Back</button>
+</div>
+
+<!-- WITHDRAW PAGE -->
+<div class="container page withdrawPage">
+  <h3>💸 Withdraw 💸</h3>
+  <input id="gcashNumber" placeholder="GCash Number" style="width:100%; padding:10px; margin:5px 0;">
+  <input id="withdrawAmount" placeholder="Amount ₱" type="number" style="width:100%; padding:10px; margin:5px 0;">
+  <button id="submitWithdraw" class="btn">Request Withdraw</button>
+  <button id="withdrawBackBtn" class="btn">⬅ Back</button>
+</div>
+
+<!-- ADMIN PAGE -->
+<div class="container page adminPage">
+  <h3>🛠 Admin Panel 🛠</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>GCash #</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="withdrawTable"></tbody>
+  </table>
+  <div class="pagination" id="pagination"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.2/firebase-app.js";
+import { getDatabase, ref, set, get, update, onValue, push } from "https://www.gstatic.com/firebasejs/10.6.2/firebase-database.js";
+
+// ================= FIREBASE =================
+const firebaseConfig = {
+  apiKey: "AIzaSyDMGU5X7BBp-C6tIl34Uuu5N9MXAVFTn7c",
+  authDomain: "paper-house-inc.firebaseapp.com",
+  projectId: "paper-house-inc",
+  storageBucket: "paper-house-inc.firebasestorage.app",
+  messagingSenderId: "658389836376",
+  appId: "1:658389836376:web:2ab1e2743c593f4ca8e02d"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ================= TELEGRAM =================
+const tg = window.Telegram?.WebApp;
+tg?.ready();
+const tgUser = tg?.initDataUnsafe?.user;
+const username = tgUser ? `@${tgUser.username || tgUser.first_name}` : "Guest";
+document.getElementById("userBar").innerText = "👤 User: " + username;
+const userId = username.replace("@","") || "guest_" + Math.floor(Math.random()*1000);
+const balanceRef = ref(db, `users/${userId}/balance`);
+
+onValue(balanceRef, snapshot => {
+  const bal = snapshot.val() || 0;
+  document.getElementById("balanceBar").innerText = `💰 Balance: ₱${bal.toFixed(2)}`;
+});
+
+// ================= REWARD FUNCTION =================
+function rewardUser(amount){
+  get(balanceRef).then(snapshot => {
+    const bal = snapshot.val() || 0;
+    update(ref(db, `users/${userId}`), { balance: (bal + amount) });
+    alert("🎉Congratulations🎉 you earned some money!!😍🍍🎉");
+  });
+}
+
+// ================= PAGE NAVIGATION =================
+function showPage(pageClass){ document.querySelectorAll(".page").forEach(p=>p.style.display="none"); document.querySelector(pageClass).style.display="block"; }
+document.getElementById("adsAreaBtn").addEventListener("click", ()=>showPage(".adsPage"));
+document.getElementById("adsBackBtn").addEventListener("click", ()=>showPage(".mainPage"));
+document.getElementById("withdrawBtn").addEventListener("click", ()=>showPage(".withdrawPage"));
+document.getElementById("withdrawBackBtn").addEventListener("click", ()=>showPage(".mainPage"));
+
+// ================= ADS TASKS =================
+const cooldowns = {};
+function setupTask(taskBtnId, claimBtnId, showAdFunc){
+  const taskBtn = document.getElementById(taskBtnId);
+  const claimBtn = document.getElementById(claimBtnId);
+  taskBtn.addEventListener("click", ()=>{
+    showAdFunc().then(()=>{ claimBtn.style.display = "block"; });
+  });
+  claimBtn.addEventListener("click", ()=>{
+    const now = Date.now();
+    if(cooldowns[claimBtnId] && now - cooldowns[claimBtnId] < 5*60*1000){
+      alert("⏳ Wait 5 minutes before claiming again!");
+      return;
+    }
+    rewardUser(0.02);
+    cooldowns[claimBtnId] = now;
+    claimBtn.style.display = "none";
+  });
+}
+
+setupTask("task1", "claim1", ()=>show_10276123().then(()=>{}));
+setupTask("task2", "claim2", ()=>show_10337795().then(()=>{}));
+setupTask("task3", "claim3", ()=>show_10337853().then(()=>{}));
+
+show_10337853({ type:'inApp', inAppSettings:{ frequency:2, capping:0.1, interval:30, timeout:5, everyPage:false }});
+
+// ================= WITHDRAW SYSTEM =================
+document.getElementById("submitWithdraw").addEventListener("click", ()=>{
+  const gcash = document.getElementById("gcashNumber").value;
+  const amount = parseFloat(document.getElementById("withdrawAmount").value);
+  if(!gcash || !amount){ alert("Enter valid GCash number and amount."); return; }
+  get(balanceRef).then(snap=>{
+    const bal = snap.val() || 0;
+    if(amount>bal){ alert("Insufficient balance"); return; }
+    update(ref(db, `users/${userId}`), { balance: bal - amount });
+    push(ref(db,'withdrawals'), { user:userId, gcash, amount, status:"Pending", timestamp:Date.now() });
+    alert("Withdrawal requested successfully! Await admin approval.");
+  });
+});
+
+// ================= ADMIN PANEL =================
+const adminPage = document.querySelector(".adminPage");
+const withdrawTable = document.getElementById("withdrawTable");
+const itemsPerPage = 5;
+let currentPage = 1;
+let withdrawalsList = [];
+
+function renderWithdrawals(){
+  withdrawTable.innerHTML="";
+  const start = (currentPage-1)*itemsPerPage;
+  const end = start + itemsPerPage;
+  const pageItems = withdrawalsList.slice(start,end);
+  pageItems.forEach(w=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${w.user}</td>
+      <td>${w.gcash}</td>
+      <td>₱${w.amount}</td>
+      <td>${w.status}</td>
+      <td>${w.status==="Pending"?`<button class="btn" data-key="${w.key}" data-action="approve">Approve</button> <button class="btn" data-key="${w.key}" data-action="reject">Reject</button>`:""}</td>`;
+    withdrawTable.appendChild(tr);
+  });
+  renderPagination();
+  document.querySelectorAll('button[data-action]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const key = btn.dataset.key;
+      const action = btn.dataset.action;
+      update(ref(db,'withdrawals/'+key), { status: action==="approve"?"Approved":"Rejected" });
+    });
+  });
+}
+
+function renderPagination(){
+  const pagination = document.getElementById("pagination");
+  pagination.innerHTML="";
+  const totalPages = Math.ceil(withdrawalsList.length/itemsPerPage);
+  for(let i=1;i<=totalPages;i++){
+    const btn = document.createElement("button");
+    btn.innerText = i;
+    btn.className="pageBtn";
+    if(i===currentPage) btn.style.background="#00cc00";
+    btn.addEventListener("click", ()=>{ currentPage=i; renderWithdrawals(); });
+    pagination.appendChild(btn);
+  }
+}
+
+// Load withdrawals real-time
+onValue(ref(db,'withdrawals'), snap=>{
+  const data = snap.val() || {};
+  withdrawalsList = Object.keys(data).map(k=>({...data[k], key:k}));
+  renderWithdrawals();
+});
+
+// Admin access toggle (example: username "admin")
+if(userId==="admin"){ showPage(".adminPage"); }else{ showPage(".mainPage"); }
+
+</script>
+</body>
+</html>
