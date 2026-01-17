@@ -97,9 +97,11 @@ async function reward(amount,key,cd){
   alert("🎉 You earned ₱"+amount.toFixed(2));
 }
 
-/* WITHDRAW */
-window.withdraw=async()=>{
-  const s=await get(userRef);
+/* WITHDRAW BUTTON HANDLER (CLICKABLE) */
+document.getElementById("withdrawBtn").addEventListener("click", withdraw);
+
+async function withdraw(){
+  const s = await get(userRef);
   const bal = Number(s.val().balance || 0);
   if(bal <= 0) return alert("No balance to withdraw");
 
@@ -109,26 +111,38 @@ window.withdraw=async()=>{
   await set(ref(db,"userWithdrawals/"+uid+"/"+id),data);
   await update(userRef,{balance:0});
   alert("💸 Withdraw request sent: ₱"+bal.toFixed(2));
-};
+
+  loadUserWithdrawals(1); // refresh table after withdraw
+}
 
 /* USER WITHDRAWALS TABLE */
-window.loadUserWithdrawals=p=>{
-  const size=10;
-  onValue(ref(db,"userWithdrawals/"+uid),s=>{
-    let a=[]; s.forEach(c=>a.push(c.val()));
-    a.sort((x,y)=>y.time-x.time);
-    const pages=Math.max(1,Math.ceil(a.length/size));
-    const slice=a.slice((p-1)*size,p*size);
-    page_withdraw.innerHTML=`
-    <h3>Withdraw</h3>
-    <button onclick="withdraw()">Withdraw All</button>
-    <table>
-      <tr><th>Amount</th><th>Status</th><th>Date</th></tr>
-      ${slice.map(w=>`<tr><td>₱${w.amount}</td><td>${w.status}</td><td>${new Date(w.time).toLocaleString()}</td></tr>`).join("")}
-    </table>
-    <button onclick="loadUserWithdrawals(${p-1})" ${p<=1?"disabled":""}>Prev</button>
-    ${p}/${pages}
-    <button onclick="loadUserWithdrawals(${p+1})" ${p>=pages?"disabled":""}>Next</button>`;
+window.loadUserWithdrawals = function(page=1){
+  const size = 10;
+  onValue(ref(db,"userWithdrawals/"+uid), s=>{
+    let arr = [];
+    s.forEach(c=>arr.push(c.val()));
+    arr.sort((a,b)=>b.time-a.time);
+    const pages = Math.max(1, Math.ceil(arr.length/size));
+    const slice = arr.slice((page-1)*size,page*size);
+
+    withdrawTable.innerHTML = `
+      <table>
+        <tr><th>Amount</th><th>Status</th><th>Date</th></tr>
+        ${slice.map(w=>`
+          <tr>
+            <td>₱${w.amount}</td>
+            <td>${w.status}</td>
+            <td>${new Date(w.time).toLocaleString()}</td>
+          </tr>
+        `).join("")}
+      </table>
+    `;
+
+    withdrawPager.innerHTML = `
+      <button ${page<=1?"disabled":""} onclick="loadUserWithdrawals(${page-1})">Prev</button>
+      ${page}/${pages}
+      <button ${page>=pages?"disabled":""} onclick="loadUserWithdrawals(${page+1})">Next</button>
+    `;
   });
 };
 
@@ -150,22 +164,22 @@ window.loadAllWithdrawals=p=>{
     const slice=a.slice((p-1)*size,p*size);
     ownerTotal.innerText="Total Paid ₱"+total.toFixed(2);
     ownerTable.innerHTML=`
-    <table>
-      <tr><th>User</th><th>Amount</th><th>Status</th><th>Action</th></tr>
-      ${slice.map(w=>`
-      <tr>
-        <td>${w.username}</td>
-        <td>₱${w.amount}</td>
-        <td>${w.status}</td>
-        <td>
-          <button onclick="setWithdraw('${w.id}','paid')">Approve</button>
-          <button onclick="setWithdraw('${w.id}','denied')">Deny</button>
-        </td>
-      </tr>`).join("")}
-    </table>
-    <button onclick="loadAllWithdrawals(${p-1})" ${p<=1?"disabled":""}>Prev</button>
-    ${p}/${pages}
-    <button onclick="loadAllWithdrawals(${p+1})" ${p>=pages?"disabled":""}>Next</button>`;
+      <table>
+        <tr><th>User</th><th>Amount</th><th>Status</th><th>Action</th></tr>
+        ${slice.map(w=>`
+          <tr>
+            <td>${w.username}</td>
+            <td>₱${w.amount}</td>
+            <td>${w.status}</td>
+            <td>
+              <button onclick="setWithdraw('${w.id}','paid')">Approve</button>
+              <button onclick="setWithdraw('${w.id}','denied')">Deny</button>
+            </td>
+          </tr>`).join("")}
+      </table>
+      <button onclick="loadAllWithdrawals(${p-1})" ${p<=1?"disabled":""}>Prev</button>
+      ${p}/${pages}
+      <button onclick="loadAllWithdrawals(${p+1})" ${p>=pages?"disabled":""}>Next</button>`;
   });
 };
 
