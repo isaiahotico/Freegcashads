@@ -11,16 +11,38 @@
 <script src="//libtl.com/sdk.js" data-zone="10337853" data-sdk="show_10337853"></script>
 
 <style>
-body{margin:0;font-family:Arial;background:#f5f7fa}
-.header{background:#111;color:#fff;padding:12px;text-align:center}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f5f7fa;
+  touch-action:manipulation;
+}
+.header{
+  background:#111;
+  color:#fff;
+  padding:12px;
+  text-align:center;
+}
 .container{padding:12px}
-button{width:100%;padding:10px;margin:6px 0;border:none;border-radius:8px;font-weight:bold}
-.hidden{display:none}
 
-table{width:100%;border-collapse:collapse;margin-top:10px}
+button{
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+  pointer-events:auto !important;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.page{display:none}
+table{width:100%;border-collapse:collapse;margin-top:8px}
 th,td{border:1px solid #ccc;padding:6px;font-size:13px;text-align:center}
 th{background:#eee}
-.card{background:#fff;padding:10px;border-radius:10px}
+
+iframe{pointer-events:auto !important;z-index:9999}
 </style>
 </head>
 
@@ -33,28 +55,30 @@ th{background:#eee}
 </div>
 
 <div class="container">
+
 <button onclick="openPage('ads')">🍍 ADS AREA</button>
 <button onclick="openPage('signin')">🍍 SIGN IN</button>
 <button onclick="openPage('gift')">🍍 GIFTS</button>
 <button onclick="openPage('withdraw')">💸 Withdraw</button>
 <button onclick="openPage('owner')">🔐 Owner Dashboard</button>
 
-<div id="page-ads" class="hidden"></div>
-<div id="page-signin" class="hidden"></div>
-<div id="page-gift" class="hidden"></div>
-<div id="page-withdraw" class="hidden"></div>
+<!-- PRELOADED PAGES -->
+<div id="page-ads" class="page"></div>
+<div id="page-signin" class="page"></div>
+<div id="page-gift" class="page"></div>
+<div id="page-withdraw" class="page"></div>
 
-<div id="page-owner" class="hidden">
+<div id="page-owner" class="page">
   <h3>Owner Dashboard</h3>
   <input id="ownerPass" type="password" placeholder="Password">
   <button onclick="ownerLogin()">Login</button>
-
-  <div id="ownerPanel" class="hidden">
+  <div id="ownerPanel" style="display:none">
     <div id="ownerTotal"></div>
     <div id="ownerTable"></div>
     <div id="ownerPager"></div>
   </div>
 </div>
+
 </div>
 
 <script type="module" src="app.js"></script>
