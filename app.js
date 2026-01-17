@@ -97,28 +97,28 @@ async function reward(amount,key,cd){
   alert("🎉 You earned ₱"+amount.toFixed(2));
 }
 
-/* WITHDRAW BUTTON HANDLER (CLICKABLE) */
-document.getElementById("withdrawBtn").addEventListener("click", withdraw);
-
-async function withdraw(){
+/* REQUEST WITHDRAWAL */
+document.getElementById("requestWithdrawal").addEventListener("click", async ()=>{
+  const gcash = document.getElementById("gcash").value.trim();
+  const amount = parseFloat(document.getElementById("withdrawAmount").value);
+  if(!gcash || !amount || amount<=0) return alert("Enter GCash number and amount");
+  
   const s = await get(userRef);
   const bal = Number(s.val().balance || 0);
-  if(bal <= 0) return alert("No balance to withdraw");
+  if(amount>bal) return alert("Not enough balance");
 
   const id = push(ref(db,"withdrawals")).key;
-  const data = {uid,username,amount:bal,status:"pending",time:Date.now()};
+  const data = {uid,username,amount,status:"pending",gcash,time:Date.now()};
   await set(ref(db,"withdrawals/"+id),data);
-  await set(ref(db,"userWithdrawals/"+uid+"/"+id),data);
-  await update(userRef,{balance:0});
-  alert("💸 Withdraw request sent: ₱"+bal.toFixed(2));
+  await update(userRef,{balance:bal-amount});
+  alert("💸 Withdrawal request sent: ₱"+amount);
+  loadUserWithdrawals(1);
+});
 
-  loadUserWithdrawals(1); // refresh table after withdraw
-}
-
-/* USER WITHDRAWALS TABLE */
+/* USER WITHDRAWALS TABLE WITH PAGINATION */
 window.loadUserWithdrawals = function(page=1){
   const size = 10;
-  onValue(ref(db,"userWithdrawals/"+uid), s=>{
+  onValue(ref(db,"withdrawals"), s=>{
     let arr = [];
     s.forEach(c=>arr.push(c.val()));
     arr.sort((a,b)=>b.time-a.time);
@@ -127,17 +127,18 @@ window.loadUserWithdrawals = function(page=1){
 
     withdrawTable.innerHTML = `
       <table>
-        <tr><th>Amount</th><th>Status</th><th>Date</th></tr>
+        <tr><th>User</th><th>Amount</th><th>GCash</th><th>Status</th><th>Date</th></tr>
         ${slice.map(w=>`
           <tr>
+            <td>${w.username}</td>
             <td>₱${w.amount}</td>
+            <td>${w.gcash||""}</td>
             <td>${w.status}</td>
             <td>${new Date(w.time).toLocaleString()}</td>
           </tr>
         `).join("")}
       </table>
     `;
-
     withdrawPager.innerHTML = `
       <button ${page<=1?"disabled":""} onclick="loadUserWithdrawals(${page-1})">Prev</button>
       ${page}/${pages}
@@ -154,22 +155,28 @@ window.ownerLogin=()=>{
   loadAllWithdrawals(1);
 };
 
-window.loadAllWithdrawals=p=>{
+/* LOAD ALL USERS WITHDRAWALS FOR OWNER WITH PAGINATION */
+window.loadAllWithdrawals = function(page=1){
   const size=10;
-  onValue(ref(db,"withdrawals"),s=>{
+  onValue(ref(db,"withdrawals"), s=>{
     let a=[],total=0;
-    s.forEach(c=>{a.push({id:c.key,...c.val()});if(c.val().status==="paid")total+=c.val().amount});
+    s.forEach(c=>{
+      a.push({id:c.key,...c.val()});
+      if(c.val().status==="paid") total+=c.val().amount;
+    });
     a.sort((x,y)=>y.time-x.time);
     const pages=Math.max(1,Math.ceil(a.length/size));
-    const slice=a.slice((p-1)*size,p*size);
-    ownerTotal.innerText="Total Paid ₱"+total.toFixed(2);
+    const slice=a.slice((page-1)*size,page*size);
+
+    ownerTotal.innerText="Total Paid: ₱"+total.toFixed(2);
     ownerTable.innerHTML=`
       <table>
-        <tr><th>User</th><th>Amount</th><th>Status</th><th>Action</th></tr>
+        <tr><th>User</th><th>Amount</th><th>GCash</th><th>Status</th><th>Action</th></tr>
         ${slice.map(w=>`
           <tr>
             <td>${w.username}</td>
             <td>₱${w.amount}</td>
+            <td>${w.gcash||""}</td>
             <td>${w.status}</td>
             <td>
               <button onclick="setWithdraw('${w.id}','paid')">Approve</button>
@@ -177,16 +184,17 @@ window.loadAllWithdrawals=p=>{
             </td>
           </tr>`).join("")}
       </table>
-      <button onclick="loadAllWithdrawals(${p-1})" ${p<=1?"disabled":""}>Prev</button>
-      ${p}/${pages}
-      <button onclick="loadAllWithdrawals(${p+1})" ${p>=pages?"disabled":""}>Next</button>`;
+      <button onclick="loadAllWithdrawals(${page-1})" ${page<=1?"disabled":""}>Prev</button>
+      ${page}/${pages}
+      <button onclick="loadAllWithdrawals(${page+1})" ${page>=pages?"disabled":""}>Next</button>
+    `;
   });
 };
 
+/* OWNER APPROVE/DENY */
 window.setWithdraw=(id,status)=>{
   get(ref(db,"withdrawals/"+id)).then(s=>{
     const d=s.val(); d.status=status;
     update(ref(db,"withdrawals/"+id),d);
-    update(ref(db,"userWithdrawals/"+d.uid+"/"+id),d);
   });
 };
