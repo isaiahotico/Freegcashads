@@ -14,103 +14,31 @@
 <script src="//libtl.com/sdk.js" data-zone="10337853" data-sdk="show_10337853"></script>
 
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:linear-gradient(135deg,#0f9d58,#1dbf73);
-  color:#fff;
-  min-height:100vh;
-}
-body.active{
-  background:linear-gradient(135deg,#ffd700,#ffb700,#ffd700);
-  background-size:300% 300%;
-  animation:shine 1.2s infinite;
-}
-@keyframes shine{
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
-}
-.header{
-  background:#111;
-  padding:12px;
-  text-align:center;
-}
+body{margin:0;font-family:Arial;background:linear-gradient(135deg,#0f9d58,#1dbf73);color:#fff}
+.header{background:#111;padding:12px;text-align:center}
 .container{padding:12px}
-button{
-  width:100%;
-  padding:12px;
-  margin:6px 0;
-  border:none;
-  border-radius:12px;
-  font-weight:bold;
-  background:linear-gradient(135deg,#1e88e5,#1565c0);
-  color:#fff;
-  cursor:pointer;
-}
-button:active{transform:scale(.96)}
+button{width:100%;padding:12px;margin:6px 0;border:none;border-radius:12px;font-weight:bold;background:#1e88e5;color:#fff;cursor:pointer}
+button:disabled{background:#555}
+.card{background:rgba(255,255,255,.15);padding:12px;border-radius:12px;margin-bottom:10px}
 .hidden{display:none}
-.card,.box{
-  background:rgba(255,255,255,.15);
-  padding:12px;
-  border-radius:12px;
-  margin-bottom:10px;
-}
-input{
-  width:100%;
-  padding:10px;
-  margin:6px 0;
-  border-radius:10px;
-  border:none;
-}
-.timer{color:#ffd700;font-weight:bold;text-align:center}
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
-}
-th,td{
-  padding:8px;
-  border-bottom:1px solid rgba(255,255,255,.25);
-  text-align:center;
-}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,.25);text-align:center}
 th{color:#ffd700}
+.timer{color:#ffd700;text-align:center;font-weight:bold;margin:8px 0}
+.nav{display:flex;justify-content:space-between;margin-bottom:6px}
+.nav button{width:48%}
 </style>
 </head>
 
 <body>
-
 <div class="header">
   <h2>PAPERHOUSE INC</h2>
-  <div id="userBar"></div>
-  <div id="balanceBar"></div>
+  <div id="userBar">👤 Guest</div>
+  <div id="balanceBar">💰 Balance: ₱0.00</div>
 </div>
 
 <div class="container">
-  <button onclick="openPage('ads')">🍍 ADS</button>
-  <button onclick="openPage('signin')">🍍 SIGN IN</button>
-  <button onclick="openPage('gift')">🎁 GIFTS</button>
-  <button onclick="openPage('withdraw')">💸 WITHDRAW</button>
+  <button onclick="openPage('ads')">🎬 ADS</button>
   <button onclick="openPage('history')">📜 HISTORY</button>
-  <button onclick="openPage('owner')">🔐 OWNER</button>
-
-  <div id="page-ads" class="hidden"></div>
-  <div id="page-signin" class="hidden"></div>
-  <div id="page-gift" class="hidden"></div>
-  <div id="page-withdraw" class="hidden"></div>
-  <div id="page-history" class="hidden"></div>
-
-  <div id="page-owner" class="hidden">
-    <input id="ownerPass" type="password" placeholder="Owner Password">
-    <button onclick="ownerLogin()">Login</button>
-    <div id="ownerPanel" class="hidden">
-      <div id="ownerTotal"></div>
-      <div id="ownerTable"></div>
-      <div id="ownerPager"></div>
-    </div>
-  </div>
-</div>
-
-<script type="module" src="app.js"></script>
-</body>
-</html>
+  <button onclick="openPage('withdraw')">💸 WITHDRAW</button>
+  <button onclick=
