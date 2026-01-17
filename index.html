@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>PAPERHOUSE INC</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<!-- Telegram -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+<!-- Ads SDK -->
 <script src="//libtl.com/sdk.js" data-zone="10276123" data-sdk="show_10276123"></script>
 <script src="//libtl.com/sdk.js" data-zone="10337795" data-sdk="show_10337795"></script>
 <script src="//libtl.com/sdk.js" data-zone="10337853" data-sdk="show_10337853"></script>
@@ -18,12 +20,11 @@ body{
   background:linear-gradient(135deg,#0f9d58,#1dbf73);
   color:#fff;
   min-height:100vh;
-  transition:.3s;
 }
 body.active{
   background:linear-gradient(135deg,#ffd700,#ffb700,#ffd700);
   background-size:300% 300%;
-  animation:shine 1.4s infinite;
+  animation:shine 1.2s infinite;
 }
 @keyframes shine{
   0%{background-position:0% 50%}
@@ -49,7 +50,7 @@ button{
 }
 button:active{transform:scale(.96)}
 .hidden{display:none}
-.card,.adBox{
+.card,.box{
   background:rgba(255,255,255,.15);
   padding:12px;
   border-radius:12px;
@@ -58,9 +59,9 @@ button:active{transform:scale(.96)}
 input{
   width:100%;
   padding:10px;
+  margin:6px 0;
   border-radius:10px;
   border:none;
-  margin:6px 0;
 }
 .timer{color:#ffd700;font-weight:bold;text-align:center}
 table{
@@ -86,30 +87,28 @@ th{color:#ffd700}
 </div>
 
 <div class="container">
+  <button onclick="openPage('ads')">🍍 ADS</button>
+  <button onclick="openPage('signin')">🍍 SIGN IN</button>
+  <button onclick="openPage('gift')">🎁 GIFTS</button>
+  <button onclick="openPage('withdraw')">💸 WITHDRAW</button>
+  <button onclick="openPage('history')">📜 HISTORY</button>
+  <button onclick="openPage('owner')">🔐 OWNER</button>
 
-<button onclick="openPage('ads')">🍍 ADS</button>
-<button onclick="openPage('signin')">🍍 SIGN IN</button>
-<button onclick="openPage('gift')">🎁 GIFTS</button>
-<button onclick="openPage('withdraw')">💸 WITHDRAW</button>
-<button onclick="openPage('history')">📜 HISTORY</button>
-<button onclick="openPage('owner')">🔐 OWNER</button>
+  <div id="page-ads" class="hidden"></div>
+  <div id="page-signin" class="hidden"></div>
+  <div id="page-gift" class="hidden"></div>
+  <div id="page-withdraw" class="hidden"></div>
+  <div id="page-history" class="hidden"></div>
 
-<div id="page-ads" class="hidden"></div>
-<div id="page-signin" class="hidden"></div>
-<div id="page-gift" class="hidden"></div>
-<div id="page-withdraw" class="hidden"></div>
-<div id="page-history" class="hidden"></div>
-
-<div id="page-owner" class="hidden">
-  <input id="ownerPass" type="password" placeholder="Owner Password">
-  <button onclick="ownerLogin()">Login</button>
-  <div id="ownerPanel" class="hidden">
-    <div id="ownerTotal"></div>
-    <div id="ownerList"></div>
-    <div id="ownerPager"></div>
+  <div id="page-owner" class="hidden">
+    <input id="ownerPass" type="password" placeholder="Owner Password">
+    <button onclick="ownerLogin()">Login</button>
+    <div id="ownerPanel" class="hidden">
+      <div id="ownerTotal"></div>
+      <div id="ownerTable"></div>
+      <div id="ownerPager"></div>
+    </div>
   </div>
-</div>
-
 </div>
 
 <script type="module" src="app.js"></script>
