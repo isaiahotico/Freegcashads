@@ -1,222 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PAPERHOUSE INC</title>
-<script src="//libtl.com/sdk.js" data-zone="10276123" data-sdk="show_10276123"></script>
-<style>
-  body { font-family: Arial, sans-serif; background:#f5f5f5; margin:0; padding:0;}
-  header { background:#ffcc00; padding:12px; text-align:center; font-size:20px; font-weight:bold;}
-  #userBar, #balanceBar { font-size:16px; margin-top:6px;}
-  .container { max-width:640px; margin:auto; padding:16px;}
-  .btn { display:block; width:100%; padding:12px; margin:8px 0; border:none; border-radius:10px; font-size:16px; cursor:pointer; background:#ff9900; color:#fff;}
-  .rewardBtn { display:none; background:green; }
-  .page, .adsPage, .withdrawPage, .adminPage { display:none; }
-  table { width:100%; border-collapse: collapse; margin-top:10px; }
-  th, td { border:1px solid #ccc; padding:8px; text-align:center; }
-  th { background:#eee; }
-  .pagination { margin:10px 0; text-align:center; }
-  .pageBtn { margin:0 3px; cursor:pointer; padding:5px 10px; background:#ff9900; color:#fff; border:none; border-radius:5px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAPERHOUSE INC - Admin Dashboard</title>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root { --primary: #fbc02d; --secondary: #333; --bg: #fffde7; --success: #4caf50; --danger: #f44336; --accent: #03a9f4; --profile-btn: #9c27b0; --leaderboard: #4caf50; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 140px; text-align: center; color: var(--secondary); }
+        #header { background: var(--secondary); color: white; padding: 15px; position: sticky; top: 0; z-index: 1000; border-bottom: 4px solid var(--primary); }
+        .page { display: none; padding: 15px; animation: fadeIn 0.2s ease-in; }
+        .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .btn { background: var(--primary); border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; margin: 10px auto; width: 90%; box-shadow: 0 4px #f57f17; display: block; font-size: 16px; color: #333; transition: 0.2s; text-decoration: none;}
+        .btn:active { transform: translateY(2px); box-shadow: 0 2px #f57f17; }
+        .btn:disabled { background: #ccc !important; box-shadow: 0 4px #999 !important; cursor: not-allowed; }
+
+        .back-btn { background: #616161 !important; color: white !important; box-shadow: 0 4px #424242 !important; margin-top: 20px; }
+        .card { background: white; border: 2px solid var(--primary); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        input, select { width: 85%; padding: 12px; margin: 8px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
+
+        .table-container { overflow-x: auto; margin-top: 15px; background: #fff; border-radius: 8px; border: 1px solid #ddd; }
+        table { width: 100%; font-size: 10px; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top;}
+        th { background: #333; color: white; }
+        .status-paid { color: green; font-weight: bold; }        .status-pending { color: orange; font-weight: bold; }
+        .status-denied { color: red; font-weight: bold; }
+
+        .pagination-controls { display: flex; justify-content: center; margin-top: 10px; gap: 10px; }
+        .pagination-controls button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 2px #0288d1;
+            transition: 0.2s;
+        }
+        .pagination-controls button:active { transform: translateY(1px); box-shadow: 0 1px #0288d1; }
+        .pagination-controls button:disabled { background: #ccc; box-shadow: 0 2px #999; cursor: not-allowed; }
+
+        #footer { position: fixed; bottom: 0; width: 100%; background: var(--secondary); color: white; padding: 12px 0; font-size: 11px; border-top: 3px solid var(--primary); z-index: 1000; }
+
+        #adminLoginPage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+        }
+        #adminLoginPage input {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
 
-<header>
-  PAPERHOUSE INC
-  <div id="userBar">👤 User: Loading...</div>
-  <div id="balanceBar">💰 Balance: ₱0.00</div>
-</header>
-
-<!-- MAIN PAGE -->
-<div class="container page mainPage">
-  <button id="adsAreaBtn" class="btn">🍍 ADS AREA 🍍</button>
-  <button id="withdrawBtn" class="btn">💸 Withdraw 💸</button>
+<div id="header">
+    <div id="adminBar">🛠 Admin Panel</div>
+    <div style="font-size: 20px; font-weight: bold; margin-top: 5px;">Admin Dashboard</div>
 </div>
 
-<!-- ADS PAGE -->
-<div class="container page adsPage">
-  <h3>🍍 Ads Tasks 🍍</h3>
-  <button id="task1" class="btn">🤑 Task #1 🤑</button>
-  <button id="claim1" class="btn rewardBtn">Claim ₱0.02</button>
+<h1 style="color:#5d4037; margin: 20px 0;">PAPERHOUSE INC - ADMIN</h1>
 
-  <button id="task2" class="btn">🤑 Task #2 🤑</button>
-  <button id="claim2" class="btn rewardBtn">Claim ₱0.02</button>
-
-  <button id="task3" class="btn">🤑 Task #3 🤑</button>
-  <button id="claim3" class="btn rewardBtn">Claim ₱0.02</button>
-  <button id="adsBackBtn" class="btn">⬅ Back</button>
+<!-- ADMIN LOGIN PAGE -->
+<div id="adminLoginPage" class="page active">
+    <h2>Admin Login</h2>
+    <input type="password" id="adminPasswordInput" placeholder="Enter Admin Password">
+    <button class="btn" onclick="loginAdmin()">Login</button>
 </div>
 
-<!-- WITHDRAW PAGE -->
-<div class="container page withdrawPage">
-  <h3>💸 Withdraw 💸</h3>
-  <input id="gcashNumber" placeholder="GCash Number" style="width:100%; padding:10px; margin:5px 0;">
-  <input id="withdrawAmount" placeholder="Amount ₱" type="number" style="width:100%; padding:10px; margin:5px 0;">
-  <button id="submitWithdraw" class="btn">Request Withdraw</button>
-  <button id="withdrawBackBtn" class="btn">⬅ Back</button>
+<!-- ADMIN DASHBOARD PAGE -->
+<div id="adminDashboardPage" class="page">
+    <h2>🛠 Admin Withdrawal Dashboard</h2>
+
+    <div id="adminWithdrawalTools">
+        <div class="card" style="background:#222; color:white;">Total Paid (All-time): PHP <span id="statPHP">0.00</span></div>
+        <div class="card" style="background:#222; color:white; margin-top: 15px;">
+            Approved Withdrawals: <span id="statApprovedCount">0</span> | Approved Amount: PHP <span id="statApprovedAmount">0.00</span>
+        </div>
+        <hr style="border-color: var(--primary); margin: 20px 0;">
+    </div>
+
+    <!-- Admin Pending Requests Table -->
+    <h3>Pending Requests (Page <span id="adminPendingCurrentPage">1</span>)</h3>
+    <div id="adminPending" class="table-container"></div>
+    <div class="pagination-controls">
+        <button id="adminPendingPrev" onclick="navigatePagination('adminPending', -1)">Previous</button>
+        <button id="adminPendingNext" onclick="navigatePagination('adminPending', 1)">Next</button>
+    </div>
+
+    <!-- Admin History Requests Table -->
+    <h3 style="margin-top: 30px;">Approved/Denied History (Page <span id="adminHistoryCurrentPage">1</span>)</h3>
+    <div id="adminHistory" class="table-container"></div>
+    <div class="pagination-controls">
+        <button id="adminHistoryPrev" onclick="navigatePagination('adminHistory', -1)">Previous</button>
+        <button id="adminHistoryNext" onclick="navigatePagination('adminHistory', 1)">Next</button>
+    </div>
+
+    <button class="btn back-btn" onclick="logoutAdmin()">⬅ Logout</button>
 </div>
 
-<!-- ADMIN PAGE -->
-<div class="container page adminPage">
-  <h3>🛠 Admin Panel 🛠</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>User</th>
-        <th>GCash #</th>
-        <th>Amount</th>
-        <th>Status</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody id="withdrawTable"></tbody>
-  </table>
-  <div class="pagination" id="pagination"></div>
+<div id="footer">
+    <div id="clock">...</div>
+    <div>&copy; 2026 PAPERHOUSE INC Admin</div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.2/firebase-app.js";
-import { getDatabase, ref, set, get, update, onValue, push } from "https://www.gstatic.com/firebasejs/10.6.2/firebase-database.js";
-
-// ================= FIREBASE =================
-const firebaseConfig = {
-  apiKey: "AIzaSyDMGU5X7BBp-C6tIl34Uuu5N9MXAVFTn7c",
-  authDomain: "paper-house-inc.firebaseapp.com",
-  projectId: "paper-house-inc",
-  storageBucket: "paper-house-inc.firebasestorage.app",
-  messagingSenderId: "658389836376",
-  appId: "1:658389836376:web:2ab1e2743c593f4ca8e02d"
-};
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// ================= TELEGRAM =================
-const tg = window.Telegram?.WebApp;
-tg?.ready();
-const tgUser = tg?.initDataUnsafe?.user;
-const username = tgUser ? `@${tgUser.username || tgUser.first_name}` : "Guest";
-document.getElementById("userBar").innerText = "👤 User: " + username;
-const userId = username.replace("@","") || "guest_" + Math.floor(Math.random()*1000);
-const balanceRef = ref(db, `users/${userId}/balance`);
-
-onValue(balanceRef, snapshot => {
-  const bal = snapshot.val() || 0;
-  document.getElementById("balanceBar").innerText = `💰 Balance: ₱${bal.toFixed(2)}`;
-});
-
-// ================= REWARD FUNCTION =================
-function rewardUser(amount){
-  get(balanceRef).then(snapshot => {
-    const bal = snapshot.val() || 0;
-    update(ref(db, `users/${userId}`), { balance: (bal + amount) });
-    alert("🎉Congratulations🎉 you earned some money!!😍🍍🎉");
-  });
-}
-
-// ================= PAGE NAVIGATION =================
-function showPage(pageClass){ document.querySelectorAll(".page").forEach(p=>p.style.display="none"); document.querySelector(pageClass).style.display="block"; }
-document.getElementById("adsAreaBtn").addEventListener("click", ()=>showPage(".adsPage"));
-document.getElementById("adsBackBtn").addEventListener("click", ()=>showPage(".mainPage"));
-document.getElementById("withdrawBtn").addEventListener("click", ()=>showPage(".withdrawPage"));
-document.getElementById("withdrawBackBtn").addEventListener("click", ()=>showPage(".mainPage"));
-
-// ================= ADS TASKS =================
-const cooldowns = {};
-function setupTask(taskBtnId, claimBtnId, showAdFunc){
-  const taskBtn = document.getElementById(taskBtnId);
-  const claimBtn = document.getElementById(claimBtnId);
-  taskBtn.addEventListener("click", ()=>{
-    showAdFunc().then(()=>{ claimBtn.style.display = "block"; });
-  });
-  claimBtn.addEventListener("click", ()=>{
-    const now = Date.now();
-    if(cooldowns[claimBtnId] && now - cooldowns[claimBtnId] < 5*60*1000){
-      alert("⏳ Wait 5 minutes before claiming again!");
-      return;
-    }
-    rewardUser(0.02);
-    cooldowns[claimBtnId] = now;
-    claimBtn.style.display = "none";
-  });
-}
-
-setupTask("task1", "claim1", ()=>show_10276123().then(()=>{}));
-setupTask("task2", "claim2", ()=>show_10337795().then(()=>{}));
-setupTask("task3", "claim3", ()=>show_10337853().then(()=>{}));
-
-show_10337853({ type:'inApp', inAppSettings:{ frequency:2, capping:0.1, interval:30, timeout:5, everyPage:false }});
-
-// ================= WITHDRAW SYSTEM =================
-document.getElementById("submitWithdraw").addEventListener("click", ()=>{
-  const gcash = document.getElementById("gcashNumber").value;
-  const amount = parseFloat(document.getElementById("withdrawAmount").value);
-  if(!gcash || !amount){ alert("Enter valid GCash number and amount."); return; }
-  get(balanceRef).then(snap=>{
-    const bal = snap.val() || 0;
-    if(amount>bal){ alert("Insufficient balance"); return; }
-    update(ref(db, `users/${userId}`), { balance: bal - amount });
-    push(ref(db,'withdrawals'), { user:userId, gcash, amount, status:"Pending", timestamp:Date.now() });
-    alert("Withdrawal requested successfully! Await admin approval.");
-  });
-});
-
-// ================= ADMIN PANEL =================
-const adminPage = document.querySelector(".adminPage");
-const withdrawTable = document.getElementById("withdrawTable");
-const itemsPerPage = 5;
-let currentPage = 1;
-let withdrawalsList = [];
-
-function renderWithdrawals(){
-  withdrawTable.innerHTML="";
-  const start = (currentPage-1)*itemsPerPage;
-  const end = start + itemsPerPage;
-  const pageItems = withdrawalsList.slice(start,end);
-  pageItems.forEach(w=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${w.user}</td>
-      <td>${w.gcash}</td>
-      <td>₱${w.amount}</td>
-      <td>${w.status}</td>
-      <td>${w.status==="Pending"?`<button class="btn" data-key="${w.key}" data-action="approve">Approve</button> <button class="btn" data-key="${w.key}" data-action="reject">Reject</button>`:""}</td>`;
-    withdrawTable.appendChild(tr);
-  });
-  renderPagination();
-  document.querySelectorAll('button[data-action]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const key = btn.dataset.key;
-      const action = btn.dataset.action;
-      update(ref(db,'withdrawals/'+key), { status: action==="approve"?"Approved":"Rejected" });
-    });
-  });
-}
-
-function renderPagination(){
-  const pagination = document.getElementById("pagination");
-  pagination.innerHTML="";
-  const totalPages = Math.ceil(withdrawalsList.length/itemsPerPage);
-  for(let i=1;i<=totalPages;i++){
-    const btn = document.createElement("button");
-    btn.innerText = i;
-    btn.className="pageBtn";
-    if(i===currentPage) btn.style.background="#00cc00";
-    btn.addEventListener("click", ()=>{ currentPage=i; renderWithdrawals(); });
-    pagination.appendChild(btn);
-  }
-}
-
-// Load withdrawals real-time
-onValue(ref(db,'withdrawals'), snap=>{
-  const data = snap.val() || {};
-  withdrawalsList = Object.keys(data).map(k=>({...data[k], key:k}));
-  renderWithdrawals();
-});
-
-// Admin access toggle (example: username "admin")
-if(userId==="admin"){ showPage(".adminPage"); }else{ showPage(".mainPage"); }
-
-</script>
+<script src="admin.js"></script>
 </body>
 </html>
