@@ -1,441 +1,212 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAPERHOUSE INC</title>
-    
-    <!-- External SDKs & Styles -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-    
-    <style>
-        :root {
-            --sky-blue: #87CEEB;
-            --dark-blue: #0B132B;
-            --light-blue: #5E60CE;
-            --yellow-green: #9ACD32;
-            --classical-yellow: #FFD700;
-            --neon-blue: #00f3ff;
-            --light-grey: #bdc3c7;
-            --dark-grey: #7f8c8d;
-            --red: #e74c3c;
-            --green: #2ecc71;
-            --pending-yellow: #f1c40f;
-            --pending-blue: #3498db;
-        }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PAPERHOUSE INC - Ads & Wallet</title>
 
-        body {
-            margin: 0; padding: 0;
-            font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: var(--sky-blue);
-            transition: background 0.5s;
-            text-align: center;
-            min-height: 100vh;
-            display: flex; flex-direction: column;
-            overflow-x: hidden;
-            color: #333;
-        }
+<!-- Telegram WebApp -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-        body.rainbow { animation: rainbowBG 10s infinite linear; }
-        @keyframes rainbowBG {
-            0% { background: #ff0000; } 16% { background: #ff8800; }
-            33% { background: #ffff00; } 50% { background: #00ff00; }
-            66% { background: #0000ff; } 83% { background: #8b00ff; }
-            100% { background: #ff0000; }
-        }
+<!-- Monetag / Libtl SDKs (пример) -->
+<script src="//libtl.com/sdk.js" data-zone="10276123" data-sdk="show_10276123"></script>
+<script src="//libtl.com/sdk.js" data-zone="10337795" data-sdk="show_10337795"></script>
+<script src="//libtl.com/sdk.js" data-zone="10337853" data-sdk="show_10337853"></script>
 
-        /* --- UI Components --- */
-        .top-bar {
-            background: rgba(0,0,0,0.8); color: white; padding: 8px 15px;
-            display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        #userBar { font-weight: bold; font-size: 1em; }
-        #balanceDisplay { font-weight: 800; font-size: 1.2em; color: var(--neon-blue); }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
-        .btn {
-            background-color: var(--yellow-green); color: #2c3e50;
-            border: none; padding: 12px 20px; font-size: 16px;
-            border-radius: 10px; cursor: pointer; margin: 8px auto;
-            font-weight: bold; transition: all 0.2s ease;            box-shadow: 0 4px 0px #6b8e23; display: block; width: 85%; max-width: 400px;
-        }
-        .btn:hover { filter: brightness(1.1); }
-        .btn:active {
-            transform: translateY(3px); box-shadow: 0 1px 0px #b8860b;
-        }
-        .btn:disabled {
-            background-color: var(--light-grey); box-shadow: 0 4px 0px var(--dark-grey); cursor: not-allowed;
-        }
-        .btn.small { padding: 5px 15px; font-size: 14px; width: auto; display: inline-block; margin: 5px; }
-        .btn.red { background: var(--red); box-shadow: 0 4px 0px #c0392b; }
-        .btn.red:active { box-shadow: 0 1px 0px #e74c3c; }
-        .btn.green { background: var(--green); box-shadow: 0 4px 0px #27ae60; }
-        .btn.green:active { box-shadow: 0 1px 0px #2ecc71; }
-        .btn.pending { background: var(--pending-yellow); box-shadow: 0 4px 0px #f39c12; }
-        .btn.pending:active { box-shadow: 0 1px 0px #f1c40f; }
-        .btn.approve { background: var(--green); box-shadow: 0 4px 0px var(--green); }
-        .btn.approve:active { box-shadow: 0 1px 0px var(--green); }
-        .btn.deny { background: var(--red); box-shadow: 0 4px 0px var(--red); }
-        .btn.deny:active { box-shadow: 0 1px 0px var(--red); }
-
-        .page { display: none; padding: 15px; animation: fadeIn 0.5s; }
-        .active-page { display: block; }
-
-        .card {
-            background: rgba(255,255,255,0.8); border-radius: 15px;
-            padding: 15px; margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); backdrop-filter: blur(3px);
-        }
-        .card-title { font-size: 1.4em; font-weight: bold; margin-bottom: 15px; color: var(--light-blue); }
-        .section-title { font-size: 1.8em; font-weight: bold; margin: 20px 0 15px 0; color: var(--dark-blue); text-shadow: 1px 1px var(--sky-blue); }
-
-        /* --- Animations for Rewards --- */
-        .reward-popup {
-            position: fixed; top: 50%; left: 50%; z-index: 1000;
-            padding: 20px 30px; border-radius: 20px;
-            color: white; font-weight: bold; font-size: 22px;
-            text-align: center; display: none;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-        }        .anim-1 { background: linear-gradient(45deg, #FFD700, #FFA500); animation: bounceIn 1s forwards; }
-        .anim-2 { background: #000; color: #0f0; animation: glitch 1s forwards infinite alternate; } /* Needs custom CSS */
-        @keyframes glitch { from { text-shadow: 0 0 10px #0f0, 0 0 20px #0f0; } to { text-shadow: 0 0 5px #0f0, 0 0 15px #0f0; } }
-        .anim-3 { background: #ff0080; animation: pulse 1s forwards; }
-        .anim-4 { background: #fff; color: #333; animation: float 2s ease-in-out infinite; border-radius: 50%; } /* Needs custom CSS */
-        @keyframes float { 0% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -55%) scale(1.05); } 100% { transform: translate(-50%, -50%) scale(1); } }
-        .anim-5 { background: linear-gradient(to right, #6a11cb, #2575fc); animation: zoomIn 1s forwards; }
-
-        /* --- Withdrawal --- */
-        .withdraw-section { display: flex; flex-direction: column; gap: 15px; }
-        .input-group { display: flex; flex-direction: column; align-items: flex-start; }
-        .input-group label { margin-bottom: 5px; font-weight: bold; }
-        .input-group input, .input-group select {
-            width: calc(100% - 20px); padding: 10px; border-radius: 10px;
-            border: 1px solid #ccc; font-size: 1em;
-        }
-        .history-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .history-table th, .history-table td { padding: 10px; border: 1px solid #ddd; text-align: left; }
-        .history-table th { background:var(--light-blue); color: white; }
-        .history-table tr:nth-child(even) { background: #f9f9f9; }
-        .status-pending { color: var(--pending-yellow); font-weight: bold; }
-        .status-approved { color: var(--green); font-weight: bold; }
-        .status-denied { color: var(--red); font-weight: bold; }
-        .status-paid { color: var(--light-blue); font-weight: bold; }
-        .dash-status { padding: 5px 10px; border-radius: 5px; color: white; font-weight: bold; font-size: 0.9em; }
-        .dash-status.pending { background: var(--pending-blue); }
-        .dash-status.approved { background: var(--green); }
-        .dash-status.denied { background: var(--red); }
-        .dash-status.paid { background: var(--light-blue); }
-
-        /* --- Topics --- */
-        #topicsList { text-align: left; }
-        .topic-item, .reply-item { background: rgba(255,255,255,0.6); margin-bottom: 10px; padding: 10px; border-radius: 10px; text-align: left; }
-        .topic-item strong { color: var(--light-blue); }
-        .reply-input { display: flex; gap: 10px; margin-top: 10px; }
-        .topic-meta { font-size: 0.8em; color: grey; margin-top: 5px; }
-
-        /* --- Chat --- */
-        #chatBox { height: 400px; overflow-y: scroll; border: 1px solid #eee; margin-bottom: 10px; padding: 10px; background: #fff; }
-        .message { margin-bottom: 15px; padding: 10px; border-radius: 10px; max-width: 80%; }
-        .message.sent { background: #e7f3ff; margin-left: auto; }
-        .message.received { background: #f1f0f0; margin-right: auto; }
-        .message-meta { font-size: 0.7em; color: grey; }
-        .chat-input-area { display: flex; gap: 10px; }
-        .chat-input-area input { flex-grow: 1; padding: 10px; border-radius: 10px; border: 1px solid #ccc; }
-
-        /* --- Profile --- */
-        .profile-info div { margin-bottom: 10px; text-align: left; }
-        .profile-info strong { color: var(--light-blue); min-width: 150px; display: inline-block; }
-
-        /* --- Leaderboards --- */
-        .leaderboard-table th, .leaderboard-table td { padding: 8px 12px; }
-        .leaderboard-table tr:nth-child(odd) { background: rgba(255,255,255,0.5); }
-        .leaderboard-table tr:nth-child(even) { background: rgba(255,255,255,0.8); }
-
-        /* --- Owner Dashboard --- */
-        #ownerPasswordInput { width: 60%; padding: 10px; margin: 10px; }
-        #ownerDashboard { background: #f0f0f0; padding: 20px; border-radius: 15px; }
-        #ownerDashboard.hidden { display: none; }
-        .dash-section { margin-bottom: 30px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .dash-section-title { font-size: 1.3em; font-weight: bold; margin-bottom: 15px; color: var(--dark-blue); border-bottom: 2px solid var(--sky-blue); padding-bottom: 5px; }
-
-        footer { margin-top: auto; padding: 15px; font-size: 0.85em; background: rgba(0,0,0,0.08); color: #555; }
-    </style>
+<style>
+  :root {
+    --bg: skyblue;
+    --btn: #9acd32;
+    --btn-act: #f3e500;
+    --card-bg: rgba(255,255,255,0.9);
+  }
+  body { margin:0; font-family: Inter, Roboto, sans-serif; background:var(--bg); }
+  header { padding:14px; text-align:center; color:#003; font-weight:800; font-size:20px; }
+  .container { max-width:980px; margin:0 auto; padding:12px; }
+  .user-card { background:var(--card-bg); border-radius:12px; padding:12px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+  .btn { background:var(--btn); border:none; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700; box-shadow:0 3px #6b8e23; margin:6px 0; }
+  .btn:active { background:var(--btn-act); transform:translateY(2px); box-shadow:0 1px #6b8e23; }
+  nav { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
+  section { display:none; }
+  section.active { display:block; }
+  .card { background:var(--card-bg); padding:12px; border-radius:12px; margin-bottom:10px; }
+  input, select, textarea { width:100%; padding:10px; border-radius:10px; border:1px solid #ddd; box-sizing:border-box; }
+  table { width:100%; border-collapse:collapse; }
+  td, th { padding:8px; border-bottom:1px solid #eee; text-align:left; }
+  .small { font-size:12px; color:#666; }
+  .hidden { display:none; }
+  .modal { position:fixed; inset:0; display:flex; justify-content:center; align-items:center; background:rgba(0,0,0,0.4); z-index:2000; }
+  .modal .box { background:white; padding:20px; border-radius:12px; width:90%; max-width:600px; }
+  .link { color:blue; text-decoration:underline; cursor:pointer; }
+</style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <span id="userBar">👤 Loading...</span>
-        <span id="balanceDisplay">₱0.00</span>
+<header>PAPERHOUSE INC — Ads & Wallet</header>
+
+<div class="container">
+  <div class="user-card">
+    <div>
+      <div id="userBar">👤 User: Loading...</div>      <div id="usernameSmall" class="small"></div>
     </div>
-
-    <!-- Main Menu -->
-    <div id="mainPage" class="page active-page">
-        <h1>PAPERHOUSE INC</h1>
-        <button class="btn" onclick="showPage('adsPage')">📺 Ads Area</button>
-        <button class="btn" onclick="showPage('withdrawPage')">💰 Withdraw</button>
-        <button class="btn" onclick="showPage('referralsPage')">🤝 Referrals</button>
-        <button class="btn" onclick="showPage('chatPage')">💬 Chat Room</button>
-        <button class="btn" onclick="showPage('profilePage')">👤 Profile</button>
-        <button class="btn" onclick="showPage('leaderboardPage')">🏆 Leaderboards</button>
-        <button class="btn" onclick="showPage('topicsPage')">💡 Topics Forum</button>
-        <button class="btn" onclick="showPage('helpPage')">❓ Help & Links</button>
-        <button class="btn" onclick="showOwnerDashboard()">🔑 Owner Dashboard</button>
+    <div style="text-align:right;">
+      <div id="balanceDisplay" style="font-weight:800; font-size:18px;">₱0.00</div>
+      <div class="small">Total earned: <span id="totalEarned">₱0.00</span></div>
     </div>
+  </div>
 
-    <!-- Ads Area -->
-    <div id="adsPage" class="page">
-        <h2 class="section-title">📺 Ads Area</h2>
-        <div class="card">
-            <button id="btn-task1" class="btn" onclick="triggerAd(1)">🤑 Task #1 🤑</button>
-            <div id="cooldown-task1"></div>
-            <button id="claim-task1" class="btn red" style="display:none;" onclick="claimReward(1)">Claim ₱0.02</button>
-        </div>
-        <div class="card">
-            <button id="btn-task2" class="btn" onclick="triggerAd(2)">🤑 Task #2 🤑</button>
-            <div id="cooldown-task2"></div>
-            <button id="claim-task2" class="btn red" style="display:none;" onclick="claimReward(2)">Claim ₱0.02</button>
-        </div>
-        <div class="card">
-            <button id="btn-task3" class="btn" onclick="triggerAd(3)">🤑 Task #3 🤑</button>
-            <div id="cooldown-task3"></div>
-            <button id="claim-task3" class="btn red" style="display:none;" onclick="claimReward(3)">Claim ₱0.02</button>
-        </div>
-        <div class="card">
-            <button id="btn-task4" class="btn" onclick="triggerAd(4)">✨ Random Task ✨</button>
-            <div id="cooldown-task4"></div>
-            <button id="claim-task4" class="btn red" style="display:none;" onclick="claimReward(4)">Claim ₱0.02</button>
-        </div>
-        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+  <nav>
+    <button class="btn" onclick="openSection('ads')">🍍 Ads Area</button>
+    <button class="btn" onclick="openSection('signin')">🍍 Sign In</button>
+    <button class="btn" onclick="openSection('gift')">🎁 Gift</button>
+    <button class="btn" onclick="openSection('withdraw')">💸 Withdrawal</button>
+    <button class="btn" onclick="openSection('referrals')">🔗 Referrals</button>
+    <button class="btn" onclick="openSection('chat')">💬 Chat</button>
+    <button class="btn" onclick="openSection('profile')">👤 Profile</button>
+    <button class="btn" onclick="openSection('leaders')">🏆 Top Earners</button>
+    <button class="btn" onclick="openSection('adsleaders')">🎯 Ads Leaderboard</button>
+    <button class="btn" onclick="openSection('help')">❓ Help</button>
+    <button class="btn" onclick="openOwner()">🔒 Owner Dashboard</button>
+  </nav>
+
+  <!-- ADS / tasks (упрощённо, реализуй детали монетизации) -->
+  <section id="ads" class="active">
+    <div class="card">
+      <h3>Ads Area — небольшие задания</h3>
+      <div id="adsList"></div>
     </div>
+  </section>
 
-    <!-- Withdrawal -->
-    <div id="withdrawPage" class="page">
-        <h2 class="section-title">💰 Withdraw Funds</h2>
-        <div class="card">
-            <div class="withdraw-section">
-                <div class="input-group">
-                    <label>Your Balance:</label>
-                    <span id="withdrawBalance" style="font-weight:bold; font-size:1.3em; color:var(--neon-blue);"></span>
-                </div>
-                <div class="input-group">
-                    <label>Withdrawal Method:</label>
-                    <select id="withdrawMethod">
-                        <option value="gcash">GCash</option>
-                        <option value="FaucetPay">FaucetPay (USDT)</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>GCash Number:</label>
-                    <input type="text" id="gcashNumber" placeholder="Enter your GCash number">
-                </div>
-                <div class="input-group">
-                    <label>FaucetPay Email (for USDT):</label>
-                    <input type="email" id="faucetPayEmail" placeholder="Enter your FaucetPay email">
-                </div>
-                <div class="input-group">
-                    <label>Amount to Withdraw (₱):</label>
-                    <input type="number" id="withdrawAmount" placeholder="Min ₱5.00" min="5" step="0.01">
-                </div>
-                <button class="btn green" onclick="requestWithdrawal()">Request Withdrawal</button>
-            </div>
-        </div>
-        <h3 style="margin-top: 20px;">Withdrawal History</h3>
-        <div id="withdrawalHistoryContainer">
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Method</th>
-                        <th>Amount (₱)</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="withdrawalHistoryBody">
-                    <!-- History will be loaded here -->
-                    <tr><td colspan="5" style="text-align:center;">Loading history...</td></tr>
-                </tbody>
-            </table>
-            <div id="historyPagination" style="margin-top: 10px;">
-                <button class="btn small" onclick="changeWithdrawalPage(-1)">Prev</button>
-                <span id="historyPageInfo">Page 1</span>
-                <button class="btn small" onclick="changeWithdrawalPage(1)">Next</button>
-            </div>
-        </div>
-        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+  <!-- SIGN IN area -->
+  <section id="signin">
+    <div class="card">
+      <h3>Sign In Area — задания (₱0.025)</h3>
+      <div id="signinList"></div>
     </div>
+  </section>
 
-    <!-- Referrals -->
-    <div id="referralsPage" class="page">
-        <h2 class="section-title">🤝 Referrals</h2>
-        <div class="card">
-            <p>Share your unique referral code!</p>
-            <div style="background: #eee; padding: 15px; border-radius: 10px; font-size: 1.5em; font-weight: bold; margin: 15px 0;">
-                <span id="referralCode">Loading...</span>
-            </div>
-            <button class="btn small" onclick="copyReferralCode()">Copy Code</button>
-            <p>When someone uses your code and earns, you get 10% bonus!</p>
-            <p>Total Referrals: <strong id="totalReferrals">0</strong></p>
-            <p>Claimable Bonus: <strong id="claimableBonus">₱0.000</strong></p>
-            <button class="btn small green" id="claimReferralBonusBtn" onclick="claimReferralBonus()" disabled>Claim Bonus</button>
-        </div>
-        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+  <!-- GIFT area -->
+  <section id="gift">
+    <div class="card">
+      <h3>Gift Area — всплывающие награды (₱0.02)</h3>
+      <div id="giftList"></div>
     </div>
+  </section>
 
-    <!-- Chat -->
-    <div id="chatPage" class="page">
-        <h2 class="section-title">💬 Chat Room</h2>
-        <div class="card">
-            <div id="chatBox">
-                <div style="padding: 50px; color: var(--dark-grey);">Loading messages...</div>
-            </div>
-            <div class="chat-input-area">
-                <input type="text" id="messageInput" placeholder="Type your message...">
-                <button class="btn green small" onclick="sendMessage()">Send</button>
-            </div>
-            <div id="chatCooldown" style="margin-top: 10px; font-size: 0.9em; color: var(--red);"></div>
+  <!-- Withdrawal -->
+  <section id="withdraw">
+    <div class="card">
+      <h3>Withdraw — Вывод средств</h3>
+
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:260px;">
+          <h4>GCash</h4>
+          <div class="small">Баланс: ₱<span id="gcashBalance">0.00</span></div>
+          <input id="gcashNumber" placeholder="GCash номер (09xxxxxxxxx)" />
+          <input id="gcashAmount" placeholder="Сумма к выводу (₱)" />          <button class="btn" onclick="requestWithdraw('gcash')">Вывести на GCash</button>
         </div>
-        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+
+        <div style="flex:1; min-width:260px;">
+          <h4>FaucetPay (USDT)</h4>
+          <div class="small">Баланс: ₱<span id="faucetBalance">0.00</span></div>
+          <input id="faucetEmail" placeholder="FaucetPay email" />
+          <input id="faucetAmount" placeholder="Сумма в ₱ (будет конвертирована)" />
+          <button class="btn" onclick="requestWithdraw('faucet')">Вывести на FaucetPay</button>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <h4>История заявок</h4>
+        <div id="withdrawHistory"></div>
+        <div style="margin-top:6px;">
+          <button class="btn" id="prevWithdraw" onclick="paginateWithdraw(-1)">◀ Prev</button>
+          <button class="btn" id="nextWithdraw" onclick="paginateWithdraw(1)">Next ▶</button>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <!-- Profile -->
-    <div id="profilePage" class="page">
-        <h2 class="section-title">👤 User Profile</h2>
-        <div class="card profile-info">
-            <div><strong>Username:</strong> <span id="profileUsername"></span></div>
-            <div><strong>Total Referrals:</strong> <span id="profileTotalReferrals"></span></div>
-            <div><strong>Total Ads Watched:</strong> <span id="profileTotalAds"></span></div>
-            <div><strong>Rewards (Day):</strong> <span id="profileRewardDay"></span></div>
-            <div><strong>Rewards (Week):</strong> <span id="profileRewardWeek"></span></div>
-            <div><strong>Rewards (Overall):</strong> <span id="profileRewardOverall"></span></div>
-            <div><strong>Messages Sent:</strong> <span id="profileMessagesSent"></span></div>
-            <button class="btn small" id="messageUserBtn" onclick="messageUser()">Message User</button>
-        </div>
-         <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+  <!-- Referrals -->
+  <section id="referrals">
+    <div class="card">
+      <h3>Referrals</h3>
+      <div class="small">Вставь реферал (реальный telegram username) — 10% бонус от наград реферала</div>
+      <input id="referralInput" placeholder="@telegram_username" />
+      <button class="btn" onclick="setReferral()">Set Referral</button>
+      <div style="margin-top:8px;">Total referrals: <span id="refCount">0</span></div>
+      <div style="margin-top:8px;">
+        Claimable referral bonus: ₱<span id="refBonus">0.00</span><button class="btn" onclick="claimReferralBonus()">Claim Bonus</button>
+      </div>
     </div>
+  </section>
 
-    <!-- Leaderboards -->
-    <div id="leaderboardPage" class="page">
-        <h2 class="section-title">🏆 Leaderboards</h2>
-        <div class="card">
-            <h3>Top Earners (This Week)</h3>
-            <table class="history-table leaderboard-table">
-                <thead><tr><th>Rank</th><th>User</th><th>Total Earned (₱)</th></tr></thead>
-                <tbody id="earnerLeaderboardBody"></tbody>
-            </table>
-            <div id="earnerPagination" class="pagination"></div>
-        </div>
-        <div class="card">
-            <h3>Top Ads Watchers (This Week)</h3>
-            <table class="history-table leaderboard-table">
-                <thead><tr><th>Rank</th><th>User</th><th>Ads Watched</th></tr></thead>
-                <tbody id="adsLeaderboardBody"></tbody>
-            </table>
-             <div id="adsPagination" class="pagination"></div>
-            <div id="adsLeaderboardBonus" style="margin-top: 15px; font-weight: bold; color: var(--green);"></div>
-        </div>
-        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+  <!-- Chat -->
+  <section id="chat">
+    <div class="card">
+      <h3>CHAT (публичный)</h3>
+      <div class="small">Cooldown отправки: 4 минуты. Отправка сообщений запускает рекламу и награждает ₱0.02.</div>
+      <div id="chatMessages" style="max-height:360px; overflow:auto; border:1px solid #eee; padding:8px; margin-bottom:8px;"></div>
+      <input id="chatInput" placeholder="Написать сообщение..." />
+      <button class="btn" onclick="sendChatMessage()">Send (rewarded ad)</button>
+      <div style="margin-top:8px;"><button class="btn" onclick="loadMoreChat()">Load more</button></div>
     </div>
+  </section>
 
-    <!-- Topics -->
-    <div id="topicsPage" class="page">
-        <h2 class="section-title">💡 Community Topics</h2>
-        <div class="card">
-            <input type="text" id="topicInput" placeholder="Enter your topic title..." style="width: calc(100% - 120px); padding: 10px; border-radius: 10px; border: 1px solid #ccc;">
-            <button class="btn green small" onclick="postTopic()">Post Topic</button>
-        </div>
-        <div id="topicsList"></div>
-        <div id="topicPagination" class="pagination" style="margin-top: 15px;">
-            <button class="btn small" onclick="changeTopicPage(-1)">Prev</button>
-            <span id="topicPageInfo">Page 1</span>
-            <button class="btn small" onclick="changeTopicPage(1)">Next</button>
-        </div>
-        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+  <!-- Profile -->
+  <section id="profile">
+    <div class="card">
+      <h3>Profile</h3>
+      <div>Username: <span id="profileUsername">—</span></div>
+      <div>Total referrals: <span id="profileRefCount">0</span></div>
+      <div>Total ads watched: <span id="profileAdsCount">0</span></div>
+      <div>Ads/day: <span id="adsDay">0</span>, week: <span id="adsWeek">0</span>, all: <span id="adsAll">0</span></div>
     </div>
+  </section>
 
-    <!-- Help -->
-    <div id="helpPage" class="page">
-        <h2 class="section-title">❓ Help & Links</h2>
-        <div class="card">
-            <p>Follow us for updates:</p>
-            <button class="btn small" onclick="window.open('https://t.me/paperhouseinc', '_blank')">Telegram Group</button>
-            <button class="btn small" onclick="window.open('https://t.me/PAPERHOUSE_INC', '_blank')">Telegram Channel</button>
-            <button class="btn small" onclick="window.open('https://facebook.com/groups/1193693469083843/', '_blank')">Facebook Group</button>
-            <button class="btn small" onclick="window.open('https://www.facebook.com/profile.php?id=61586281245735', '_blank')">Facebook Page</button>
-            <p>If you have any issues, please contact support.</p>
-        </div>
-        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+  <!-- Leaderboards -->
+  <section id="leaders">
+    <div class="card">
+      <h3>Top Earners (real-time)</h3>
+      <div id="leadersTable"></div>
     </div>
+  </section>
 
-    <!-- Owner Dashboard -->
-    <div id="ownerPasswordPage" class="page">
-        <h2 class="section-title">🔑 Owner Access</h2>
-        <div class="card">
-            <input type="password" id="ownerPasswordInput" placeholder="Enter Password">
-            <button class="btn" onclick="checkOwnerPassword()">Access Dashboard</button>
-        </div>
-        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+  <section id="adsleaders">
+    <div class="card">
+      <h3>Ads Leaderboard (by ads watched)</h3>
+      <div id="adsLeadersTable"></div>
+      <div class="small">Top 5 weekly auto-bonus: ₱10 when reset (owner must run weekly payout or enable cron Cloud Function)</div>
+      <button class="btn" onclick="runWeeklyPayout()">Run weekly payout (owner)</button>
     </div>
+  </section>
 
-    <div id="ownerDashboard" class="hidden">
-        <h2 class="section-title">📊 Owner Dashboard</h2>
-        
-        <div class="dash-section">
-            <h3 class="dash-section-title">Withdrawal Requests <span style="font-size:0.7em;">(Pending First)</span></h3>
-            <p>Total Approved Withdrawals: <strong id="totalApprovedWithdrawals">₱0.00</strong></p>
-            <table class="history-table">
-                <thead>
-                    <tr>
-                        <th>User</th><th>Method</th><th>Amount</th><th>Date</th><th>Status</th><th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="ownerWithdrawalBody"><tr><td colspan="6" style="text-align:center;">Loading requests...</td></tr>
-                </tbody>
-            </table>
-            <div id="ownerWithdrawalPagination" style="margin-top: 10px;"></div>
-        </div>
-
-        <div class="dash-section">
-            <h3 class="dash-section-title">User Topics</h3>
-            <table class="history-table">
-                <thead><tr><th>User</th><th>Topic Title</th><th>Date</th><th>Actions</th></tr></thead>
-                <tbody id="ownerTopicsBody"></tbody>
-            </table>
-            <div id="ownerTopicsPagination" style="margin-top: 10px;"></div>
-        </div>
-        
-        <div class="dash-section">
-            <h3 class="dash-section-title">User Messages</h3>
-            <table class="history-table">
-                <thead><tr><th>User</th><th>Message</th><th>Date</th><th>Actions</th></tr></thead>
-                <tbody id="ownerMessagesBody"></tbody>
-            </table>
-             <div id="ownerMessagesPagination" style="margin-top: 10px;"></div>
-        </div>
-
-        <button class="btn small" onclick="hideOwnerDashboard()">Hide Dashboard</button>
+  <!-- Help -->
+  <section id="help">
+    <div class="card">
+      <h3>Help & Links</h3>
+      <div><a class="link" href="https://t.me/paperhouseinc" target="_blank">Telegram Group</a></div>
+      <div><a class="link" href="https://t.me/PAPERHOUSE_INC" target="_blank">Telegram Channel</a></div>
+      <div><a class="link" href="https://facebook.com/groups/1193693469083843/" target="_blank">Facebook Group</a></div>
+      <div><a class="link" href="https://www.facebook.com/profile.php?id=61586281245735" target="_blank">Facebook Page</a></div>
     </div>
+  </section>
 
+  <!-- OWNER MODAL -->
+  <div id="ownerModal" class="modal hidden">
+    <div class="box">
+      <h3>Owner Dashboard — Approval</h3>
+      <div id="ownerContent"></div>
+      <div style="margin-top:8px;">
+        <button class="btn" onclick="closeOwner()">Close</button>
+      </div>
+    </div>
+  </div>
 
-    <!-- REWARD POPUP -->
-    <div id="rewardPopup" class="reward-popup"></div>
+</div>
 
-    <footer>
-        <div id="footerTime"></div>
-        <div>PAPERHOUSE INC | otico.isai2@gmail.com</div>
-    </footer>
-
-    <!-- APP LOGIC -->
-    <script type="module" src="app.js"></script>
-    <script>
-        // Placeholder for Monetag Functions (Real ones come from your external scripts)
-        // Ensure these are loaded via <script src='//libtl.com/sdk.js' ...> in index.html <head>
-        window.show_10276123 = window.show_10276123 || (() => Promise.resolve());
-        window.show_10337795 = window.show_10337795 || (() => Promise.resolve());
-        window.show_10337853 = window.show_10337853 || (() => Promise.resolve());
-    </script>
+<!-- Скрипт приложения -->
+<script type="module" src="app.js"></script>
 </body>
 </html>
