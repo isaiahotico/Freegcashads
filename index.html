@@ -3,103 +3,439 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FREEGCASH APP</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>PAPERHOUSE INC</title>
     
-    <!-- Monetag SDKs -->
-    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
-
+    <!-- External SDKs & Styles -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+    
     <style>
-        body { background-color: #0b0f1a; color: white; font-family: 'Inter', sans-serif; }
-        .btn-gold { background: linear-gradient(to bottom, #facc15, #eab308); color: #000; font-weight: 800; padding: 14px; border-radius: 12px; width: 100%; margin-top: 12px; border: 1px solid #fde047; box-shadow: 0 4px 0 #854d0e; transition: all 0.1s; }
-        .btn-gold:active { transform: translateY(2px); box-shadow: 0 2px 0 #854d0e; }
-        .btn-gold:disabled { background: #334155; color: #64748b; box-shadow: none; border: none; }
-        .page { display: none; padding: 20px; padding-bottom: 100px; }
-        .active { display: block; }
-        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); padding: 18px; border-radius: 16px; margin-bottom: 16px; }
+        :root {
+            --sky-blue: #87CEEB;
+            --dark-blue: #0B132B;
+            --light-blue: #5E60CE;
+            --yellow-green: #9ACD32;
+            --classical-yellow: #FFD700;
+            --neon-blue: #00f3ff;
+            --light-grey: #bdc3c7;
+            --dark-grey: #7f8c8d;
+            --red: #e74c3c;
+            --green: #2ecc71;
+            --pending-yellow: #f1c40f;
+            --pending-blue: #3498db;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--sky-blue);
+            transition: background 0.5s;
+            text-align: center;
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            overflow-x: hidden;
+            color: #333;
+        }
+
+        body.rainbow { animation: rainbowBG 10s infinite linear; }
+        @keyframes rainbowBG {
+            0% { background: #ff0000; } 16% { background: #ff8800; }
+            33% { background: #ffff00; } 50% { background: #00ff00; }
+            66% { background: #0000ff; } 83% { background: #8b00ff; }
+            100% { background: #ff0000; }
+        }
+
+        /* --- UI Components --- */
+        .top-bar {
+            background: rgba(0,0,0,0.8); color: white; padding: 8px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        #userBar { font-weight: bold; font-size: 1em; }
+        #balanceDisplay { font-weight: 800; font-size: 1.2em; color: var(--neon-blue); }
+
+        .btn {
+            background-color: var(--yellow-green); color: #2c3e50;
+            border: none; padding: 12px 20px; font-size: 16px;
+            border-radius: 10px; cursor: pointer; margin: 8px auto;
+            font-weight: bold; transition: all 0.2s ease;            box-shadow: 0 4px 0px #6b8e23; display: block; width: 85%; max-width: 400px;
+        }
+        .btn:hover { filter: brightness(1.1); }
+        .btn:active {
+            transform: translateY(3px); box-shadow: 0 1px 0px #b8860b;
+        }
+        .btn:disabled {
+            background-color: var(--light-grey); box-shadow: 0 4px 0px var(--dark-grey); cursor: not-allowed;
+        }
+        .btn.small { padding: 5px 15px; font-size: 14px; width: auto; display: inline-block; margin: 5px; }
+        .btn.red { background: var(--red); box-shadow: 0 4px 0px #c0392b; }
+        .btn.red:active { box-shadow: 0 1px 0px #e74c3c; }
+        .btn.green { background: var(--green); box-shadow: 0 4px 0px #27ae60; }
+        .btn.green:active { box-shadow: 0 1px 0px #2ecc71; }
+        .btn.pending { background: var(--pending-yellow); box-shadow: 0 4px 0px #f39c12; }
+        .btn.pending:active { box-shadow: 0 1px 0px #f1c40f; }
+        .btn.approve { background: var(--green); box-shadow: 0 4px 0px var(--green); }
+        .btn.approve:active { box-shadow: 0 1px 0px var(--green); }
+        .btn.deny { background: var(--red); box-shadow: 0 4px 0px var(--red); }
+        .btn.deny:active { box-shadow: 0 1px 0px var(--red); }
+
+        .page { display: none; padding: 15px; animation: fadeIn 0.5s; }
+        .active-page { display: block; }
+
+        .card {
+            background: rgba(255,255,255,0.8); border-radius: 15px;
+            padding: 15px; margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); backdrop-filter: blur(3px);
+        }
+        .card-title { font-size: 1.4em; font-weight: bold; margin-bottom: 15px; color: var(--light-blue); }
+        .section-title { font-size: 1.8em; font-weight: bold; margin: 20px 0 15px 0; color: var(--dark-blue); text-shadow: 1px 1px var(--sky-blue); }
+
+        /* --- Animations for Rewards --- */
+        .reward-popup {
+            position: fixed; top: 50%; left: 50%; z-index: 1000;
+            padding: 20px 30px; border-radius: 20px;
+            color: white; font-weight: bold; font-size: 22px;
+            text-align: center; display: none;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }        .anim-1 { background: linear-gradient(45deg, #FFD700, #FFA500); animation: bounceIn 1s forwards; }
+        .anim-2 { background: #000; color: #0f0; animation: glitch 1s forwards infinite alternate; } /* Needs custom CSS */
+        @keyframes glitch { from { text-shadow: 0 0 10px #0f0, 0 0 20px #0f0; } to { text-shadow: 0 0 5px #0f0, 0 0 15px #0f0; } }
+        .anim-3 { background: #ff0080; animation: pulse 1s forwards; }
+        .anim-4 { background: #fff; color: #333; animation: float 2s ease-in-out infinite; border-radius: 50%; } /* Needs custom CSS */
+        @keyframes float { 0% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -55%) scale(1.05); } 100% { transform: translate(-50%, -50%) scale(1); } }
+        .anim-5 { background: linear-gradient(to right, #6a11cb, #2575fc); animation: zoomIn 1s forwards; }
+
+        /* --- Withdrawal --- */
+        .withdraw-section { display: flex; flex-direction: column; gap: 15px; }
+        .input-group { display: flex; flex-direction: column; align-items: flex-start; }
+        .input-group label { margin-bottom: 5px; font-weight: bold; }
+        .input-group input, .input-group select {
+            width: calc(100% - 20px); padding: 10px; border-radius: 10px;
+            border: 1px solid #ccc; font-size: 1em;
+        }
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .history-table th, .history-table td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        .history-table th { background:var(--light-blue); color: white; }
+        .history-table tr:nth-child(even) { background: #f9f9f9; }
+        .status-pending { color: var(--pending-yellow); font-weight: bold; }
+        .status-approved { color: var(--green); font-weight: bold; }
+        .status-denied { color: var(--red); font-weight: bold; }
+        .status-paid { color: var(--light-blue); font-weight: bold; }
+        .dash-status { padding: 5px 10px; border-radius: 5px; color: white; font-weight: bold; font-size: 0.9em; }
+        .dash-status.pending { background: var(--pending-blue); }
+        .dash-status.approved { background: var(--green); }
+        .dash-status.denied { background: var(--red); }
+        .dash-status.paid { background: var(--light-blue); }
+
+        /* --- Topics --- */
+        #topicsList { text-align: left; }
+        .topic-item, .reply-item { background: rgba(255,255,255,0.6); margin-bottom: 10px; padding: 10px; border-radius: 10px; text-align: left; }
+        .topic-item strong { color: var(--light-blue); }
+        .reply-input { display: flex; gap: 10px; margin-top: 10px; }
+        .topic-meta { font-size: 0.8em; color: grey; margin-top: 5px; }
+
+        /* --- Chat --- */
+        #chatBox { height: 400px; overflow-y: scroll; border: 1px solid #eee; margin-bottom: 10px; padding: 10px; background: #fff; }
+        .message { margin-bottom: 15px; padding: 10px; border-radius: 10px; max-width: 80%; }
+        .message.sent { background: #e7f3ff; margin-left: auto; }
+        .message.received { background: #f1f0f0; margin-right: auto; }
+        .message-meta { font-size: 0.7em; color: grey; }
+        .chat-input-area { display: flex; gap: 10px; }
+        .chat-input-area input { flex-grow: 1; padding: 10px; border-radius: 10px; border: 1px solid #ccc; }
+
+        /* --- Profile --- */
+        .profile-info div { margin-bottom: 10px; text-align: left; }
+        .profile-info strong { color: var(--light-blue); min-width: 150px; display: inline-block; }
+
+        /* --- Leaderboards --- */
+        .leaderboard-table th, .leaderboard-table td { padding: 8px 12px; }
+        .leaderboard-table tr:nth-child(odd) { background: rgba(255,255,255,0.5); }
+        .leaderboard-table tr:nth-child(even) { background: rgba(255,255,255,0.8); }
+
+        /* --- Owner Dashboard --- */
+        #ownerPasswordInput { width: 60%; padding: 10px; margin: 10px; }
+        #ownerDashboard { background: #f0f0f0; padding: 20px; border-radius: 15px; }
+        #ownerDashboard.hidden { display: none; }
+        .dash-section { margin-bottom: 30px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .dash-section-title { font-size: 1.3em; font-weight: bold; margin-bottom: 15px; color: var(--dark-blue); border-bottom: 2px solid var(--sky-blue); padding-bottom: 5px; }
+
+        footer { margin-top: auto; padding: 15px; font-size: 0.85em; background: rgba(0,0,0,0.08); color: #555; }
     </style>
 </head>
 <body>
 
-    <!-- Top Bar -->
-    <div class="p-4 bg-slate-900/80 border-b border-yellow-600/50 sticky top-0 z-50 backdrop-blur-md">
-        <h1 class="text-xl font-black text-yellow-400 italic">FREEGCASH APP</h1>
-        <div id="userBar" class="text-[10px] text-slate-400 uppercase tracking-widest">👤 User: Loading...</div>
-        <div class="flex justify-between items-end mt-2">
-            <div>
-                <p class="text-[10px] text-slate-400 leading-none">YOUR BALANCE</p>
-                <span class="text-3xl font-bold text-green-400">₱<span id="balance">0.000</span></span>
-            </div>
-            <div class="text-right">
-                <span class="text-[10px] bg-slate-800 px-2 py-1 rounded text-yellow-500 border border-yellow-900">REFS: <span id="refCount">0</span></span>
-            </div>
-        </div>
+    <div class="top-bar">
+        <span id="userBar">👤 Loading...</span>
+        <span id="balanceDisplay">₱0.00</span>
     </div>
 
-    <!-- Home Page -->
-    <div id="home" class="page active">
-        <div class="glass-card">            <p class="text-center text-xs text-slate-300 mb-2">Share your link and earn <span class="text-yellow-400 font-bold">10% commission</span></p>
-            <input type="text" id="refLink" class="w-full p-2 bg-black/40 rounded border border-slate-700 text-[10px] text-center" readonly>
-            <button onclick="copyRef()" class="w-full mt-2 text-yellow-500 text-xs font-bold">COPY INVITE LINK</button>
-        </div>
-        
-        <button onclick="showPage('adsArea')" class="btn-gold">🤑 🍍 ADS AREA 🍍 🤑</button>
-        <button onclick="showPage('giftArea')" class="btn-gold">🎁 🍍 Paper house Gift 🍍 🎁</button>
-        <button onclick="showPage('withdraw')" class="btn-gold !bg-green-600 !text-white !border-green-400 !box-shadow[0_4px_0_#166534]">💰 WITHDRAW MONEY</button>
-        
-        <button onclick="openAdmin()" class="mt-20 w-full text-slate-600 text-[10px] uppercase tracking-tighter">Owner Dashboard</button>
+    <!-- Main Menu -->
+    <div id="mainPage" class="page active-page">
+        <h1>PAPERHOUSE INC</h1>
+        <button class="btn" onclick="showPage('adsPage')">📺 Ads Area</button>
+        <button class="btn" onclick="showPage('withdrawPage')">💰 Withdraw</button>
+        <button class="btn" onclick="showPage('referralsPage')">🤝 Referrals</button>
+        <button class="btn" onclick="showPage('chatPage')">💬 Chat Room</button>
+        <button class="btn" onclick="showPage('profilePage')">👤 Profile</button>
+        <button class="btn" onclick="showPage('leaderboardPage')">🏆 Leaderboards</button>
+        <button class="btn" onclick="showPage('topicsPage')">💡 Topics Forum</button>
+        <button class="btn" onclick="showPage('helpPage')">❓ Help & Links</button>
+        <button class="btn" onclick="showOwnerDashboard()">🔑 Owner Dashboard</button>
     </div>
 
     <!-- Ads Area -->
-    <div id="adsArea" class="page">
-        <button onclick="showPage('home')" class="mb-4 text-slate-400 text-sm">← Back to Menu</button>
-        <div id="tasks-container"></div>
+    <div id="adsPage" class="page">
+        <h2 class="section-title">📺 Ads Area</h2>
+        <div class="card">
+            <button id="btn-task1" class="btn" onclick="triggerAd(1)">🤑 Task #1 🤑</button>
+            <div id="cooldown-task1"></div>
+            <button id="claim-task1" class="btn red" style="display:none;" onclick="claimReward(1)">Claim ₱0.02</button>
+        </div>
+        <div class="card">
+            <button id="btn-task2" class="btn" onclick="triggerAd(2)">🤑 Task #2 🤑</button>
+            <div id="cooldown-task2"></div>
+            <button id="claim-task2" class="btn red" style="display:none;" onclick="claimReward(2)">Claim ₱0.02</button>
+        </div>
+        <div class="card">
+            <button id="btn-task3" class="btn" onclick="triggerAd(3)">🤑 Task #3 🤑</button>
+            <div id="cooldown-task3"></div>
+            <button id="claim-task3" class="btn red" style="display:none;" onclick="claimReward(3)">Claim ₱0.02</button>
+        </div>
+        <div class="card">
+            <button id="btn-task4" class="btn" onclick="triggerAd(4)">✨ Random Task ✨</button>
+            <div id="cooldown-task4"></div>
+            <button id="claim-task4" class="btn red" style="display:none;" onclick="claimReward(4)">Claim ₱0.02</button>
+        </div>
+        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
     </div>
 
-    <!-- Gift Area -->
-    <div id="giftArea" class="page">
-        <button onclick="showPage('home')" class="mb-4 text-slate-400 text-sm">← Back to Menu</button>
-        <div id="gifts-container"></div>
+    <!-- Withdrawal -->
+    <div id="withdrawPage" class="page">
+        <h2 class="section-title">💰 Withdraw Funds</h2>
+        <div class="card">
+            <div class="withdraw-section">
+                <div class="input-group">
+                    <label>Your Balance:</label>
+                    <span id="withdrawBalance" style="font-weight:bold; font-size:1.3em; color:var(--neon-blue);"></span>
+                </div>
+                <div class="input-group">
+                    <label>Withdrawal Method:</label>
+                    <select id="withdrawMethod">
+                        <option value="gcash">GCash</option>
+                        <option value="FaucetPay">FaucetPay (USDT)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>GCash Number:</label>
+                    <input type="text" id="gcashNumber" placeholder="Enter your GCash number">
+                </div>
+                <div class="input-group">
+                    <label>FaucetPay Email (for USDT):</label>
+                    <input type="email" id="faucetPayEmail" placeholder="Enter your FaucetPay email">
+                </div>
+                <div class="input-group">
+                    <label>Amount to Withdraw (₱):</label>
+                    <input type="number" id="withdrawAmount" placeholder="Min ₱5.00" min="5" step="0.01">
+                </div>
+                <button class="btn green" onclick="requestWithdrawal()">Request Withdrawal</button>
+            </div>
+        </div>
+        <h3 style="margin-top: 20px;">Withdrawal History</h3>
+        <div id="withdrawalHistoryContainer">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Method</th>
+                        <th>Amount (₱)</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="withdrawalHistoryBody">
+                    <!-- History will be loaded here -->
+                    <tr><td colspan="5" style="text-align:center;">Loading history...</td></tr>
+                </tbody>
+            </table>
+            <div id="historyPagination" style="margin-top: 10px;">
+                <button class="btn small" onclick="changeWithdrawalPage(-1)">Prev</button>
+                <span id="historyPageInfo">Page 1</span>
+                <button class="btn small" onclick="changeWithdrawalPage(1)">Next</button>
+            </div>
+        </div>
+        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
     </div>
 
-    <!-- Withdraw Page -->
-    <div id="withdraw" class="page">
-        <button onclick="showPage('home')" class="mb-4 text-slate-400 text-sm">← Back to Menu</button>
-        <h2 class="text-xl font-bold mb-6 text-center text-yellow-400 underline italic">Withdraw your Money here</h2>
+    <!-- Referrals -->
+    <div id="referralsPage" class="page">
+        <h2 class="section-title">🤝 Referrals</h2>
+        <div class="card">
+            <p>Share your unique referral code!</p>
+            <div style="background: #eee; padding: 15px; border-radius: 10px; font-size: 1.5em; font-weight: bold; margin: 15px 0;">
+                <span id="referralCode">Loading...</span>
+            </div>
+            <button class="btn small" onclick="copyReferralCode()">Copy Code</button>
+            <p>When someone uses your code and earns, you get 10% bonus!</p>
+            <p>Total Referrals: <strong id="totalReferrals">0</strong></p>
+            <p>Claimable Bonus: <strong id="claimableBonus">₱0.000</strong></p>
+            <button class="btn small green" id="claimReferralBonusBtn" onclick="claimReferralBonus()" disabled>Claim Bonus</button>
+        </div>
+        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+    </div>
+
+    <!-- Chat -->
+    <div id="chatPage" class="page">
+        <h2 class="section-title">💬 Chat Room</h2>
+        <div class="card">
+            <div id="chatBox">
+                <div style="padding: 50px; color: var(--dark-grey);">Loading messages...</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="messageInput" placeholder="Type your message...">
+                <button class="btn green small" onclick="sendMessage()">Send</button>
+            </div>
+            <div id="chatCooldown" style="margin-top: 10px; font-size: 0.9em; color: var(--red);"></div>
+        </div>
+        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+    </div>
+
+    <!-- Profile -->
+    <div id="profilePage" class="page">
+        <h2 class="section-title">👤 User Profile</h2>
+        <div class="card profile-info">
+            <div><strong>Username:</strong> <span id="profileUsername"></span></div>
+            <div><strong>Total Referrals:</strong> <span id="profileTotalReferrals"></span></div>
+            <div><strong>Total Ads Watched:</strong> <span id="profileTotalAds"></span></div>
+            <div><strong>Rewards (Day):</strong> <span id="profileRewardDay"></span></div>
+            <div><strong>Rewards (Week):</strong> <span id="profileRewardWeek"></span></div>
+            <div><strong>Rewards (Overall):</strong> <span id="profileRewardOverall"></span></div>
+            <div><strong>Messages Sent:</strong> <span id="profileMessagesSent"></span></div>
+            <button class="btn small" id="messageUserBtn" onclick="messageUser()">Message User</button>
+        </div>
+         <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+    </div>
+
+    <!-- Leaderboards -->
+    <div id="leaderboardPage" class="page">
+        <h2 class="section-title">🏆 Leaderboards</h2>
+        <div class="card">
+            <h3>Top Earners (This Week)</h3>
+            <table class="history-table leaderboard-table">
+                <thead><tr><th>Rank</th><th>User</th><th>Total Earned (₱)</th></tr></thead>
+                <tbody id="earnerLeaderboardBody"></tbody>
+            </table>
+            <div id="earnerPagination" class="pagination"></div>
+        </div>
+        <div class="card">
+            <h3>Top Ads Watchers (This Week)</h3>
+            <table class="history-table leaderboard-table">
+                <thead><tr><th>Rank</th><th>User</th><th>Ads Watched</th></tr></thead>
+                <tbody id="adsLeaderboardBody"></tbody>
+            </table>
+             <div id="adsPagination" class="pagination"></div>
+            <div id="adsLeaderboardBonus" style="margin-top: 15px; font-weight: bold; color: var(--green);"></div>
+        </div>
+        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+    </div>
+
+    <!-- Topics -->
+    <div id="topicsPage" class="page">
+        <h2 class="section-title">💡 Community Topics</h2>
+        <div class="card">
+            <input type="text" id="topicInput" placeholder="Enter your topic title..." style="width: calc(100% - 120px); padding: 10px; border-radius: 10px; border: 1px solid #ccc;">
+            <button class="btn green small" onclick="postTopic()">Post Topic</button>
+        </div>
+        <div id="topicsList"></div>
+        <div id="topicPagination" class="pagination" style="margin-top: 15px;">
+            <button class="btn small" onclick="changeTopicPage(-1)">Prev</button>
+            <span id="topicPageInfo">Page 1</span>
+            <button class="btn small" onclick="changeTopicPage(1)">Next</button>
+        </div>
+        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+    </div>
+
+    <!-- Help -->
+    <div id="helpPage" class="page">
+        <h2 class="section-title">❓ Help & Links</h2>
+        <div class="card">
+            <p>Follow us for updates:</p>
+            <button class="btn small" onclick="window.open('https://t.me/paperhouseinc', '_blank')">Telegram Group</button>
+            <button class="btn small" onclick="window.open('https://t.me/PAPERHOUSE_INC', '_blank')">Telegram Channel</button>
+            <button class="btn small" onclick="window.open('https://facebook.com/groups/1193693469083843/', '_blank')">Facebook Group</button>
+            <button class="btn small" onclick="window.open('https://www.facebook.com/profile.php?id=61586281245735', '_blank')">Facebook Page</button>
+            <p>If you have any issues, please contact support.</p>
+        </div>
+        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+    </div>
+
+    <!-- Owner Dashboard -->
+    <div id="ownerPasswordPage" class="page">
+        <h2 class="section-title">🔑 Owner Access</h2>
+        <div class="card">
+            <input type="password" id="ownerPasswordInput" placeholder="Enter Password">
+            <button class="btn" onclick="checkOwnerPassword()">Access Dashboard</button>
+        </div>
+        <button class="btn small" onclick="showPage('mainPage')">Back Home</button>
+    </div>
+
+    <div id="ownerDashboard" class="hidden">
+        <h2 class="section-title">📊 Owner Dashboard</h2>
         
-        <div class="glass-card">
-            <div class="flex items-center gap-2 mb-2"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/GCash_logo.svg/512px-GCash_logo.svg.png" class="h-4"> <h3 class="font-bold">GCASH</h3></div>
-            <input type="number" id="gcashAmount" placeholder="Amount (PHP)" class="w-full p-3 bg-black/50 rounded-lg mb-2 border border-slate-700">
-            <input type="text" id="gcashNumber" placeholder="GCash Mobile Number" class="w-full p-3 bg-black/50 rounded-lg border border-slate-700">            <button onclick="requestWithdraw('GCash')" class="btn-gold !bg-blue-600 !text-white !border-blue-400 !shadow-blue-900 mt-4">WITHDRAW TO GCASH</button>
+        <div class="dash-section">
+            <h3 class="dash-section-title">Withdrawal Requests <span style="font-size:0.7em;">(Pending First)</span></h3>
+            <p>Total Approved Withdrawals: <strong id="totalApprovedWithdrawals">₱0.00</strong></p>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>User</th><th>Method</th><th>Amount</th><th>Date</th><th>Status</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ownerWithdrawalBody"><tr><td colspan="6" style="text-align:center;">Loading requests...</td></tr>
+                </tbody>
+            </table>
+            <div id="ownerWithdrawalPagination" style="margin-top: 10px;"></div>
         </div>
 
-        <div class="glass-card mt-4">
-            <h3 class="font-bold text-orange-400 italic mb-2">FAUCETPAY (USDT)</h3>
-            <p class="text-[10px] text-slate-400 mb-2">Rate: ₱1.00 = $0.017 USDT</p>
-            <input type="number" id="fpAmount" placeholder="Amount (PHP)" class="w-full p-3 bg-black/50 rounded-lg mb-2 border border-slate-700">
-            <input type="email" id="fpEmail" placeholder="FaucetPay Email Address" class="w-full p-3 bg-black/50 rounded-lg border border-slate-700">
-            <button onclick="requestWithdraw('FaucetPay')" class="btn-gold !bg-orange-600 !text-white !border-orange-400 !shadow-orange-900 mt-4">WITHDRAW TO FAUCETPAY</button>
+        <div class="dash-section">
+            <h3 class="dash-section-title">User Topics</h3>
+            <table class="history-table">
+                <thead><tr><th>User</th><th>Topic Title</th><th>Date</th><th>Actions</th></tr></thead>
+                <tbody id="ownerTopicsBody"></tbody>
+            </table>
+            <div id="ownerTopicsPagination" style="margin-top: 10px;"></div>
+        </div>
+        
+        <div class="dash-section">
+            <h3 class="dash-section-title">User Messages</h3>
+            <table class="history-table">
+                <thead><tr><th>User</th><th>Message</th><th>Date</th><th>Actions</th></tr></thead>
+                <tbody id="ownerMessagesBody"></tbody>
+            </table>
+             <div id="ownerMessagesPagination" style="margin-top: 10px;"></div>
         </div>
 
-        <h3 class="text-sm font-bold mt-8 mb-4 border-l-4 border-yellow-500 pl-2 italic">Withdrawal History</h3>
-        <div id="history-table" class="glass-card !p-0 overflow-hidden text-[11px]"></div>
-        <div class="flex justify-between mt-4" id="pagination-controls"></div>
+        <button class="btn small" onclick="hideOwnerDashboard()">Hide Dashboard</button>
     </div>
 
-    <!-- Admin Dashboard -->
-    <div id="adminPage" class="page">
-        <button onclick="showPage('home')" class="mb-4 text-red-500 font-bold">CLOSE ADMIN</button>
-        <h2 class="text-2xl font-black mb-4 italic">ADMIN DASHBOARD</h2>
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <div class="glass-card !mb-0 text-center"><p class="text-xs">TOTAL PAID</p><span class="text-xl font-bold text-green-400" id="totalPaid">₱0</span></div>
-            <div class="glass-card !mb-0 text-center"><p class="text-xs">PENDING</p><span class="text-xl font-bold text-yellow-400" id="totalPending">0</span></div>
-        </div>
-        <div id="admin-list" class="space-y-4"></div>
-    </div>
 
+    <!-- REWARD POPUP -->
+    <div id="rewardPopup" class="reward-popup"></div>
+
+    <footer>
+        <div id="footerTime"></div>
+        <div>PAPERHOUSE INC | otico.isai2@gmail.com</div>
+    </footer>
+
+    <!-- APP LOGIC -->
     <script type="module" src="app.js"></script>
+    <script>
+        // Placeholder for Monetag Functions (Real ones come from your external scripts)
+        // Ensure these are loaded via <script src='//libtl.com/sdk.js' ...> in index.html <head>
+        window.show_10276123 = window.show_10276123 || (() => Promise.resolve());
+        window.show_10337795 = window.show_10337795 || (() => Promise.resolve());
+        window.show_10337853 = window.show_10337853 || (() => Promise.resolve());
+    </script>
 </body>
 </html>
