@@ -3,118 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAPERHOUSE INC - Admin Dashboard</title>
-
+    <title>PAPERHOUSE INC</title>
+    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --primary: #fbc02d; --secondary: #333; --bg: #fffde7; --success: #4caf50; --danger: #f44336; --accent: #03a9f4; --profile-btn: #9c27b0; --leaderboard: #4caf50; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 140px; text-align: center; color: var(--secondary); }
-        #header { background: var(--secondary); color: white; padding: 15px; position: sticky; top: 0; z-index: 1000; border-bottom: 4px solid var(--primary); }
-        .page { display: none; padding: 15px; animation: fadeIn 0.2s ease-in; }
-        .active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        :root { --green: #2ecc71; --white-glow: rgba(255,255,255,0.2); --dark: #0a0a0a; }
+        body { font-family: 'Segoe UI', sans-serif; background: white; color: black; margin: 0; padding: 10px; transition: background 0.5s; padding-bottom: 120px; }
+        body.clicked { background: #0088cc !important; color: white; }
+        
+        .card { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #ddd; color: black; }
+        body.clicked .card { background: rgba(0,0,0,0.2); color: white; border: 1px solid #555; }
 
-        .btn { background: var(--primary); border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; margin: 10px auto; width: 90%; box-shadow: 0 4px #f57f17; display: block; font-size: 16px; color: #333; transition: 0.2s; text-decoration: none;}
-        .btn:active { transform: translateY(2px); box-shadow: 0 2px #f57f17; }
-        .btn:disabled { background: #ccc !important; box-shadow: 0 4px #999 !important; cursor: not-allowed; }
-
-        .back-btn { background: #616161 !important; color: white !important; box-shadow: 0 4px #424242 !important; margin-top: 20px; }
-        .card { background: white; border: 2px solid var(--primary); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        input, select { width: 85%; padding: 12px; margin: 8px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
-
-        .table-container { overflow-x: auto; margin-top: 15px; background: #fff; border-radius: 8px; border: 1px solid #ddd; }
-        table { width: 100%; font-size: 10px; border-collapse: collapse; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top;}
-        th { background: #333; color: white; }
-        .status-paid { color: green; font-weight: bold; }        .status-pending { color: orange; font-weight: bold; }
-        .status-denied { color: red; font-weight: bold; }
-
-        .pagination-controls { display: flex; justify-content: center; margin-top: 10px; gap: 10px; }
-        .pagination-controls button {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 2px #0288d1;
-            transition: 0.2s;
+        /* BUTTONS */
+        button { 
+            width: 100%; padding: 14px; margin: 5px 0; border: none; border-radius: 8px; 
+            font-weight: bold; cursor: pointer; background: var(--green); color: white;
+            box-shadow: inset 0 0 5px var(--white-glow); transition: 0.3s;
         }
-        .pagination-controls button:active { transform: translateY(1px); box-shadow: 0 1px #0288d1; }
-        .pagination-controls button:disabled { background: #ccc; box-shadow: 0 2px #999; cursor: not-allowed; }
-
-        #footer { position: fixed; bottom: 0; width: 100%; background: var(--secondary); color: white; padding: 12px 0; font-size: 11px; border-top: 3px solid var(--primary); z-index: 1000; }
-
-        #adminLoginPage {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 80vh;
-            text-align: center;
+        button:active { transform: scale(0.98); }
+        .rainbow-btn { background: #ffd700; color: black; }
+        .rainbow-btn:active { animation: rainbow 0.5s infinite; color: white; }
+        
+        @keyframes rainbow {
+            0% { background: red; } 20% { background: orange; } 40% { background: yellow; }
+            60% { background: green; } 80% { background: blue; } 100% { background: purple; }
         }
-        #adminLoginPage input {
-            margin-bottom: 20px;
+
+        /* HEADER */
+        .header { text-align: center; padding: 15px; border-bottom: 3px solid #ffd700; margin-bottom: 10px; }
+        .balance-main { font-size: 2.2rem; color: var(--green); font-weight: bold; }
+
+        /* TABLES */
+        table { width: 100%; font-size: 10px; border-collapse: collapse; margin-top: 10px; background: white; color: black; }
+        body.clicked table { background: #111; color: white; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        .status-Paid { color: #2ecc71; font-weight: bold; }
+        .status-Pending { color: #f1c40f; }
+
+        /* REWARD POPUP */
+        #reward-pop {            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; border: 4px solid var(--green); padding: 30px; border-radius: 20px;
+            z-index: 10000; display: none; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
+
+        .hidden { display: none; }
+        .pagination { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+        .p-btn { width: auto; padding: 5px 15px; background: #333; }
+        .user-link { color: #0088cc; text-decoration: underline; cursor: pointer; }
+
+        .footer { position: fixed; bottom: 0; left: 0; width: 100%; background: #000; padding: 10px 0; font-size: 10px; color: #777; text-align: center; z-index: 1000; }
     </style>
 </head>
-<body>
+<body onclick="document.body.classList.add('clicked')">
 
-<div id="header">
-    <div id="adminBar">🛠 Admin Panel</div>
-    <div style="font-size: 20px; font-weight: bold; margin-top: 5px;">Admin Dashboard</div>
+<div id="reward-pop">
+    <h1 style="color:var(--green)">BIG WIN!</h1>
+    <h2 id="reward-amt">₱0.00</h2>
+    <p>Added to your wallet successfully!</p>
+    <button onclick="closeReward()">COLLECT</button>
 </div>
 
-<h1 style="color:#5d4037; margin: 20px 0;">PAPERHOUSE INC - ADMIN</h1>
-
-<!-- ADMIN LOGIN PAGE -->
-<div id="adminLoginPage" class="page active">
-    <h2>Admin Login</h2>
-    <input type="password" id="adminPasswordInput" placeholder="Enter Admin Password">
-    <button class="btn" onclick="loginAdmin()">Login</button>
+<div class="header">
+    <div id="userBar">👤 Loading...</div>
+    <div class="balance-main">₱<span id="topBalance">0.000</span></div>
 </div>
 
-<!-- ADMIN DASHBOARD PAGE -->
-<div id="adminDashboardPage" class="page">
-    <h2>🛠 Admin Withdrawal Dashboard</h2>
+<div id="page-main">
+    <button onclick="navTo('page-profile')">👤 MY PROFILE</button>
+    <button onclick="navTo('page-online')">🌐 ONLINE USERS</button>
+    <button class="rainbow-btn" onclick="navTo('page-signin')">🍍 SIGN IN (₱0.02)</button>
+    <button class="rainbow-btn" onclick="navTo('page-ads')">🍍 ADS AREA (₱0.02)</button>
+    <button class="rainbow-btn" onclick="navTo('page-gift')">🍍 GIFT AREA (₱0.02)</button>
+    <button class="rainbow-btn" onclick="navTo('page-bonus')">🍍 BONUS AREA (₱0.015)</button>
+    <button onclick="navTo('page-chat')">💬 LIVE CHAT</button>
+    <button onclick="navTo('page-ref')">👥 REFERRALS</button>
+    <button onclick="navTo('page-withdraw')">💰 WITHDRAWAL</button>
+    <button style="background:transparent; color:#999; font-size:8px" onclick="openAdmin()">OWNER</button>
+</div>
 
-    <div id="adminWithdrawalTools">
-        <div class="card" style="background:#222; color:white;">Total Paid (All-time): PHP <span id="statPHP">0.00</span></div>
-        <div class="card" style="background:#222; color:white; margin-top: 15px;">
-            Approved Withdrawals: <span id="statApprovedCount">0</span> | Approved Amount: PHP <span id="statApprovedAmount">0.00</span>
+<!-- PROFILE PAGE -->
+<div id="page-profile" class="hidden">
+    <button onclick="navTo('page-main')">⬅ Back</button>
+    <div class="card" id="profile-content">
+        <h2 id="prof-name">@username</h2>        <div style="text-align:left; line-height: 1.8;">
+            <b>Daily Ads:</b> <span id="ads-d">0</span> / Reset in <span id="reset-d">--</span><br>
+            <b>Weekly Ads:</b> <span id="ads-w">0</span> / Reset in <span id="reset-w">--</span><br>
+            <b>All-Time Ads:</b> <span id="ads-t">0</span><br>
+            <b>Joined:</b> <span id="prof-date">--</span>
         </div>
-        <hr style="border-color: var(--primary); margin: 20px 0;">
+        <div id="msg-action" class="hidden">
+            <button onclick="startPrivateChat()">✉ Send Message</button>
+        </div>
     </div>
-
-    <!-- Admin Pending Requests Table -->
-    <h3>Pending Requests (Page <span id="adminPendingCurrentPage">1</span>)</h3>
-    <div id="adminPending" class="table-container"></div>
-    <div class="pagination-controls">
-        <button id="adminPendingPrev" onclick="navigatePagination('adminPending', -1)">Previous</button>
-        <button id="adminPendingNext" onclick="navigatePagination('adminPending', 1)">Next</button>
-    </div>
-
-    <!-- Admin History Requests Table -->
-    <h3 style="margin-top: 30px;">Approved/Denied History (Page <span id="adminHistoryCurrentPage">1</span>)</h3>
-    <div id="adminHistory" class="table-container"></div>
-    <div class="pagination-controls">
-        <button id="adminHistoryPrev" onclick="navigatePagination('adminHistory', -1)">Previous</button>
-        <button id="adminHistoryNext" onclick="navigatePagination('adminHistory', 1)">Next</button>
-    </div>
-
-    <button class="btn back-btn" onclick="logoutAdmin()">⬅ Logout</button>
 </div>
 
-<div id="footer">
-    <div id="clock">...</div>
-    <div>&copy; 2026 PAPERHOUSE INC Admin</div>
+<!-- ONLINE USERS -->
+<div id="page-online" class="hidden">
+    <button onclick="navTo('page-main')">⬅ Back</button>
+    <div class="card">
+        <h3>Online Users</h3>
+        <table id="onlineTable"><thead><tr><th>User</th><th>Last Active</th></tr></thead><tbody id="onlineBody"></tbody></table>
+    </div>
 </div>
 
-<script src="admin.js"></script>
+<!-- WITHDRAWAL PAGE -->
+<div id="page-withdraw" class="hidden">
+    <button onclick="navTo('page-main')">⬅ Back</button>
+    <div class="card">
+        <div style="font-size:24px; color:var(--green)">₱<span id="earnBox">0.000</span></div>
+        <input type="text" id="payoutInfo" placeholder="GCash No / FaucetPay Email">
+        <button onclick="withdraw('GCash')">Withdraw GCash (PHP)</button>
+        <button style="background:#0088cc" onclick="withdraw('FaucetPay')">Withdraw FaucetPay (USDT)</button>
+    </div>
+    <h4>WithdrawalHistory</h4>
+    <table id="histTable"><thead><tr><th>Amount</th><th>Method</th><th>Status</th></tr></thead><tbody id="histBody"></tbody></table>
+    <div class="pagination"><button class="p-btn" onclick="changeP('hist', -1)">Prev</button><span id="histPage">1</span><button class="p-btn" onclick="changeP('hist', 1)">Next</button></div>
+</div>
+
+<!-- ADMIN PAGE -->
+<div id="page-admin" class="hidden">
+    <button onclick="navTo('page-main')">Exit</button>
+    <h3>Withdrawal Requests</h3>
+    <table style="font-size:8px"><thead><tr><th>User</th><th>Amt</th><th>Info</th><th>Action</th></tr></thead><tbody id="adminBody"></tbody></table>
+    <div class="pagination"><button class="p-btn" onclick="changeP('admin', -1)">Prev</button><span id="adminPage">1</span><button class="p-btn" onclick="changeP('admin', 1)">Next</button></div>
+</div>
+
+<!-- DYNAMIC TASK AREAS -->
+<div id="page-signin" class="hidden"><button onclick="navTo('page-main')">⬅ Back</button><div id="cont-signin"></div></div>
+<div id="page-ads" class="hidden"><button onclick="navTo('page-main')">⬅ Back</button><div id="cont-ads"></div></div>
+<div id="page-gift" class="hidden"><button onclick="navTo('page-main')">⬅ Back</button><div id="cont-gift"></div></div>
+<div id="page-bonus" class="hidden"><button onclick="navTo('page-main')">⬅ Back</button><div id="cont-bonus"></div></div>
+<div id="page-chat" class="hidden"><button onclick="navTo('page-main')">⬅ Back</button><div class="card"><div id="chat-box" style="height:250px; overflow-y:auto; text-align:left; background:#000; padding:10px; font-size:12px; margin-bottom:10px; border:1px solid #333"></div><input type="text" id="chatInput" placeholder="Message..."><button onclick="sendMessage()">Send</button></div></div>
+<div id="page-ref" class="hidden"><button onclick="navTo('page-main')">⬅ Back</button><div class="card"><h3>Referral</h3><input type="text" id="manualRef" placeholder="Enter @username"><button onclick="submitRef()">Link Referrer</button><p>Claimable: ₱<span id="refBonus">0.00</span></p><button onclick="claimRef()">Claim</button></div></div>
+
+<div class="footer">
+    <div id="footerClock">00:00:00</div>
+    <b>PAPERHOUSE INC</b> | Reliable Earning
+</div>
+
+<script type="module" src="app.js"></script>
 </body>
 </html>
