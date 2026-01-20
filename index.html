@@ -66,7 +66,7 @@
     <button class="btn" onclick="openSection('chat')">💬 CHAT</button>
     <button class="btn" onclick="openSection('profile')">👤 PROFILE</button>
     <button class="btn" onclick="openSection('leaders')">🏆 LEADERBOARD</button>
-    <button class="btn" onclick="openOwner()">🔒 OWNER</button>
+    <!-- OWNER button removed -->
   </nav>
 
   <!-- ADS AREA (Combined Tasks) -->
@@ -101,8 +101,8 @@
 
         <div style="flex:1; min-width:260px;">
           <h4>FaucetPay (USDT)</h4>
-          <div class="small">Ваш баланс: ₱<span id="faucetBalance">0.00</span></div>          <input id="faucetEmail" placeholder="FaucetPay email" type="email" />
-          <input id="faucetAmount" placeholder="Сумма в ₱ (будет конвертирована)" type="number" />
+          <div class="small">Ваш баланс: ₱<span id="faucetBalance">0.00</span></div>
+          <input id="faucetEmail" placeholder="FaucetPay email" type="email" />          <input id="faucetAmount" placeholder="Сумма в ₱ (будет конвертирована)" type="number" />
           <button class="btn" onclick="requestWithdraw('faucet')">Вывести на FaucetPay</button>
         </div>
       </div>
@@ -169,24 +169,14 @@
     <div class="card">
       <h3>🎯 Ads Leaderboard</h3>
       <div id="adsLeadersTable"></div>
-      <div class="small">Top 5 weekly auto-bonus: ₱10 when reset (owner must run weekly payout).</div>
-      <button class="btn" onclick="runWeeklyPayout()">Run Weekly Payout (Admin)</button>
+      <div class="small">Top 5 weekly auto-bonus: ₱10 when reset (Manual Payout).</div>
+      <!-- Admin button removed -->
     </div>
   </section>
 
-  <!-- OWNER MODAL -->
-  <div id="ownerModal" class="modal hidden">
-    <div class="box">
-      <h3>OWNER Dashboard — Withdrawal Requests</h3>
-      <div id="totalApproved">Total Approved: ₱0.00</div>
-      <div id="ownerContent"></div>
-      <div style="margin-top:8px;">
-        <button class="btn" onclick="closeOwner()">Close</button>
-      </div>
-    </div>
-  </div>
-
 </div>
+
+<!-- OWNER MODAL removed -->
 
 <script type="module" src="app.js"></script>
 </body>
