@@ -1,105 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Telegram Balance App</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>🍍💎 PAPER HOUSE 💎🍍</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script type="module" src="app.js"></script>
 
-  <!-- Telegram SDK -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- App -->
-  <script type="module" src="app.js"></script>
-
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: white;
-      min-height: 100vh;
-    }
-
-    #topBar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px;
-      background: rgba(0,0,0,0.4);
-      backdrop-filter: blur(10px);
-    }
-
-    .card {
-      background: rgba(255,255,255,0.08);
-      margin: 15px;
-      padding: 16px;
-      border-radius: 16px;
-      backdrop-filter: blur(15px);
-      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-    }
-
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-      border-radius: 8px;
-      border: none;
-    }
-
-    button {
-      background: #00c6ff;
-      color: black;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    li {
-      margin: 6px 0;
-    }
-  </style>
+<style>
+body{
+  margin:0;
+  font-family:system-ui;
+  background:radial-gradient(circle at top,#1b2735,#090a0f);
+  color:#fff;
+}
+header,footer{
+  padding:12px;
+  background:rgba(0,0,0,.45);
+  backdrop-filter:blur(12px);
+}
+.card{
+  margin:12px;
+  padding:14px;
+  border-radius:18px;
+  background:rgba(255,255,255,.08);
+}
+button,input{
+  width:100%;
+  padding:12px;
+  margin-top:8px;
+  border:none;
+  border-radius:14px;
+  font-weight:700;
+}
+.hidden{display:none}
+footer{text-align:center;font-size:12px}
+</style>
 </head>
+
 <body>
 
-  <!-- TOP BAR -->
-  <div id="topBar">
-    <div id="userBar">👤 User</div>
-    <button id="adminBtn">Admin</button>
-  </div>
+<header>
+  <div id="userBar"></div>
+  <div>💰 Balance: ₱<span id="balance">0.00</span></div>
+</header>
 
-  <!-- BALANCE -->
-  <div class="card">
-    <h2>Balance</h2>
-    <div id="balance">₱0</div>
-  </div>
+<div class="card">
+  <button onclick="show('online')">👥 Online Users 👥</button>
+  <button onclick="show('elem')">📘 ELEMENTARY CHAT 📘</button>
+  <button onclick="show('high')">📗 HIGHSCHOOL CHAT 📗</button>
+  <button onclick="show('college')">📙 COLLEGE CHAT 📙</button>
+  <button onclick="show('leader')">🍺 TOP LEADERBOARD 🍺</button>
+  <button onclick="show('bonus')">🍍💎 PAPER HOUSE Gift 💎🍍</button>
+  <button onclick="show('withdraw')">🔔 Withdrawal 🔔</button>
+  <button onclick="show('help')">🗝 Help Section 🗝</button>
+  <button onclick="show('admin')">🔐 Admin</button>
+</div>
 
-  <!-- WITHDRAW -->
-  <div class="card">
-    <h3>Withdraw (GCash)</h3>
-    <input id="gcash" placeholder="GCash Number">
-    <input id="amount" type="number" placeholder="Amount">
-    <button id="withdrawBtn">Request Withdrawal</button>
-  </div>
+<div id="online" class="card hidden">👥 Online users system ready</div>
+<div id="elem" class="card hidden">📘 Elementary Chat (Live)</div>
+<div id="high" class="card hidden">📗 Highschool Chat (Live)</div>
+<div id="college" class="card hidden">📙 College Chat (Live)</div>
+<div id="leader" class="card hidden">🍺 Leaderboard coming soon</div>
 
-  <!-- USER WITHDRAWALS -->
-  <div class="card">
-    <h3>Your Withdrawals</h3>
-    <ul id="userWithdrawals"></ul>
-  </div>
+<div id="bonus" class="card hidden">
+  <h3>🎁 Ads Bonus</h3>
+  <button onclick="claimBonus(1)">🎬 Ads Bonus #1 (+₱0.01)</button>
+  <button onclick="claimBonus(2)">🎬 Ads Bonus #2 (+₱0.01)</button>
+  <p id="bonusMsg"></p>
+</div>
 
-  <!-- ADMIN PANEL -->
-  <div class="card hidden" id="adminPanel">
-    <h3>Admin Panel</h3>
-    <ul id="adminWithdrawals"></ul>
-  </div>
+<div id="withdraw" class="card hidden">
+  <input id="gcash" placeholder="GCash number">
+  <input id="amount" type="number" step="0.01" placeholder="Amount">
+  <button onclick="requestWithdraw()">Submit Withdrawal</button>
+  <ul id="whistory"></ul>
+</div>
+
+<div id="help" class="card hidden">
+  🗝 Need help? Contact Admin via Telegram
+</div>
+
+<div id="admin" class="card hidden">
+  <input id="adminPass" type="password" placeholder="Admin password">
+  <button onclick="adminLogin()">Access</button>
+  <div id="adminPanel" class="hidden">🔐 Admin Access Granted</div>
+</div>
+
+<footer>
+📄 PAPER HOUSE INC · <span id="time"></span>
+</footer>
 
 </body>
 </html>
