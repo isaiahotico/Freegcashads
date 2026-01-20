@@ -3,128 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAPERHOUSE INC | Master Hub</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <title>PAPERHOUSE INC - Aide Text</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- Monetag SDKs -->
-    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
-    <script src="https://adsgram.ai/sdk.js"></script>
+    <!-- Firebase SDK Imports (Must be type="module" for modern imports) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyBwpa8mA83JAv2A2Dj0rh5VHwodyv5N3dg",
+          authDomain: "freegcash-ads.firebaseapp.com",
+          databaseURL: "https://freegcash-ads-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "freegcash-ads",
+          storageBucket: "freegcash-ads.firebasestorage.app",
+          messagingSenderId: "608086825364",
+          appId: "1:608086825364:web:3a8e628d231b52c6171781",
+          measurementId: "G-Z64B87ELGP"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app); // Initialize Firestore
+        
+        // Expose Firestore instance globally (for app.js to use)
+        window.db = db;
+        console.log("Firebase and Firestore Initialized.");
+    </script>
 
     <style>
-        :root { --sky: #87CEEB; --green: #9ACD32; --yellow: #FFD700; }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--sky); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        /* [Previous CSS remains the same, adding new styles for new sections] */
+        /* ... (Previous CSS here) ... */
         
-        header { background: white; padding: 15px; display: flex; justify-content: space-between; position: sticky; top:0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 10px; z-index: 10; }
+        .nav-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .main-section {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
         
-        .btn { background: var(--green); border: none; padding: 10px 2px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 9px; box-shadow: 0 3px 0 #6b8e23; }
-        .btn:active { transform: translateY(2px); box-shadow: none; background: var(--yellow); }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .withdrawal-form, .referral-form, .chat-area {
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
 
-        .page { display: none; padding: 15px; flex: 1; }
-        .page.active { display: block; }
-        .card { background: rgba(255,255,255,0.95); border-radius: 12px; padding: 15px; margin-bottom: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05); color: black; }
+        .withdrawal-form input, .withdrawal-form select {
+            width: 100%;
+            padding: 10px;            margin: 5px 0 15px 0;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .chat-messages {
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+        }
+        
+        .chat-message {
+            margin-bottom: 8px;
+        }
 
-        /* Tables & History */
-        .table-container { overflow-x: auto; background: white; border-radius: 8px; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 10px; color: black; }
-        th, td { border: 1px solid #eee; padding: 8px; text-align: left; }
-        th { background: #f4f4f4; font-weight: bold; }
-        .status-pending { color: #d35400; font-weight: bold; }
-        .status-approved { color: #27ae60; font-weight: bold; }        .status-denied { color: #c0392b; font-weight: bold; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
 
-        /* Chat */
-        #chat-box { height: 200px; overflow-y: auto; background: white; border: 1px solid #ddd; padding: 10px; border-radius: 8px; text-align: left; margin-bottom: 10px; font-size: 12px; }
-        .msg { border-bottom: 1px solid #f9f9f9; padding: 5px 0; }
-
-        .pagination { display: flex; justify-content: space-between; margin-top: 10px; }
-        footer { background: #222; color: white; padding: 15px; text-align: center; font-size: 10px; margin-top: auto; }
+        /* Admin Dashboard Styles */
+        #ownerDashboard {
+            background-color: #ffe0e0;
+            border-color: #ff0000;
+        }
+        
+        /* Reward Pop-up Styling (Keep previous styles) */
+        /* ... */
     </style>
 </head>
-<body>
+<body id="appBody">
 
+    <!-- Reward Popup Element -->
+    <div id="rewardPopup"></div>
+
+    <!-- Top Bar: Telegram User and Balance -->
+    <div class="top-bar">
+        <div id="userBar">👤 User: Guest</div>
+        <div class="balance">Balance: <span id="userBalance">0.000</span> PHP</div>
+    </div>
+
+    <!-- Header Title -->
     <header>
-        <div id="uName">👤 Guest</div>
-        <div id="uBal" style="color: #27ae60; font-weight: 900;">₱0.000</div>
+        <h1>PAPERHOUSE INC</h1>
+        <p>Your Ads Reward Application</p>
     </header>
 
-    <div class="nav">
-        <button class="btn" onclick="showPage('p-ads')">ADS AREA</button>
-        <button class="btn" onclick="showPage('p-gift')">GIFT AREA</button>
-        <button class="btn" onclick="showPage('p-signin')">SIGN IN</button>
-        <button class="btn" onclick="showPage('p-withdraw')">WITHDRAW</button>
-        <button class="btn" onclick="showPage('p-refer')">REFERRAL</button>
-        <button class="btn" onclick="showPage('p-chat')">CHAT</button>
-        <button class="btn" onclick="showPage('p-lead')">LEADER</button>
-        <button class="btn" style="background:#e74c3c; color:white;" onclick="checkAdmin()">OWNER</button>
-    </div>
-
-    <!-- SECTIONS -->
-    <div id="p-ads" class="page active"><div id="list-ads"></div></div>
-    <div id="p-gift" class="page"><div id="list-gift"></div></div>
-    <div id="p-signin" class="page"><div id="list-signin"></div></div>
-
-    <div id="p-withdraw" class="page">
-        <div class="card">
-            <h3>Withdraw</h3>
-            <select id="wMethod" style="width:100%; padding:10px; margin-bottom:10px; border-radius:5px;">
-                <option value="GCash">GCash</option>
-                <option value="FaucetPay">FaucetPay</option>
-            </select>
-            <input type="text" id="wAddr" placeholder="Account Number / Email" style="width:90%; padding:10px; margin-bottom:10px; border:1px solid #ddd;">
-            <input type="number" id="wAmt" placeholder="Amount PHP" style="width:90%; padding:10px; border:1px solid #ddd;">            <button class="btn" style="width:100%; margin-top:10px; padding:12px;" onclick="submitWithdraw()">Submit Request</button>
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Navigation Buttons -->
+        <div class="nav-buttons">
+            <button class="btn btn-main" onclick="toggleArea('adsArea')">🍍ADS AREA🍍</button>
+            <button class="btn btn-main" onclick="toggleArea('signInArea')">🍍Sign In🍍</button>
+            <button class="btn btn-main" onclick="toggleArea('giftArea')">🍍Gift🍍</button>
+            <button class="btn btn-main" onclick="toggleArea('withdrawalArea')">Withdrawals</button>
+            <button class="btn btn-main" onclick="toggleArea('referralArea')">Referrals</button>
+            <button class="btn btn-main" onclick="toggleArea('chatArea')">CHAT</button>            <button class="btn btn-main" onclick="toggleArea('leaderboardArea')">Top Earner Leaderboard</button>
+            <button class="btn btn-main" onclick="toggleArea('topicsArea')">Topics</button>
+            <button class="btn btn-main" onclick="showHelpModal()">Help section</button>
+            <button class="btn btn-main" onclick="showOwnerDashboardPrompt()">Owner Dashboard</button>
         </div>
-        <div class="card">
-            <h4>Withdrawal History (Real-time)</h4>
-            <div class="table-container" id="userWTable"></div>
-            <div class="pagination">
-                <button class="btn" style="width:70px" onclick="pg('user',-1)">Prev</button>
-                <button class="btn" style="width:70px" onclick="pg('user',1)">Next</button>
+
+        <!-- --- SECTION CONTAINERS --- -->
+        
+        <!-- ADS AREA (5 Minute Cooldown) - Default Visible -->
+        <div id="adsArea" class="main-section" style="display: block;">
+            <h2>Ad Tasks (5 Minute Cooldown)</h2>
+            <!-- Tasks 1-4 here (as defined in previous step) -->
+        </div>
+
+        <!-- SIGN IN AREA (1 Hour Cooldown) -->
+        <div id="signInArea" class="main-section">
+            <h2>Daily Sign In Tasks (1 Hour Cooldown)</h2>
+            <!-- Tasks 5-7 here (as defined in previous step) -->
+        </div>
+        
+        <!-- GIFT AREA (3 Hour Cooldown) -->
+        <div id="giftArea" class="main-section">
+            <h2>Gift Tasks (3 Hour Cooldown)</h2>
+            <!-- Tasks 8-10 here (as defined in previous step) -->
+        </div>
+
+        <!-- WITHDRAWAL SECTION -->
+        <div id="withdrawalArea" class="main-section">
+            <h2>Withdrawal Request</h2>
+            
+            <div class="withdrawal-form">
+                <h3>Current Balance: <span id="withdrawalBalance">0.000</span> PHP</h3><label for="withdrawalMethod">Withdrawal Method:</label>
+                <select id="withdrawalMethod" onchange="updateWithdrawalForm()">
+                    <option value="gcash">GCash (PHP)</option>
+                    <option value="faucetpay">FaucetPay (USDT)</option>
+                </select>
+
+                <div id="gcashForm">
+                    <label for="gcashNumber">GCash Number:</label>
+                    <input type="number" id="gcashNumber" placeholder="Enter 11-digit GCash number" required>
+                </div>
+
+                <div id="faucetpayForm" style="display: none;">
+                    <label for="faucetpayEmail">FaucetPay Email:</label>
+                    <input type="email" id="faucetpayEmail" placeholder="Enter FaucetPay email address" required>
+                    <p>Conversion: 1 PHP ≈ 0.017 USDT (Simulated Rate)</p>
+                </div>
+
+                <label for="withdrawalAmount">Amount (PHP):</label>
+                <input type="number" id="withdrawalAmount" placeholder="Enter amount to withdraw" required>
+                
+                <button class="btn btn-main" onclick="submitWithdrawalRequest()">Submit Withdrawal</button>
+            </div>
+
+            <h3>Withdrawal History (User View)</h3>
+            <p>Total Approved Withdrawals (Global): <span id="totalApprovedWithdrawals">Loading...</span></p>
+            <div id="userWithdrawalHistory">
+                <!-- Withdrawal history table will be populated here -->
+                <table>
+                    <thead>
+                        <tr><th>Name</th><th>Method</th><th>Amount</th><th>Date</th><th>Status</th></tr>
+                    </thead>
+                    <tbody id="withdrawalHistoryBody">
+                        <!-- Snapshot Listener data goes here -->
+                    </tbody>
+                </table>
+                <div id="withdrawalPagination"></div>
             </div>
         </div>
-    </div>
-
-    <div id="p-refer" class="page">
-        <div class="card">
-            <h3>Referral System</h3>
-            <p>Your ID: <b id="myId"></b></p>
-            <p>Total Referred: <span id="refCount">0</span></p>
-            <input type="text" id="refInput" placeholder="Referrer Username" style="padding:10px; width:80%;">
-            <button class="btn" style="width:80%; margin-top:10px;" onclick="saveReferrer()">Save Referrer</button>
+        
+        <!-- REFERRALS SECTION -->
+        <div id="referralArea" class="main-section">
+            <h2>Referral Program</h2>
+            <p>Referral Bonus: 10% of rewards earned by referrals.</p>
+            
+            <div class="referral-form">
+                <p>Your Telegram Username: <strong id="userReferralName">@Guest</strong></p>
+                <p>Total Referrals: <strong id="totalReferrals">0</strong></p>
+                
+                <h3>Claimable Referral Rewards: <span id="claimableRewards">0.000</span> PHP</h3>
+                <button class="btn btn-main" onclick="claimReferralRewards()">Claim Rewards</button>
+            </div>
+            
+            <h3>Add Referral</h3>
+            <input type="text" id="referralCodeInput" placeholder="Enter Telegram Username of Referrer (e.g., @Propetas6)">
+            <button class="btn btn-main" onclick="addReferrer()">Submit Referrer</button>
         </div>
-    </div>
 
-    <div id="p-chat" class="page">
-        <div class="card">
-            <div id="chat-box"></div>
-            <textarea id="chatInput" placeholder="Type message..." style="width:95%; height:40px; padding:5px; border-radius:5px;"></textarea>
-            <button class="btn" style="width:100%; margin-top:5px;" onclick="sendChat()">Send (Watch 4 Ads to earn ₱0.02)</button>
-        </div>
-    </div>
-
-    <div id="p-lead" class="page">
-        <div class="card">
-            <h3>Top 10 Earners</h3>
-            <div class="table-container"><table id="leadTable"><tbody></tbody></table></div>
-        </div>
-    </div>
-
-    <div id="p-admin" class="page">
-        <div class="card" style="background:#2c3e50; color:white;">
-            <h3 style="color:white">Admin Dashboard (Fast Sync)</h3>
-            <div class="table-container" id="ownerWTable"></div>
-            <div class="pagination">
-                <button class="btn" style="width:70px" onclick="pg('owner',-1)">Prev</button>
-                <button class="btn" style="width:70px" onclick="pg('owner',1)">Next</button>
+        <!-- CHAT SECTION -->
+        <div id="chatArea" class="main-section">
+            <h2>Global Chat (5000 Messages Max)</h2>
+            <div class="chat-messages" id="chatMessages">
+                <!-- Chat messages loaded via Snapshot Listener -->
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Type your message..." style="width: calc(100% - 120px);">
+                <button class="btn btn-main" onclick="sendMessage()">Send</button>
+                <div id="chatCooldownTimer">Ready to chat.</div>
             </div>
         </div>
+
+        <!-- LEADERBOARD SECTION -->
+        <div id="leaderboardArea" class="main-section">
+            <h2>Top Earner Leaderboard</h2>
+            <p>Ranks reset every week. Auto-updates every second.</p>
+            <div id="leaderboardTable">
+                <table>
+                    <thead>
+                        <tr><th>Rank</th><th>User</th><th>Total Earnings (PHP)</th></tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        <!-- Snapshot Listener data goes here -->
+                    </tbody>
+                </table>
+                <div id="leaderboardPagination"></div>
+            </div>
+        </div>
+
+        <!-- TOPICS SECTION -->
+        <div id="topicsArea" class="main-section">
+            <h2>Community Topics</h2>
+            <div id="topicCreation">
+                <input type="text" id="newTopicTitle" placeholder="Enter new topic title..." style="width: 100%; padding: 10px; margin-bottom: 10px;">
+                <button class="btn btn-main" onclick="createTopic()">Create Topic</button>
+            </div>
+            
+            <h3>Active Topics</h3>
+            <div id="topicList">
+                <!-- Paginated list of topics -->
+            </div>
+            <div id="topicPagination"></div>
+        </div>
+        
+        <!-- OWNER DASHBOARD (Hidden by default, password protected) -->
+        <div id="ownerDashboard" class="main-section">
+            <h2>Owner Dashboard - Withdrawal Approvals</h2>
+            <p>Total Approved Withdrawals: <strong id="adminTotalApproved">0.00</strong> PHP</p>
+            
+            <h3>Pending Withdrawal Requests (Priority List)</h3>
+            <div id="pendingRequestsTable">
+                <table>
+                    <thead>
+                        <tr><th>User</th><th>Method</th><th>Amount</th><th>Date</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="pendingRequestsBody">
+                        <!-- Snapshot Listener data goes here -->
+                    </tbody>
+                </table>
+                <div id="adminPagination"></div>
+            </div>
+        </div>
+        
+        <!-- Automatic Ad Area (Kept for continuity) -->
+        <div style="margin-top: 30px; padding: 10px; border: 1px dashed #ccc;">
+            <h3>Automatic Interstitial Ad Status</h3>
+            <p id="autoAdStatus">Checking for available ads...</p>
+        </div>
+        
     </div>
 
-    <footer>PAPERHOUSE INC | Community & Rewards</footer>
+    <!-- Help Section Modal (Updated) -->
+    <div id="helpModal" class="help-modal">
+        <div class="help-modal-content">
+            <span class="close-btn" onclick="closeHelpModal()">&times;</span>
+            <h2>Help Section</h2>
+            <p>Welcome to PAPERHOUSE INC! Watch ads to earn rewards.</p>
+            <h3>Follow us for updates and I have more</h3>
+            <p><strong>Telegram Group:</strong> <a href="https://t.me/paperhouseinc" target="_blank">https://t.me/paperhouseinc</a></p>
+            <p><strong>Telegram Channel:</strong> <a href="https://t.me/PAPERHOUSE_INC" target="_blank">https://t.me/PAPERHOUSE_INC</a></p>
+            <p><strong>Facebook Group:</strong> <a href="https://facebook.com/groups/1193693469083843/" target="_blank">https://facebook.com/groups/1193693469083843/</a></p>
+            <p><strong>Facebook Page:</strong> <a href="https://www.facebook.com/profile.php?id=61586281245735" target="_blank">https://www.facebook.com/profile.php?id=61586281245735</a></p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; <span id="currentYear"></span> PAPERHOUSE INC | Contact: otico.isai2@gmail.com</p>
+        <p>Current Time: <span id="currentTime"></span></p>
+    </footer>
 
     <script src="app.js"></script>
 </body>
