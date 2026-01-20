@@ -3,130 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PAPERHOUSE INC CHAT</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <title>🔰💎📄PAPERHOUSE INC CHAT📄💎🔰</title>
     
-    <!-- Monetag SDKs -->
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Monetag Ads SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
     <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
 
     <style>
-        :root { --main-bg: #f8fafc; --glass: rgba(255, 255, 255, 0.9); }
-        body { background: var(--main-bg); font-family: sans-serif; transition: background 0.3s; overflow-x: hidden; }
-        .bricks { position: fixed; inset: 0; background: url('https://www.transparenttextures.com/patterns/brick-wall.png'); opacity: 0.1; pointer-events: none; z-index: 0; }
-        .glass { background: var(--glass); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); }
-        section { display: none; width: 100%; animation: fadeIn 0.2s ease-in-out; }
-        section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .chat-box { height: 60vh; overflow-y: auto; display: flex; flex-direction: column-reverse; }
-        .btn-premium { transition: transform 0.1s; border-bottom: 4px solid rgba(0,0,0,0.1); }
-        .btn-premium:active { transform: scale(0.98); border-bottom: 0; }
+        :root {
+            --primary: #2c3e50;
+            --accent: #27ae60;
+            --bg-color: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            transition: background 0.4s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Bricks Background Pattern */
+        .bricks {
+            background-image:  linear-gradient(335deg, #b00 23px, transparent 23px),
+            linear-gradient(155deg, #d00 23px, transparent 23px),
+            linear-gradient(335deg, #b00 23px, transparent 23px),
+            linear-gradient(155deg, #d00 23px, transparent 23px);
+            background-size: 58px 58px;
+            background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
+        }
+
+        header {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .user-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 15px;
+            background: #444;
+            font-size: 14px;
+        }
+
+        .main-nav {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.1s, background 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button:active { transform: scale(0.95); }        .chat-container {
+            display: none;
+            flex-direction: column;
+            flex-grow: 1;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 95%;
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        #messages-list {
+            height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .msg {
+            padding: 8px 12px;
+            border-radius: 10px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .msg-other { background: #e1e1e1; align-self: flex-start; }
+        .msg-me { background: #dcf8c6; align-self: flex-end; }
+
+        .input-area {
+            padding: 15px;
+            background: #f0f0f0;
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+        }
+
+        .aide-text {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin: 10px;
+        }
+
+        .claim-box {
+            padding: 10px;
+            background: #fff3cd;
+            text-align: center;
+            border-top: 1px solid #ffeeba;
+            display: none;
+        }
+
+        footer {
+            background: #222;
+            color: #888;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            margin-top: auto;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;left: 0;right: 0;bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 1000;
+        }
     </style>
 </head>
-<body class="text-slate-900 select-none">
-    <div class="bricks"></div>
+<body id="mainBody">
 
-    <div class="relative z-10 min-h-screen flex flex-col">
-        <!-- Persistent Header -->
-        <nav class="glass sticky top-0 p-4 shadow-sm flex justify-between items-center z-50">
-            <div class="flex flex-col leading-tight">
-                <span id="user-fullname" class="font-black text-indigo-700">Loading...</span>
-                <span id="user-username" class="text-[10px] text-slate-500">@username</span>
-            </div>
-            <div class="bg-indigo-600 text-white px-4 py-2 rounded-2xl font-black shadow-lg">
-                💰 <span id="balance-display">0.000</span> PHP            </div>
-        </nav>
+    <header>
+        <h3>🔰💎📄PAPERHOUSE INC CHAT📄💎🔰</h3>
+    </header>
 
-        <main id="app-container" class="p-4 flex-grow">
-            
-            <!-- HOME PAGE -->
-            <section id="page-home" class="active space-y-3">
-                <div id="clickArea" class="glass p-6 rounded-3xl text-center border-2 border-dashed border-indigo-200">
-                    <p class="font-bold text-indigo-500">🔰 PAPERHOUSE INC CHAT 🔰</p>
-                    <p class="text-[10px] opacity-50">Tap here to change theme 🎨</p>
-                </div>
+    <div class="user-bar">
+        <span id="userBar">👤 User: Loading...</span>
+        <span id="userBalance">💰 0.000 Peso</span>
+    </div>
+    <p class="aide-text">Tip: Click background to change style. Click buttons to change color!</p>
 
-                <button onclick="router('gifts')" class="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white p-5 rounded-3xl font-black text-lg shadow-xl btn-premium">🍍💎 PAPER HOUSE Gift 💎🍍</button>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="router('elementary')" class="bg-cyan-500 text-white p-4 rounded-2xl font-bold btn-premium">📘 ELEMENTARY</button>
-                    <button onclick="router('highschool')" class="bg-emerald-500 text-white p-4 rounded-2xl font-bold btn-premium">📗 HIGHSCHOOL</button>
-                    <button onclick="router('college')" class="bg-purple-600 text-white p-4 rounded-2xl font-bold btn-premium text-sm">📙 COLLEGE</button>
-                    <button onclick="router('online')" class="bg-blue-500 text-white p-4 rounded-2xl font-bold btn-premium">👥 ONLINE</button>
-                </div>
-                
-                <button onclick="router('bonus')" class="w-full bg-orange-500 text-white p-4 rounded-2xl font-bold btn-premium">💎 BONUS ADS 💎</button>
-                <button onclick="router('leaderboard')" class="w-full bg-lime-600 text-white p-4 rounded-2xl font-bold btn-premium">🍺 LEADERBOARD</button>
-                <button onclick="router('withdraw')" class="w-full bg-slate-800 text-white p-4 rounded-2xl font-bold btn-premium">🔔 WITHDRAWAL</button>
-                <button onclick="router('owner')" class="w-full border-2 border-black p-3 rounded-2xl font-bold text-xs">🎖 OWNER DASHBOARD</button>
-            </section>
-
-            <!-- CHAT PAGE -->
-            <section id="page-chat" class="space-y-3">
-                <button onclick="router('home')" class="font-bold text-indigo-600">← Back</button>                <h2 id="chat-title" class="text-center font-black text-xl">ELEMENTARY</h2>
-                <div id="chat-box" class="chat-box glass rounded-2xl p-4 border space-y-2"></div>
-                <div class="glass p-2 rounded-2xl flex flex-col gap-2">
-                    <input id="chat-input" type="text" placeholder="Type a message..." class="w-full p-4 rounded-xl border-none outline-none">
-                    <button id="chat-send-btn" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold">Watch 3 Ads (+0.015 PHP)</button>
-                    <p id="chat-cooldown" class="text-center text-red-500 text-[10px] font-bold"></p>
-                </div>
-            </section>
-
-            <!-- GIFTS PAGE -->
-            <section id="page-gifts" class="space-y-4">
-                <button onclick="router('home')" class="font-bold text-indigo-600">← Back</button>
-                <div id="gifts-container" class="grid gap-4">
-                    <!-- Gift 1 -->
-                    <div class="glass p-5 rounded-3xl text-center border-2 border-pink-100">
-                        <h3 class="font-black">Gift #1</h3>
-                        <p id="gift1-timer" class="text-xs text-red-500 my-2"></p>
-                        <button id="gift1-ad" onclick="runGiftAd('gift1', 10337853)" class="w-full bg-indigo-600 text-white p-3 rounded-xl font-bold">Watch Ad</button>
-                        <button id="gift1-claim" onclick="claimGift('gift1')" class="hidden w-full bg-green-500 text-white p-3 rounded-xl font-bold">Claim 0.01 PHP</button>
-                    </div>
-                    <!-- Gift 2 -->
-                    <div class="glass p-5 rounded-3xl text-center border-2 border-pink-100">
-                        <h3 class="font-black">Gift #2</h3>
-                        <p id="gift2-timer" class="text-xs text-red-500 my-2"></p>
-                        <button id="gift2-ad" onclick="runGiftAd('gift2', 10337795)" class="w-full bg-indigo-600 text-white p-3 rounded-xl font-bold">Watch Ad</button>
-                        <button id="gift2-claim" onclick="claimGift('gift2')" class="hidden w-full bg-green-500 text-white p-3 rounded-xl font-bold">Claim 0.01 PHP</button>
-                    </div>
-                    <!-- Gift 3 -->
-                    <div class="glass p-5 rounded-3xl text-center border-2 border-pink-100">
-                        <h3 class="font-black">Gift #3</h3>
-                        <p id="gift3-timer" class="text-xs text-red-500 my-2"></p>
-                        <button id="gift3-ad" onclick="runGiftAd('gift3', 10276123)" class="w-full bg-indigo-600 text-white p-3 rounded-xl font-bold">Watch Ad</button>
-                        <button id="gift3-claim" onclick="claimGift('gift3')" class="hidden w-full bg-green-500 text-white p-3 rounded-xl font-bold">Claim 0.01 PHP</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- WITHDRAW PAGE -->
-            <section id="page-withdraw" class="space-y-4">
-                <button onclick="router('home')" class="font-bold text-indigo-600">← Back</button>
-                <div class="glass p-6 rounded-3xl">
-                    <h2 class="font-black text-xl mb-4">GCASH Payout</h2>
-                    <input id="withdraw-gcash" type="number" placeholder="09xxxxxxxxx" class="w-full p-4 rounded-xl bg-slate-100 mb-2">
-                    <button onclick="handleWithdraw()" class="w-full bg-orange-600 text-white p-4 rounded-xl font-bold">Request Withdrawal</button>
-                </div>
-                <div class="glass rounded-2xl p-4 overflow-hidden">
-                    <h3 class="text-xs font-bold mb-2">History (Latest 10)</h3>
-                    <div id="withdraw-history" class="text-[10px] space-y-1"></div>
-                </div>
-            </section>
-
-            <!-- LEADERBOARD PAGE -->
-            <section id="page-leaderboard" class="space-y-4">
-                <button onclick="router('home')" class="font-bold text-indigo-600">← Back</button>
-                <h2 class="text-center font-black text-xl">TOP EARNERS</h2>
-                <div id="leaderboard-list" class="glass rounded-2xl overflow-hidden divide-y"></div>
-            </section>
-
-        </main>
+    <div class="main-nav">
+        <button id="btnElem" style="background: #3498db; color: white;">📘 ELEMENTARY</button>
+        <button id="btnHigh" style="background: #2ecc71; color: white;">📗 HIGHSCHOOL</button>
     </div>
 
+    <!-- Chat Page -->
+    <div id="chatRoom" class="chat-container">
+        <div id="chatTitle" style="padding: 10px; background: #eee; text-align: center; font-weight: bold;"></div>
+        <div id="messages-list"></div>
+        
+        <div id="highschoolClaim" class="claim-box">
+            <button id="claimBtn" style="background: #f1c40f;">🎁 Claim 0.015 Peso Reward</button>
+            <div id="claimTimer"></div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="msgInput" placeholder="Type message...">
+            <button id="sendBtn">SEND</button>
+        </div>
+        <div id="cooldownDisplay" style="text-align: center; font-size: 11px; padding-bottom: 5px; color: red;"></div>
+    </div>
+
+    <div id="loader" class="loading-overlay">🎥 Showing Ads... Please Wait</div>
+
+    <footer>
+        <p>PAPERHOUSE INC</p>
+        <p id="footerTime"></p>
+        <p>otico.isai2@gmail.com</p>
+    </footer>
+
     <script type="module" src="app.js"></script>
+    <script>
+        // UI Background & Button Logic
+        const colors = ['pink','green','blue','red','violet','yellow','yellowgreen','orange','white','cyan','brown'];
+        const body = document.getElementById('mainBody');
+        
+        body.addEventListener('click', (e) => {
+            if(e.target.tagName === 'BODY' || e.target.className === 'aide-text') {
+                const randomIdx = Math.floor(Math.random() * (colors.length + 1));
+                if(randomIdx === colors.length) {
+                    body.className = 'bricks';
+                    body.style.backgroundColor = '';
+                } else {
+                    body.className = '';
+                    body.style.backgroundColor = colors[randomIdx];
+                }
+            }
+        });
+
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                btn.style.backgroundColor = color;
+                btn.style.color = (color === 'white' || color === 'yellow') ? 'black' : 'white';
+            });
+        });
+
+        function updateTime() {
+            document.getElementById('footerTime').innerText = new Date().toLocaleString();
+        }
+        setInterval(updateTime, 1000);
+    </script>
 </body>
 </html>
