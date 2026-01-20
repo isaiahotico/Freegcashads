@@ -3,146 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAPERHOUSE INC V8</title>
+    <title>PAPERHOUSE INC V9 - CONTROL</title>
+    <!-- Monetag SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
     <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        :root { --blue: #00d4ff; --green: #2ecc71; --red: #e74c3c; --dark: #0a0a0a; --glass: rgba(255,255,255,0.05); }
-        body { background: var(--dark); color: #fff; font-family: 'Poppins', sans-serif; margin: 0; overflow-x: hidden; }
+        :root { --neon: #00f2ff; --gold: #f1c40f; --pure-white: #ffffff; --glass: rgba(255, 255, 255, 0.03); }
+        body { background: #050505; color: white; font-family: 'Rajdhani', sans-serif; margin: 0; }
         .hidden { display: none; }
-        .page { padding: 15px; min-height: 100vh; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; padding: 15px; margin-bottom: 15px; backdrop-filter: blur(10px); }
+        #app { max-width: 500px; margin: auto; min-height: 100vh; padding: 15px; display: flex; flex-direction: column; }
         
         /* Header */
-        .header { text-align: center; border-bottom: 2px solid var(--blue); padding: 10px; position: sticky; top: 0; z-index: 100; background: var(--dark); }
-        .username-display { font-family: 'Orbitron'; color: var(--blue); font-size: 1.2rem; }
-        
-        /* Button Grid */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn-main { padding: 15px; border: none; border-radius: 10px; color: #fff; font-weight: bold; cursor: pointer; font-size: 11px; text-transform: uppercase; }
+        .premium-header { border: 1px solid var(--neon); border-radius: 15px; padding: 15px; text-align: center; margin-bottom: 20px; box-shadow: 0 0 20px rgba(0, 242, 255, 0.1); }
+        .live-user { font-family: 'Orbitron'; font-size: 1.1rem; color: var(--neon); }
+        .live-bal { font-size: 1.8rem; font-weight: 700; color: #2ecc71; }
+
+        /* 10 Button Grid */
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .btn { padding: 16px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 11px; transition: 0.2s; color: white; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .btn:active { transform: scale(0.95); }
         .full { grid-column: span 2; }
+
+        /* Admin Page Special Concept */
+        .admin-table-container { background: var(--glass); border-radius: 15px; border: 1px solid #222; overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; font-size: 10px; }
+        th, td { padding: 10px; border-bottom: 1px solid #111; text-align: left; white-space: nowrap; }
+        th { background: #111; color: var(--neon); text-transform: uppercase; }
+        .status-pill { padding: 3px 7px; border-radius: 4px; font-size: 9px; }
+        .status-Pending { background: #d35400; }        .status-Approved { background: #27ae60; }
+
+        .pagination-ctrl { display: flex; justify-content: space-between; align-items: center; padding: 15px; }
+        .page-btn { background: #222; border: 1px solid #444; color: white; padding: 5px 15px; border-radius: 5px; }
+
+        /* Popups */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .modal { background: #111; border: 1px solid var(--neon); padding: 25px; border-radius: 20px; text-align: center; width: 100%; }
+        input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: white; margin: 10px 0; border-radius: 8px; box-sizing: border-box; }
         
-        /* Tables */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 10px; }
-        th, td { padding: 8px; border-bottom: 1px solid #333; text-align: left; }
-        .status-pending { color: #f1c40f; }
-        .status-approved { color: var(--green); font-weight: bold; }
-        
-        /* Modals */
-        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index: 1000; display:flex; align-items:center; justify-content:center; }        .modal { width: 80%; background: #111; padding: 20px; border-radius: 15px; text-align: center; border: 1px solid var(--blue); }
-        
-        input { width: 100%; padding: 10px; box-sizing: border-box; background: #000; border: 1px solid #333; color: #fff; margin: 10px 0; border-radius: 5px; }
-        .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 10px; }
-        .page-btn { background: #222; border: none; color: #fff; padding: 5px 10px; border-radius: 4px; }
+        footer { margin-top: auto; padding: 20px; text-align: center; font-size: 11px; opacity: 0.4; }
     </style>
 </head>
 <body>
 
-<!-- Admin Access Popup -->
-<div id="admin-popup" class="overlay hidden">
+<!-- Admin Entry Logic -->
+<div id="admin-gate" class="overlay hidden">
     <div class="modal">
-        <h3>🎖 Admin Verification</h3>
-        <p>Enter access code for owner dashboard (2 seats only):</p>
-        <input type="password" id="admin-code-input" placeholder="Enter Code">
-        <button class="btn-main full" style="background:var(--blue); color:black;" onclick="checkAdminCode()">Verify Code</button>
-        <p onclick="closeAdminPopup()" style="font-size: 12px; margin-top: 10px; opacity: 0.5;">I am a normal user</p>
+        <h2 style="color: var(--neon)">VERIFY COMMANDER</h2>
+        <p>Admin Seat Status: <span id="admin-seats">Checking...</span></p>
+        <input type="password" id="admin-pass" placeholder="Access Code">
+        <button class="btn full" style="background: var(--neon); color: black;" onclick="verifyAdmin()">Login as Admin</button>
+        <p onclick="closeAdminGate()" style="margin-top: 15px; cursor: pointer;">Cancel</p>
     </div>
-</div>
-
-<!-- Reward Popup (Random Greetings) -->
-<div id="reward-popup" class="overlay hidden">
-    <div class="modal">
-        <h2 id="greeting-title">✨ PERFECT! ✨</h2>
-        <p id="greeting-msg">Reward ₱0.015 added to balance!</p>
-        <button class="btn-main full" style="background:var(--green);" onclick="closeRewardPopup()">Awesome!</button>
-    </div>
-</div>
-
-<div class="header">
-    <div class="username-display" id="header-user">@Loading...</div>
-    <div style="color: var(--green); font-weight: bold;">₱<span id="header-bal">0.000</span></div>
 </div>
 
 <div id="app">
-    <!-- MAIN MENU -->
+    <div class="premium-header">
+        <div class="live-user" id="user-display">@...</div>
+        <div class="live-bal">₱<span id="bal-display">0.000</span></div>
+    </div>
+
+    <!-- 10 BUTTON MENU -->
     <div id="page-main" class="page">
-        <div class="grid">
-            <button class="btn-main full" style="background: #e67e22;" onclick="navTo('page-gift')">🍍💎PAPER HOUSE Gift💎🍍</button>
-            <button class="btn-main" style="background: #3498db;" onclick="openChat('elementary')">📘 ELEMENTARY</button>
-            <button class="btn-main" style="background: #27ae60;" onclick="openChat('highschool')">📗 HIGHSCHOOL</button>            <button class="btn-main" style="background: #9b59b6;" onclick="openChat('college')">📙 COLLEGE</button>
-            <button class="btn-main" style="background: #f1c40f; color: #000;" onclick="navTo('page-leader')">🍺 LEADERBOARD</button>
-            <button class="btn-main" style="background: #8e44ad;" onclick="navTo('page-online')">👥 ONLINE USERS</button>
-            <button class="btn-main" style="background: #c0392b;" onclick="navTo('page-withdraw')">🔔 WITHDRAWAL</button>
-            <button class="btn-main" style="background: #1abc9c;" onclick="navTo('page-referral')">💎 REFERRALS</button>
-            <button class="btn-main" style="background: #34495e;" onclick="navTo('page-help')">🗝 HELP SECTION</button>
-            <button class="btn-main" id="admin-nav" style="background: #222; display:none;" onclick="navTo('page-admin')">🎖 ADMIN</button>
+        <div class="main-grid">
+            <button class="btn full" style="background: #e67e22;" onclick="navTo('page-gift')">🍍💎PAPER HOUSE Gift💎🍍</button>
+            <button class="btn" style="background: #3498db;" onclick="openChat('elementary')">📘 ELEMENTARY</button>
+            <button class="btn" style="background: #27ae60;" onclick="openChat('highschool')">📗 HIGHSCHOOL</button>
+            <button class="btn" style="background: #9b59b6;" onclick="openChat('college')">📙 COLLEGE</button>            <button class="btn" style="background: #f1c40f; color: black;" onclick="navTo('page-leaders')">🍺 LEADERBOARD</button>
+            <button class="btn" style="background: #1abc9c;" onclick="navTo('page-referral')">💎 REFERRALS</button>
+            <button class="btn" style="background: #8e44ad;" onclick="navTo('page-online')">👥 ONLINE USERS</button>
+            <button class="btn" style="background: #c0392b;" onclick="navTo('page-withdraw')">🔔 WITHDRAWAL</button>
+            <button class="btn" style="background: #34495e;" onclick="navTo('page-help')">🗝 HELP SECTION</button>
+            <button class="btn" id="admin-btn-show" style="background: #000; border: 1px solid var(--neon);" onclick="checkAdminSeat()">🎖 ADMIN 🎖</button>
         </div>
     </div>
 
     <!-- WITHDRAWAL PAGE -->
     <div id="page-withdraw" class="page hidden">
-        <button class="btn-main" style="background:#444" onclick="navTo('page-main')">⬅ Back</button>
-        <div class="card" style="text-align:center; margin-top:15px;">
-            <div style="font-size:24px; color:var(--green); font-weight:bold">₱<span id="earnBox">0.000</span></div>
-            <input type="text" id="payoutInfo" placeholder="Number / Email">
-            <button class="btn-main full" style="background:var(--green); color:black; margin-bottom:10px;" onclick="handleWithdraw('GCash')">Withdraw GCash (PHP)</button>
-            <button class 
-="btn-main full" style="background:var(--blue); color:black;" onclick="handleWithdraw('FaucetPay')">Withdraw FaucetPay (USDT)</button>
+        <button class="btn" style="background: #222; margin-bottom: 15px;" onclick="navTo('page-main')">⬅ Back</button>
+        <div class="premium-header">
+            <input type="text" id="pay-info" placeholder="GCash/FaucetPay Details">
+            <button class="btn full" style="background: var(--neon); color: black; margin-top: 10px;" onclick="handleWithdraw()">Confirm Withdrawal</button>
         </div>
-        <h4>Withdrawal History</h4>
-        <div class="card" style="padding:0">
-            <table id="userHistTable">
-                <thead><tr><th>Method</th><th>Account</th><th>Amount</th><th>Time</th><th>Status</th></tr></thead>
-                <tbody id="userHistBody"></tbody>
+        <h4>Your Request History</h4>
+        <div class="admin-table-container">
+            <table id="user-history-table">
+                <thead><tr><th>Account</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody id="user-history-body"></tbody>
             </table>
-        </div>
-        <div class="pagination">
-            <button class="page-btn" onclick="changeUserPage(-1)">Prev</button>
-            <span id="userPageNum">1</span>
-            <button class="page-btn" onclick="changeUserPage(1)">Next</button>
         </div>
     </div>
 
-    <!-- ADMIN PAGE -->
+    <!-- ADMIN PAGE (25 per page pagination) -->
     <div id="page-admin" class="page hidden">
-        <button class="btn-main" style="background:#444" onclick="navTo('page-main')">Logout</button>
-        <h3>Owner: Withdrawal Requests</h3>
-        <div class="card" style="padding:0">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <button class="btn" style="background: #222;" onclick="navTo('page-main')">Back</button>
+            <h3 style="color: var(--neon); margin: 0;">🎖 Command Center</h3>
+        </div>
+        <div class="admin-table-container">
             <table>
-                <thead><tr><th>Name</th><th>Type</th><th>Account</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
-                <tbody id="adminBody"></tbody>
+                <thead>
+                    <tr><th>User</th><th>Method</th><th>Amount</th><th>Status</th><th>Action</th></tr>
+                </thead>
+                <tbody id="admin-live-body"></tbody>
             </table>
         </div>
-        <div class="pagination">
-            <button class="page-btn" onclick="changeAdminPage(-1)">Prev</button>
-            <span id="adminPageNum">1</span>
-            <button class="page-btn" onclick="changeAdminPage(1)">Next</button>
+        <div class="pagination-ctrl">
+            <button class="page-btn" onclick="prevAdminPage()">Prev</button>
+            <span>Page <span id="current-admin-page">1</span></span>
+            <button class="page-btn" onclick="nextAdminPage()">Next</button>
         </div>
     </div>
 
-    <!-- (Other pages simplified for brevity, logic remains in app.js) -->
-    <div id="page-chat" class="page hidden">
-        <h3 id="chat-title">Chat</h3>
-        <div id="chat-box" class="card" style="height:300px; overflow-y:auto; font-size:12px;"></div>
-        <input type="text" id="chat-input" placeholder="Type message...">
-        <button class="btn-main full" style="background:var(--blue); color:black;" onclick="sendChatMsg()">Send Message</button>
-        <button class="btn-main full" style="background:#444; margin-top:5px;" onclick="navTo('page-main')">Back</button>
+    <!-- SIMPLIFIED OTHER PAGES -->
+    <div id="page-online" class="page hidden">
+        <button class="btn" onclick="navTo('page-main')">Back</button>
+        <h3>👥 Users Online (<span id="count-online">0</span>)</h3>
+        <div id="online-list" style="padding: 10px;"></div>
     </div>
 
-    <div id="page-gift" class="page hidden">
-        <h3>🍍💎 Combined Reward</h3>
-        <div class="card" style="text-align:center;">
-            <p>Cooldown: <span id="ad-cd">READY</span></p>
-            <button class="btn-main full" id="ad-btn" style="background:var(--blue); color:black;" onclick="watchCombinedAds()">Watch 3 Combined Ads (₱0.015)</button>
-        </div>
-        <button class="btn-main full" style="background:#444" onclick="navTo('page-main')">Back</button>
-    </div>
+    <!-- ... Leader, Gift, Referral, Help, Chats (logic in JS) ... -->
 
-    <!-- ... Other pages: Leaders, Online, Referral, Help ... -->
+    <footer>
+        PAPERHOUSE INC V9 | <span id="clock"></span>
+    </footer>
 </div>
 
 <script type="module" src="app.js"></script>
