@@ -2,36 +2,90 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Telegram Balance Demo</title>
+  <title>Telegram Balance App</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Telegram SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Firebase -->
+  <!-- App -->
   <script type="module" src="app.js"></script>
 
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+      min-height: 100vh;
+    }
+
+    #topBar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(10px);
+    }
+
+    .card {
+      background: rgba(255,255,255,0.08);
+      margin: 15px;
+      padding: 16px;
+      border-radius: 16px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    button {
+      background: #00c6ff;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+  </style>
 </head>
 <body>
 
   <!-- TOP BAR -->
   <div id="topBar">
-    <div id="userBar">👤 User:</div>
+    <div id="userBar">👤 User</div>
     <button id="adminBtn">Admin</button>
   </div>
 
   <!-- BALANCE -->
   <div class="card">
     <h2>Balance</h2>
-    <div id="balance">₱50,000</div>
+    <div id="balance">₱0</div>
   </div>
 
   <!-- WITHDRAW -->
   <div class="card">
     <h3>Withdraw (GCash)</h3>
-    <input id="gcash" placeholder="GCash Number" />
-    <input id="amount" type="number" placeholder="Amount" />
+    <input id="gcash" placeholder="GCash Number">
+    <input id="amount" type="number" placeholder="Amount">
     <button id="withdrawBtn">Request Withdrawal</button>
   </div>
 
