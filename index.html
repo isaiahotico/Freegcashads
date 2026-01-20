@@ -3,132 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAPERHOUSE INC V9 - CONTROL</title>
+    <title>PAPERHOUSE V10 - APEX</title>
     <!-- Monetag SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
     <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00f2ff; --gold: #f1c40f; --pure-white: #ffffff; --glass: rgba(255, 255, 255, 0.03); }
-        body { background: #050505; color: white; font-family: 'Rajdhani', sans-serif; margin: 0; }
-        .hidden { display: none; }
-        #app { max-width: 500px; margin: auto; min-height: 100vh; padding: 15px; display: flex; flex-direction: column; }
-        
-        /* Header */
-        .premium-header { border: 1px solid var(--neon); border-radius: 15px; padding: 15px; text-align: center; margin-bottom: 20px; box-shadow: 0 0 20px rgba(0, 242, 255, 0.1); }
-        .live-user { font-family: 'Orbitron'; font-size: 1.1rem; color: var(--neon); }
-        .live-bal { font-size: 1.8rem; font-weight: 700; color: #2ecc71; }
+        :root { --neon: #00f2ff; --glass: rgba(255, 255, 255, 0.05); --border: rgba(255, 255, 255, 0.1); }
+        body { background: #000; color: #fff; font-family: 'Rajdhani', sans-serif; margin: 0; }
+        .page { display: none; padding: 20px; animation: slideUp 0.3s ease-out; }
+        .active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* UI Elements */
+        .glass { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 15px; padding: 15px; }
+        .header { text-align: center; border-bottom: 2px solid var(--neon); padding: 15px; position: sticky; top: 0; background: #000; z-index: 100; }
+        .user-tag { font-family: 'Orbitron'; color: var(--neon); font-size: 1.1rem; }
+        .bal-tag { font-size: 2rem; color: #2ecc71; font-weight: 700; }
 
         /* 10 Button Grid */
-        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn { padding: 16px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; text-transform: uppercase; font-size: 11px; transition: 0.2s; color: white; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .btn { padding: 15px; border: none; border-radius: 12px; font-weight: 700; color: #fff; font-size: 11px; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
         .btn:active { transform: scale(0.95); }
         .full { grid-column: span 2; }
 
-        /* Admin Page Special Concept */
-        .admin-table-container { background: var(--glass); border-radius: 15px; border: 1px solid #222; overflow-x: auto; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; font-size: 10px; }
-        th, td { padding: 10px; border-bottom: 1px solid #111; text-align: left; white-space: nowrap; }
-        th { background: #111; color: var(--neon); text-transform: uppercase; }
-        .status-pill { padding: 3px 7px; border-radius: 4px; font-size: 9px; }
-        .status-Pending { background: #d35400; }        .status-Approved { background: #27ae60; }
-
-        .pagination-ctrl { display: flex; justify-content: space-between; align-items: center; padding: 15px; }
-        .page-btn { background: #222; border: 1px solid #444; color: white; padding: 5px 15px; border-radius: 5px; }
-
-        /* Popups */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .modal { background: #111; border: 1px solid var(--neon); padding: 25px; border-radius: 20px; text-align: center; width: 100%; }
-        input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: white; margin: 10px 0; border-radius: 8px; box-sizing: border-box; }
+        /* Chat & Tables */
+        .chat-container { height: 350px; overflow-y: auto; background: rgba(0,0,0,0.5); border: 1px solid #222; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #222; }
         
-        footer { margin-top: auto; padding: 20px; text-align: center; font-size: 11px; opacity: 0.4; }
+        /* Overlays */        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .modal { width: 85%; padding: 25px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #111; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-<!-- Admin Entry Logic -->
+<!-- Fast Admin Verification -->
 <div id="admin-gate" class="overlay hidden">
-    <div class="modal">
-        <h2 style="color: var(--neon)">VERIFY COMMANDER</h2>
-        <p>Admin Seat Status: <span id="admin-seats">Checking...</span></p>
-        <input type="password" id="admin-pass" placeholder="Access Code">
-        <button class="btn full" style="background: var(--neon); color: black;" onclick="verifyAdmin()">Login as Admin</button>
-        <p onclick="closeAdminGate()" style="margin-top: 15px; cursor: pointer;">Cancel</p>
+    <div class="modal glass">
+        <h2 style="color:var(--neon)">🎖 OWNER ACCESS</h2>
+        <p style="font-size: 12px;">Fast update: Verification seat check...</p>
+        <input type="password" id="admin-input" placeholder="ACCESS CODE">
+        <button class="btn full" style="background: var(--neon); color: #000;" onclick="verifyAdminFast()">VERIFY & PROCEED</button>
+        <p onclick="closeModal('admin-gate')" style="margin-top: 15px; font-size: 12px; opacity: 0.5;">Cancel</p>
     </div>
 </div>
 
-<div id="app">
-    <div class="premium-header">
-        <div class="live-user" id="user-display">@...</div>
-        <div class="live-bal">₱<span id="bal-display">0.000</span></div>
+<!-- Reward Greeting -->
+<div id="greet-modal" class="overlay hidden">
+    <div class="modal glass">
+        <h1 id="greet-title" style="color:var(--neon)">EXCELLENT!</h1>
+        <p id="greet-body">Bonus added to your empire.</p>
+        <button class="btn full" style="background: #2ecc71;" onclick="closeModal('greet-modal')">CONTINUE</button>
     </div>
+</div>
 
+<div class="header">
+    <div class="user-tag" id="live-user">@...</div>
+    <div class="bal-tag">₱<span id="live-bal">0.000</span></div>
+</div>
+
+<div id="app">
     <!-- 10 BUTTON MENU -->
-    <div id="page-main" class="page">
-        <div class="main-grid">
+    <div id="page-main" class="page active">
+        <div class="grid">
             <button class="btn full" style="background: #e67e22;" onclick="navTo('page-gift')">🍍💎PAPER HOUSE Gift💎🍍</button>
-            <button class="btn" style="background: #3498db;" onclick="openChat('elementary')">📘 ELEMENTARY</button>
-            <button class="btn" style="background: #27ae60;" onclick="openChat('highschool')">📗 HIGHSCHOOL</button>
-            <button class="btn" style="background: #9b59b6;" onclick="openChat('college')">📙 COLLEGE</button>            <button class="btn" style="background: #f1c40f; color: black;" onclick="navTo('page-leaders')">🍺 LEADERBOARD</button>
+            <button class="btn" style="background: #3498db;" onclick="openRoom('elementary')">📘 ELEMENTARY</button>
+            <button class="btn" style="background: #27ae60;" onclick="openRoom('highschool')">📗 HIGHSCHOOL</button>
+            <button class="btn" style="background: #9b59b6;" onclick="openRoom('college')">📙 COLLEGE</button>            <button class="btn" style="background: #f1c40f; color: #000;" onclick="navTo('page-leader')">🍺 LEADERBOARD</button>
             <button class="btn" style="background: #1abc9c;" onclick="navTo('page-referral')">💎 REFERRALS</button>
             <button class="btn" style="background: #8e44ad;" onclick="navTo('page-online')">👥 ONLINE USERS</button>
             <button class="btn" style="background: #c0392b;" onclick="navTo('page-withdraw')">🔔 WITHDRAWAL</button>
             <button class="btn" style="background: #34495e;" onclick="navTo('page-help')">🗝 HELP SECTION</button>
-            <button class="btn" id="admin-btn-show" style="background: #000; border: 1px solid var(--neon);" onclick="checkAdminSeat()">🎖 ADMIN 🎖</button>
+            <button class="btn" id="admin-nav-btn" style="background: #000; border: 1px solid var(--neon);" onclick="openAdminGate()">🎖 ADMIN 🎖</button>
         </div>
     </div>
 
-    <!-- WITHDRAWAL PAGE -->
-    <div id="page-withdraw" class="page hidden">
-        <button class="btn" style="background: #222; margin-bottom: 15px;" onclick="navTo('page-main')">⬅ Back</button>
-        <div class="premium-header">
-            <input type="text" id="pay-info" placeholder="GCash/FaucetPay Details">
-            <button class="btn full" style="background: var(--neon); color: black; margin-top: 10px;" onclick="handleWithdraw()">Confirm Withdrawal</button>
+    <!-- CHAT ROOMS -->
+    <div id="page-chat" class="page">
+        <h3 id="chat-title">Chat</h3>
+        <div class="chat-container" id="chat-box"></div>
+        <input type="text" id="chat-msg" placeholder="Message...">
+        <button class="btn full" style="background: var(--neon); color:#000;" onclick="sendMessage()">Send & Earn ₱0.015</button>
+        <button class="btn full" style="background: #444; margin-top: 10px;" onclick="navTo('page-main')">Back</button>
+    </div>
+
+    <!-- WITHDRAWAL (Live Sync) -->
+    <div id="page-withdraw" class="page">
+        <div class="glass">
+            <h3>🔔 Request Payout</h3>
+            <input type="text" id="wd-info" placeholder="GCash/FaucetPay Details">
+            <button class="btn full" style="background: var(--neon); color:#000;" onclick="submitWithdraw()">Withdraw Now</button>
         </div>
-        <h4>Your Request History</h4>
-        <div class="admin-table-container">
-            <table id="user-history-table">
-                <thead><tr><th>Account</th><th>Amount</th><th>Status</th></tr></thead>
-                <tbody id="user-history-body"></tbody>
+        <h4>Live Request Status</h4>
+        <div class="glass" style="padding: 0;">
+            <table id="wd-table">
+                <thead><tr><th>Amount</th><th>Status</th><th>Time</th></tr></thead>
+                <tbody id="wd-body"></tbody>
             </table>
         </div>
+        <button class="btn full" style="background: #444; margin-top: 10px;" onclick="navTo('page-main')">Back</button>
     </div>
 
-    <!-- ADMIN PAGE (25 per page pagination) -->
-    <div id="page-admin" class="page hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <button class="btn" style="background: #222;" onclick="navTo('page-main')">Back</button>
-            <h3 style="color: var(--neon); margin: 0;">🎖 Command Center</h3>
-        </div>
-        <div class="admin-table-container">
+    <!-- ADMIN (25 Per Page) -->
+    <div id="page-admin" class="page">
+        <h3 style="color:var(--neon)">🎖 Admin Commander</h3>
+        <div class="glass" style="padding: 0; overflow-x: auto;">
             <table>
-                <thead>
-                    <tr><th>User</th><th>Method</th><th>Amount</th><th>Status</th><th>Action</th></tr>
-                </thead>
-                <tbody id="admin-live-body"></tbody>
+                <thead><tr><th>User</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="admin-table-body"></tbody>
             </table>
         </div>
-        <div class="pagination-ctrl">
-            <button class="page-btn" onclick="prevAdminPage()">Prev</button>
-            <span>Page <span id="current-admin-page">1</span></span>
-            <button class="page-btn" onclick="nextAdminPage()">Next</button>
+        <div style="display:flex; justify-content: space-between; padding: 15px;">
+            <button class="btn" style="background:#222" onclick="changeAdminPage(-1)">PREV</button>
+            <span>Page <span id="admin-page-num">1</span></span>
+            <button class="btn" style="background:#222" onclick="changeAdminPage(1)">NEXT</button>
         </div>
+        <button class="btn full" style="background: #444;" onclick="navTo('page-main')">Back</button>
     </div>
 
-    <!-- SIMPLIFIED OTHER PAGES -->
-    <div id="page-online" class="page hidden">
-        <button class="btn" onclick="navTo('page-main')">Back</button>
-        <h3>👥 Users Online (<span id="count-online">0</span>)</h3>
-        <div id="online-list" style="padding: 10px;"></div>
+    <!-- REFERRALS -->
+    <div id="page-referral" class="page">
+        <h3>💎 Your Network</h3>
+        <div class="glass">
+            <p>Code: <b id="ref-code-display" style="color:var(--neon)">-</b></p>
+            <p>Bonus Earning: ₱<span id="ref-bonus-val">0.000</span></p>
+            <button class="btn full" style="background: #2ecc71;" onclick="claimReferralBonus()">Claim Bonus</button>
+        </div>
+        <div class="glass" style="margin-top: 15px;">
+            <input type="text" id="ref-input" placeholder="Enter Friend's Code">
+            <button class="btn full" style="background: var(--neon); color:#000;" onclick="bindReferral()">Bind Friend</button>
+        </div>
+        <button class="btn full" style="background: #444; margin-top: 10px;" onclick="navTo('page-main')">Back</button>
     </div>
 
-    <!-- ... Leader, Gift, Referral, Help, Chats (logic in JS) ... -->
+    <!-- GIFT -->
+    <div id="page-gift" class="page">
+        <h3>🍍💎 Ads Rewards</h3>
+        <div class="glass" style="text-align: center;">
+            <p>Next Reward: <span id="gift-timer">READY</span></p>
+            <button class="btn full" id="gift-btn" style="background: var(--neon); color:#000;" onclick="watchGiftAds()">Watch 3 Combined Ads</button>
+        </div>
+        <button class="btn full" style="background: #444; margin-top: 10px;" onclick="navTo('page-main')">Back</button>
+    </div>
 
-    <footer>
-        PAPERHOUSE INC V9 | <span id="clock"></span>
-    </footer>
+    <!-- ONLINE USERS -->
+    <div id="page-online" class="page">
+        <h3>👥 Online Now (<span id="online-total">0</span>)</h3>
+        <div id="online-list" class="glass"></div>
+        <button class="btn full" style="background: #444; margin-top: 10px;" onclick="navTo('page-main')">Back</button>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div id="page-leader" class="page">
+        <h3>🍺 Top Empire Builders</h3>
+        <div class="glass" style="padding: 0;">
+            <table>
+                <thead><tr><th>Rank</th><th>User</th><th>Earned</th></tr></thead>
+                <tbody id="leader-body"></tbody>
+            </table>
+        </div>
+        <button class="btn full" style="background: #444; margin-top: 10px;" onclick="navTo('page-main')">Back</button>
+    </div>
+
+    <!-- HELP -->
+    <div id="page-help" class="page">
+        <h3>🗝 Help Section</h3>
+        <button class="btn full" style="background:#0088cc" onclick="window.open('https://t.me/paperhouseinc')">Telegram Group</button>
+        <button class="btn full" style="background:#3b5998" onclick="window.open('https://facebook.com/groups/1193693469083843/')">Facebook Community</button>
+        <button class="btn full" style="background: #444; margin-top: 10px;" onclick="navTo('page-main')">Back</button>
+    </div>
 </div>
 
 <script type="module" src="app.js"></script>
