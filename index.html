@@ -23,11 +23,7 @@
         .btn-premium { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border-bottom: 4px solid rgba(0,0,0,0.2); }
         .btn-premium:active { transform: translateY(2px); border-bottom-width: 0; }
         .chat-box { height: 50vh; overflow-y: auto; display: flex; flex-direction: column-reverse; }
-        .leaderboard-table th, .leaderboard-table td { border-bottom: 1px solid #eee; }
-        .leaderboard-table tbody tr:nth-child(even) { background-color: rgba(240, 240, 255, 0.3); }
-        .owner-dashboard table th, .owner-dashboard table td { border-bottom: 1px solid #ddd; }
-        .owner-dashboard tbody tr:nth-child(odd) { background-color: rgba(250, 250, 255, 0.3); }
-        .gift-box { border: 1px dashed rgba(0,0,0,0.1); }
+        .gift-box { border: 2px solid rgba(0,0,0,0.05); }
     </style>
 </head>
 <body class="text-slate-900">
@@ -36,9 +32,12 @@
 
     <div class="relative z-10 min-h-screen flex flex-col">
         <!-- Header -->
-        <nav class="glass sticky top-0 p-4 shadow-md flex justify-between items-center z-50">            <div id="userBar" class="font-black text-indigo-700">👤 Loading...</div>
-            <div class="bg-indigo-600 text-white px-4 py-1 rounded-full font-bold shadow-lg">
-                💰 <span id="balance">0.000</span> PHP
+        <nav class="glass sticky top-0 p-4 shadow-md flex justify-between items-center z-50">
+            <div id="userBar" class="font-black text-indigo-700 flex flex-col">
+                <span id="display-name" class="text-sm">Loading...</span>
+                <span id="display-username" class="text-[10px] opacity-60">@username</span>
+            </div>
+            <div class="bg-indigo-600 text-white px-4 py-1 rounded-full font-bold shadow-lg">                💰 <span id="balance">0.000</span> PHP
             </div>
         </nav>
 
@@ -53,54 +52,56 @@
                     <p class="font-bold text-indigo-500">Tap to Change Theme & Bricks 🎨</p>
                 </div>
 
+                <!-- Gift Entry Button -->
+                <button onclick="router('gifts')" class="w-full btn-premium bg-gradient-to-r from-pink-500 to-rose-500 text-white p-4 rounded-2xl font-black text-lg animate__animated animate__headShake animate__infinite">🍍💎 PAPER HOUSE Gift 💎🍍</button>
+
                 <div class="grid grid-cols-1 gap-3">
                     <button onclick="router('onlineUsers')" class="btn-premium bg-blue-500 text-white p-4 rounded-2xl font-bold">👥 Online Users 👥</button>
                     <button onclick="router('elementary')" class="btn-premium bg-cyan-500 text-white p-4 rounded-2xl font-bold">📘 ELEMENTARY CHAT 📘</button>
                     <button onclick="router('highschool')" class="btn-premium bg-emerald-500 text-white p-4 rounded-2xl font-bold">📗 HIGHSCHOOL CHAT 📗</button>
                     <button onclick="router('college')" class="btn-premium bg-purple-700 text-white p-4 rounded-2xl font-bold">📙 COLLEGE CHAT 📙</button>
                     <button onclick="router('bonus')" class="btn-premium bg-gradient-to-r from-red-600 to-orange-600 text-white p-4 rounded-2xl font-bold">💎💎 BONUS ADS 💎💎</button>
-                    <button onclick="router('gifts')" class="btn-premium bg-pink-600 text-white p-4 rounded-2xl font-bold">🍍💎 PAPER HOUSE GIFT 💎🍍</button>
                     <button onclick="router('withdraw')" class="btn-premium bg-orange-500 text-white p-4 rounded-2xl font-bold">🔔 Withdrawal 🔔</button>
                     <button onclick="router('leaderboard')" class="btn-premium bg-lime-600 text-white p-4 rounded-2xl font-bold">🍺 TOP LEADERBOARD 🍺</button>                    <button onclick="router('owner_dashboard')" class="btn-premium bg-black text-white p-4 rounded-2xl font-bold">🎖 OWNER DASHBOARD 🎖</button>
                     <button onclick="router('help')" class="btn-premium bg-slate-700 text-white p-4 rounded-2xl font-bold">🗝 Help Section 🗝</button>
                 </div>
             </section>
 
-            <!-- CHAT PAGE (Shared for Elem/High/College) -->
-            <section id="page-chat" class="hidden space-y-4">
+            <!-- GIFTS PAGE (From Update 5) -->
+            <section id="page-gifts" class="hidden space-y-4">
                 <button onclick="router('home')" class="text-indigo-600 font-bold">← Back Home</button>
-                <h2 id="chatTitle" class="text-center font-black text-xl"></h2>
-                <div id="chatBox" class="chat-box glass p-4 rounded-2xl border"></div>
-                <div class="space-y-2">
-                    <input id="chatInput" type="text" placeholder="Write a message..." class="w-full p-4 rounded-xl border focus:ring-2 ring-indigo-500 outline-none">
-                    <button id="sendBtn" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold">Watch 3 Ads to Send (+0.015 PHP)</button>
-                    <p id="chatCooldown" class="text-center text-red-500 text-sm font-bold"></p>
+                <div class="grid grid-cols-1 gap-4">
+                    <!-- Gift 1 -->
+                    <div class="gift-box glass p-6 rounded-3xl text-center shadow-lg">
+                        <h3 class="font-black text-xl mb-2">🍍💎 Gift #1 💎🍍</h3>
+                        <p id="cooldown-gift1" class="text-xs text-red-500 font-bold mb-4"></p>
+                        <button id="btn-gift1" onclick="handleGiftAd('gift1', 10337853)" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold">Watch Ad to Unlock</button>
+                        <button id="claim-gift1" onclick="claimGift('gift1')" class="hidden w-full bg-green-500 text-white p-4 rounded-xl font-bold animate__animated animate__bounceIn">Claim 0.01 PHP</button>
+                    </div>
+                    <!-- Gift 2 -->
+                    <div class="gift-box glass p-6 rounded-3xl text-center shadow-lg">
+                        <h3 class="font-black text-xl mb-2">🍍💎 Gift #2 💎🍍</h3><p id="cooldown-gift2" class="text-xs text-red-500 font-bold mb-4"></p>
+                        <button id="btn-gift2" onclick="handleGiftAd('gift2', 10337795)" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold">Watch Ad to Unlock</button>
+                        <button id="claim-gift2" onclick="claimGift('gift2')" class="hidden w-full bg-green-500 text-white p-4 rounded-xl font-bold animate__animated animate__bounceIn">Claim 0.01 PHP</button>
+                    </div>
+                    <!-- Gift 3 -->
+                    <div class="gift-box glass p-6 rounded-3xl text-center shadow-lg">
+                        <h3 class="font-black text-xl mb-2">🍍💎 Gift #3 💎🍍</h3>
+                        <p id="cooldown-gift3" class="text-xs text-red-500 font-bold mb-4"></p>
+                        <button id="btn-gift3" onclick="handleGiftAd('gift3', 10276123)" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold">Watch Ad to Unlock</button>
+                        <button id="claim-gift3" onclick="claimGift('gift3')" class="hidden w-full bg-green-500 text-white p-4 rounded-xl font-bold animate__animated animate__bounceIn">Claim 0.01 PHP</button>
+                    </div>
                 </div>
             </section>
 
-            <!-- GIFTS PAGE -->
-            <section id="page-gifts" class="hidden space-y-4">
+            <!-- CHAT PAGE -->
+            <section id="page-chat" class="hidden space-y-4">
                 <button onclick="router('home')" class="text-indigo-600 font-bold">← Back Home</button>
-                <h2 class="text-center font-black text-xl">🍍💎 PAPER HOUSE GIFTS 💎🍍</h2>
-                <div class="grid grid-cols-1 gap-4">
-                    <div class="gift-box glass p-6 rounded-3xl text-center shadow-xl space-y-4">
-                        <h3 class="font-bold text-lg">Gift #1</h3>
-                        <button id="gift1Btn" onclick="handleGiftAd('gift1')" class="w-full bg-green-600 text-white p-4 rounded-xl font-bold">Watch Ad for 0.01 PHP</button>
-                        <p id="gift1Cooldown" class="text-sm font-bold text-red-500"></p>
-                        <button id="gift1Claim" onclick="claimReward('gift1')" class="w-full bg-yellow-500 text-white p-4 rounded-xl font-bold hidden">Claim 0.01 PHP</button>
-                    </div>
-                    <div class="gift-box glass p-6 rounded-3xl text-center shadow-xl space-y-4">
-                        <h3 class="font-bold text-lg">Gift #2</h3>
-                        <button id="gift2Btn" onclick="handleGiftAd('gift2')" class="w-full bg-blue-600 text-white p-4 rounded-xl font-bold">Watch Ad for 0.01 PHP</button>
-                        <p id="gift2Cooldown" class="text-sm font-bold text-red-500"></p>
-                        <button id="gift2Claim" onclick="claimReward('gift2')" class="w-full bg-yellow-500 text-white p-4 rounded-xl font-bold hidden">Claim 0.01 PHP</button>
-                    </div>
-                    <div class="gift-box glass p-6 rounded-3xl text-center shadow-xl space-y-4">
-                        <h3 class="font-bold text-lg">Gift #3</h3>
-                        <button id="gift3Btn" onclick="handleGiftAd('gift3')" class="w-full bg-purple-600 text-white p-4 rounded-xl font-bold">Watch Ad for 0.01 PHP</button>
-                        <p id="gift3Cooldown" class="text-sm font-bold text-red-500"></p>
-                        <button id="gift3Claim" onclick="claimReward('gift3')" class="w-full bg-yellow-500 text-white p-4 rounded-xl font-bold hidden">Claim 0.01 PHP</button>
-                    </div>
+                <div id="chatBox" class="chat-box glass p-4 rounded-2xl border"></div>
+                <div class="space-y-2">
+                    <input id="chatInput" type="text" placeholder="Write message..." class="w-full p-4 rounded-xl border outline-none">
+                    <button id="sendBtn" class="w-full bg-indigo-600 text-white p-4 rounded-xl font-bold">Watch 3 Ads to Send (+0.015 PHP)</button>
+                    <p id="chatCooldown" class="text-center text-red-500 text-xs font-bold"></p>
                 </div>
             </section>
 
@@ -109,115 +110,19 @@
                 <button onclick="router('home')" class="text-indigo-600 font-bold">← Back Home</button>
                 <div class="glass p-6 rounded-3xl shadow-xl">
                     <h2 class="text-xl font-black mb-4">🔔 GCASH WITHDRAWAL</h2>
-                    <p class="text-sm mb-4">Min. Withdrawal: <span class="font-bold text-green-600">0.02 PHP</span></p>
-                    
-                    <div id="withdrawTask" class="hidden bg-yellow-50 p-4 rounded-xl border border-yellow-200 mb-4">
-                        <p class="font-bold text-yellow-800">⚠️ Verification Required (First Time Only)</p>
-                        <p class="text-xs mb-2">Subscribe to our YouTube channel and wait 30s to unlock.</p>
-                        <a href="https://youtube.com/@PAPERHOUSEINC_YT" target="_blank" onclick="startWithdrawTimer()" class="inline-block bg-red-600 text-white px-4 py-2 rounded-lg text-sm">Subscribe Now</a>
-                        <p id="taskTimer" class="mt-2 font-bold text-red-600"></p>
-                    </div>
-
-                    <div id="withdrawForm">
-                        <input id="gcashNum" type="number" placeholder="GCash Number (0912...)" class="w-full p-4 rounded-xl border mb-2">
-                        <button onclick="requestWithdrawal()" class="w-full bg-orange-600 text-white p-4 rounded-xl font-bold">Process Withdrawal</button>
-                    </div>
+                    <input id="gcashNum" type="number" placeholder="GCash Number" class="w-full p-4 rounded-xl border mb-2">
+                    <button onclick="requestWithdrawal()" class="w-full bg-orange-600 text-white p-4 rounded-xl font-bold">Process Withdrawal</button>
                 </div>
-
                 <div class="glass rounded-2xl overflow-hidden mt-6">
-                    <h3 class="p-4 font-bold bg-slate-100">Withdrawal History</h3>
-                    <table class="w-fulltext-xs">
-                        <thead class="bg-slate-200">
-                            <tr><th class="p-2">Details</th><th class="p-2">Status</th></tr>
-                        </thead>
-                        <tbody id="withdrawHistory"></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- BONUS ADS PAGE -->
-            <section id="page-bonus" class="hidden space-y-4">
-                <button onclick="router('home')" class="text-indigo-600 font-bold">← Back Home</button>
-                <h2 class="text-center font-black text-xl">💎 BONUS REWARDS 💎</h2>
-                <div class="grid grid-cols-1 gap-4">
-                    <button onclick="handleBonus(1)" class="bg-red-600 text-white p-8 rounded-3xl font-bold shadow-xl">BONUS SERVER 1<br><span class="text-xs opacity-80">Reward: 0.015 PHP</span></button>
-                    <button onclick="handleBonus(2)" class="bg-orange-600 text-white p-8 rounded-3xl font-bold shadow-xl">BONUS SERVER 2<br><span class="text-xs opacity-80">Reward: 0.015 PHP</span></button>
-                </div>
-                <p id="bonusCooldown" class="text-center font-bold text-red-500"></p>
-            </section>
-
-            <!-- HELP PAGE -->
-            <section id="page-help" class="hidden space-y-4">
-                <button onclick="router('home')" class="text-indigo-600 font-bold">← Back Home</button>
-                <div class="grid grid-cols-1 gap-3">
-                    <a href="https://t.me/paperhouseinc" target="_blank" class="bg-sky-500 text-white p-4 rounded-xl font-bold text-center">Telegram Group</a>
-                    <a href="https://t.me/PAPERHOUSE_INC" target="_blank" class="bg-sky-700 text-white p-4 rounded-xl font-bold text-center">Telegram Channel</a>
-                    <a href="https://facebook.com/groups/1193693469083843/" target="_blank" class="bg-blue-800 text-white p-4 rounded-xl font-bold text-center">Facebook Group</a>
-                    <a href="https://www.facebook.com/profile.php?id=61586281245735" target="_blank" class="bg-blue-600 text-white p-4 rounded-xl font-bold text-center">Facebook Page</a>
-                </div>
-            </section>
-
-            <!-- ONLINE USERS PAGE -->
-            <section id="page-online" class="hidden space-y-4">
-                <button onclick="router('home')" class="text-indigo-600 font-bold">← Back Home</button>
-                <div class="glass rounded-2xl p-4">
-                    <h2 class="font-black mb-2">Online: <span id="onlineCount">0</span></h2>
-                    <div id="onlineList" class="space-y-1 text-sm"></div>
-                </div>
-            </section>
-            
-            <!-- OWNER DASHBOARD -->
-            <section id="page-owner-dashboard" class="hidden space-y-4">
-                <button onclick="router('home')" class="text-indigo-600 font-bold">← Back Home</button>
-                <h2 class="text-center font-black text-xl">🎖 OWNER DASHBOARD 🎖</h2>
-                <div class="owner-dashboard glass p-6 rounded-3xl shadow-xl">
-                    <h3 class="font-bold mb-4 text-lg">Live Withdrawals (<span id="totalApprovedWithdrawals">0</span> Approved)</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead class="bg-gray-800 text-white">
-                                <tr>
-                                    <th class="p-3">User</th>
-                                    <th class="p-3">GCash</th>
-                                    <th class="p-3">Amount</th>
-                                    <th class="p-3">Date</th>
-                                    <th class="p-3">Status</th>
-                                    <th class="p-3">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="withdrawalRequests"></tbody>
-                        </table>
-                    </div>
-                    <p id="ownerError" class="text-red-500 text-sm mt-4"></p>
-                </div>
-            </section>
-
-            <!-- LEADERBOARD -->
-            <section id="page-leaderboard" class="hidden space-y-4">
-                <button onclick="router('home')" class="text-indigo-600 font-bold">← Back Home</button>
-                <h2 class="text-center font-black text-xl">🍺 TOP EARNERS LEADERBOARD 🍺</h2>
-                <div class="glass rounded-2xl p-4">
-                    <div class="overflow-y-auto leaderboard-table" style="max-height: 70vh;">
-                        <table class="w-full text-sm">
-                            <thead class="bg-lime-700 text-white">
-                                <tr>
-                                    <th class="p-2">Rank</th>
-                                    <th class="p-2">User</th>
-                                    <th class="p-2">Total Earned</th>
-                                </tr>
-                            </thead>
-                            <tbody id="leaderboardList"></tbody>
-                        </table>
-                    </div>
+                    <table class="w-full text-xs"><tbody id="withdrawHistory"></tbody></table>
                 </div>
             </section>
 
         </main>
-
-        <!-- Footer -->
-        <footer class="p-6 bg-slate-900 text-white text-center text-xs space-y-1">
-            <p class="font-black tracking-widest">PAPERHOUSE INC</p>
-            <p id="footerClock" class="opacity-70"></p>
-            <p class="opacity-50">otico.isai2@gmail.com</p>
+        
+        <footer class="p-6 bg-slate-900 text-white text-center text-[10px] opacity-50">
+            <p>PAPERHOUSE INC © 2026</p>
+            <p id="footerClock"></p>
         </footer>
     </div>
 
