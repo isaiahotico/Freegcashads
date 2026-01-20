@@ -60,27 +60,35 @@
   </div>
 
   <nav>
-    <button class="btn" onclick="openSection('ads')">🍍 Ads Area</button>
-    <button class="btn" onclick="openSection('withdraw')">💸 Withdrawal</button>
-    <button class="btn" onclick="openSection('referrals')">🔗 Referrals</button>
-    <button class="btn" onclick="openSection('chat')">💬 Chat</button>
-    <button class="btn" onclick="openSection('profile')">👤 Profile</button>
-    <button class="btn" onclick="openSection('leaders')">🏆 Leaderboards</button>
-    <button class="btn" onclick="openOwner()">🔒 Owner Dashboard</button>
+    <button class="btn" onclick="openSection('ads')">🍍 ADS AREA</button>
+    <button class="btn" onclick="openSection('withdraw')">💸 WITHDRAW</button>
+    <button class="btn" onclick="openSection('referrals')">🔗 REFERRAL</button>
+    <button class="btn" onclick="openSection('chat')">💬 CHAT</button>
+    <button class="btn" onclick="openSection('profile')">👤 PROFILE</button>
+    <button class="btn" onclick="openSection('leaders')">🏆 LEADERBOARD</button>
+    <button class="btn" onclick="openOwner()">🔒 OWNER</button>
   </nav>
 
-  <!-- ADS / tasks -->
+  <!-- ADS AREA (Combined Tasks) -->
   <section id="ads" class="active">
     <div class="card">
-      <h3>Ads Area — Задания</h3>
+      <h3>ADS AREA (Tasks)</h3>
       <div id="adsList"></div>
+    </div>
+    <div class="card">
+      <h3>GIFT AREA</h3>
+      <div id="giftList"></div>
+    </div>
+    <div class="card">
+      <h3>SIGN IN</h3>
+      <div id="signinList"></div>
     </div>
   </section>
 
   <!-- Withdrawal -->
   <section id="withdraw" style="display:none;">
     <div class="card">
-      <h3>Withdraw — Вывод средств</h3>
+      <h3>WITHDRAW — Вывод средств</h3>
 
       <div style="display:flex; gap:12px; flex-wrap:wrap;">
         <div style="flex:1; min-width:260px;">
@@ -93,9 +101,9 @@
 
         <div style="flex:1; min-width:260px;">
           <h4>FaucetPay (USDT)</h4>
-          <div class="small">Ваш баланс: ₱<span id="faucetBalance">0.00</span></div>
-          <input id="faucetEmail" placeholder="FaucetPay email" type="email" />
-          <input id="faucetAmount" placeholder="Сумма в ₱ (будет конвертирована)" type="number" />          <button class="btn" onclick="requestWithdraw('faucet')">Вывести на FaucetPay</button>
+          <div class="small">Ваш баланс: ₱<span id="faucetBalance">0.00</span></div>          <input id="faucetEmail" placeholder="FaucetPay email" type="email" />
+          <input id="faucetAmount" placeholder="Сумма в ₱ (будет конвертирована)" type="number" />
+          <button class="btn" onclick="requestWithdraw('faucet')">Вывести на FaucetPay</button>
         </div>
       </div>
 
@@ -113,7 +121,7 @@
   <!-- Referrals -->
   <section id="referrals" style="display:none;">
     <div class="card">
-      <h3>Referrals</h3>
+      <h3>REFERRAL</h3>
       <div class="small">Ваш Telegram Username: <span id="myUsernameLink" class="link"></span></div>
       <div class="small">Вставьте username вашего реферера (без @):</div>
       <input id="referralInput" placeholder="telegram_username" />
@@ -131,7 +139,7 @@
     <div class="card">
       <h3>CHAT (публичный)</h3>
       <div class="small">Cooldown отправки: 4 минуты. Отправка сообщения запускает рекламу и награждает ₱0.02.</div>
-      <divid="chatMessages" style="max-height:360px; overflow:auto; border:1px solid #eee; padding:8px; margin-bottom:8px;"></div>
+      <div id="chatMessages" style="max-height:360px; overflow:auto; border:1px solid #eee; padding:8px; margin-bottom:8px;"></div>
       <input id="chatInput" placeholder="Написать сообщение..." />
       <button class="btn" onclick="sendChatMessage()">Send (rewarded ad)</button>
       <div style="margin-top:8px;"><button class="btn" onclick="loadMoreChat()">Load more</button></div>
@@ -141,7 +149,7 @@
   <!-- Profile -->
   <section id="profile" style="display:none;">
     <div class="card">
-      <h3>Profile</h3>
+      <h3>PROFILE</h3>
       <div>Username: <span id="profileUsername">—</span></div>
       <div>Total referrals: <span id="profileRefCount">0</span></div>
       <h4>Ads Watched:</h4>
@@ -155,7 +163,7 @@
   <!-- Leaderboards -->
   <section id="leaders" style="display:none;">
     <div class="card">
-      <h3>🏆 Top Earner Leaderboard</h3>
+      <h3>🏆 LEADERBOARD (Top Earners)</h3>
       <div id="leadersTable"></div>
     </div>
     <div class="card">
@@ -169,7 +177,7 @@
   <!-- OWNER MODAL -->
   <div id="ownerModal" class="modal hidden">
     <div class="box">
-      <h3>Owner Dashboard — Withdrawal Requests</h3>
+      <h3>OWNER Dashboard — Withdrawal Requests</h3>
       <div id="totalApproved">Total Approved: ₱0.00</div>
       <div id="ownerContent"></div>
       <div style="margin-top:8px;">
