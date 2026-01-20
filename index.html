@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAPERHOUSE V10 - APEX</title>
+    <title>PAPERHOUSE V11 - EMPIRE OWNER</title>
     <!-- Monetag SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
     <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
@@ -13,51 +13,59 @@
     <style>
         :root { --neon: #00f2ff; --glass: rgba(255, 255, 255, 0.05); --border: rgba(255, 255, 255, 0.1); }
         body { background: #000; color: #fff; font-family: 'Rajdhani', sans-serif; margin: 0; }
-        .page { display: none; padding: 20px; animation: slideUp 0.3s ease-out; }
+        .page { display: none; padding: 20px; animation: fadeIn 0.3s ease-out; }
         .active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* UI Elements */
-        .glass { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 15px; padding: 15px; }
+        .glass-card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 15px; padding: 15px; margin-bottom: 15px; }
         .header { text-align: center; border-bottom: 2px solid var(--neon); padding: 15px; position: sticky; top: 0; background: #000; z-index: 100; }
         .user-tag { font-family: 'Orbitron'; color: var(--neon); font-size: 1.1rem; }
         .bal-tag { font-size: 2rem; color: #2ecc71; font-weight: 700; }
 
-        /* 10 Button Grid */
+        /* Buttons */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
         .btn { padding: 15px; border: none; border-radius: 12px; font-weight: 700; color: #fff; font-size: 11px; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
         .btn:active { transform: scale(0.95); }
         .full { grid-column: span 2; }
+        .btn-green { background: #2ecc71; }
+        .btn-blue { background: #3498db; }
+        .btn-red { background: #e74c3c; }
+        .btn-neon { background: var(--neon); color: #000; }
 
         /* Chat & Tables */
         .chat-container { height: 350px; overflow-y: auto; background: rgba(0,0,0,0.5); border: 1px solid #222; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #222; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #222; }
+        .status-pending { color: #f1c40f; }
+        .status-approved { color: #2ecc71; font-weight: bold; }
         
-        /* Overlays */        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-        .modal { width: 85%; padding: 25px; text-align: center; }
+        /* Overlays */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .modal-content { width: 85%; padding: 25px; text-align: center; }
         input { width: 100%; padding: 12px; margin: 10px 0; background: #111; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; }
+
+        .pagination-ctrl { display: flex; justify-content: space-between; padding: 10px 0; }
+        .pagination-btn { background: #333; border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<!-- Fast Admin Verification -->
-<div id="admin-gate" class="overlay hidden">
-    <div class="modal glass">
-        <h2 style="color:var(--neon)">🎖 OWNER ACCESS</h2>
-        <p style="font-size: 12px;">Fast update: Verification seat check...</p>
-        <input type="password" id="admin-input" placeholder="ACCESS CODE">
-        <button class="btn full" style="background: var(--neon); color: #000;" onclick="verifyAdminFast()">VERIFY & PROCEED</button>
-        <p onclick="closeModal('admin-gate')" style="margin-top: 15px; font-size: 12px; opacity: 0.5;">Cancel</p>
+<!-- Owner Login Popup -->
+<div id="owner-login-modal" class="overlay hidden">
+    <div class="modal-content glass-card">
+        <h2 style="color:var(--neon)">🎖 OWNER LOGIN</h2>
+        <input type="password" id="owner-pass-input" placeholder="Access Code">
+        <button class="btn full btn-neon" onclick="submitOwnerLogin()">LOGIN</button>
+        <p onclick="hideModal('owner-login-modal')" style="margin-top: 15px; font-size: 12px; opacity: 0.5;">Cancel</p>
     </div>
 </div>
 
-<!-- Reward Greeting -->
+<!-- Reward Greeting Popup -->
 <div id="greet-modal" class="overlay hidden">
-    <div class="modal glass">
+    <div class="modal-content glass-card">
         <h1 id="greet-title" style="color:var(--neon)">EXCELLENT!</h1>
         <p id="greet-body">Bonus added to your empire.</p>
-        <button class="btn full" style="background: #2ecc71;" onclick="closeModal('greet-modal')">CONTINUE</button>
+        <button class="btn full btn-green" onclick="hideModal('greet-modal')">CONTINUE</button>
     </div>
 </div>
 
@@ -67,114 +75,139 @@
 </div>
 
 <div id="app">
-    <!-- 10 BUTTON MENU -->
+    <!-- MAIN MENU (11 Buttons) -->
     <div id="page-main" class="page active">
         <div class="grid">
             <button class="btn full" style="background: #e67e22;" onclick="navTo('page-gift')">🍍💎PAPER HOUSE Gift💎🍍</button>
-            <button class="btn" style="background: #3498db;" onclick="openRoom('elementary')">📘 ELEMENTARY</button>
-            <button class="btn" style="background: #27ae60;" onclick="openRoom('highschool')">📗 HIGHSCHOOL</button>
-            <button class="btn" style="background: #9b59b6;" onclick="openRoom('college')">📙 COLLEGE</button>            <button class="btn" style="background: #f1c40f; color: #000;" onclick="navTo('page-leader')">🍺 LEADERBOARD</button>
+            <button class="btn" class="btn-blue" onclick="openRoom('elementary')">📘 ELEMENTARY</button>            <button class="btn" style="background: #27ae60;" onclick="openRoom('highschool')">📗 HIGHSCHOOL</button>
+            <button class="btn" style="background: #9b59b6;" onclick="openRoom('college')">📙 COLLEGE</button>
+            <button class="btn" style="background: #f1c40f; color: #000;" onclick="navTo('page-leader')">🍺 LEADERBOARD</button>
             <button class="btn" style="background: #1abc9c;" onclick="navTo('page-referral')">💎 REFERRALS</button>
             <button class="btn" style="background: #8e44ad;" onclick="navTo('page-online')">👥 ONLINE USERS</button>
             <button class="btn" style="background: #c0392b;" onclick="navTo('page-withdraw')">🔔 WITHDRAWAL</button>
             <button class="btn" style="background: #34495e;" onclick="navTo('page-help')">🗝 HELP SECTION</button>
-            <button class="btn" id="admin-nav-btn" style="background: #000; border: 1px solid var(--neon);" onclick="openAdminGate()">🎖 ADMIN 🎖</button>
+            <button class="btn" class="btn-neon" onclick="showModal('owner-login-modal')">🎖OWNER DASHBOARD🎖</button>
+            <button class="btn full" style="background: #0088cc;" onclick="navTo('page-bonus-ads')">💎💎BONUS ADS💎💎</button>
         </div>
     </div>
 
     <!-- CHAT ROOMS -->
     <div id="page-chat" class="page">
+        <button class="btn btn-blue" style="margin-bottom:15px;" onclick="navTo('page-main')">⬅ Back</button>
         <h3 id="chat-title">Chat</h3>
         <div class="chat-container" id="chat-box"></div>
         <input type="text" id="chat-msg" placeholder="Message...">
-        <button class="btn full" style="background: var(--neon); color:#000;" onclick="sendMessage()">Send & Earn ₱0.015</button>
-        <button class="btn full" style="background: #444; margin-top: 10px;" onclick="navTo('page-main')">Back</button>
+        <button class="btn full btn-neon" onclick="sendMessage()">Send & Earn ₱0.015</button>
     </div>
 
     <!-- WITHDRAWAL (Live Sync) -->
     <div id="page-withdraw" class="page">
-        <div class="glass">
+        <button class="btn btn-blue" style="margin-bottom:15px;" onclick="navTo('page-main')">⬅ Back</button>
+        <div class="glass-card">
             <h3>🔔 Request Payout</h3>
             <input type="text" id="wd-info" placeholder="GCash/FaucetPay Details">
-            <button class="btn full" style="background: var(--neon); color:#000;" onclick="submitWithdraw()">Withdraw Now</button>
+            <button class="btn full btn-neon" onclick="submitWithdraw()">Withdraw Now</button>
         </div>
         <h4>Live Request Status</h4>
-        <div class="glass" style="padding: 0;">
+        <div class="glass-card" style="padding: 0;">
             <table id="wd-table">
                 <thead><tr><th>Amount</th><th>Status</th><th>Time</th></tr></thead>
                 <tbody id="wd-body"></tbody>
             </table>
         </div>
-        <button class="btn full" style="background: #444; margin-top: 10px;" onclick="navTo('page-main')">Back</button>
     </div>
 
-    <!-- ADMIN (25 Per Page) -->
-    <div id="page-admin" class="page">
-        <h3 style="color:var(--neon)">🎖 Admin Commander</h3>
-        <div class="glass" style="padding: 0; overflow-x: auto;">
+    <!-- OWNER DASHBOARD -->
+    <div id="page-owner-dashboard" class="page">
+        <button class="btn btn-blue" style="margin-bottom:15px;" onclick="navTo('page-main')">⬅ Back</button>
+        <h3 style="color:var(--neon)">🎖 OWNER DASHBOARD</h3>
+        <div class="glass-card" style="padding: 0; overflow-x: auto;">
             <table>
-                <thead><tr><th>User</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
-                <tbody id="admin-table-body"></tbody>
+                <thead><tr><th>User</th><th>Amount</th><th>Status</th><th>Action</th><th>Time</th></tr></thead>
+                <tbody id="owner-table-body"></tbody>
             </table>
         </div>
-        <div style="display:flex; justify-content: space-between; padding: 15px;">
-            <button class="btn" style="background:#222" onclick="changeAdminPage(-1)">PREV</button>
-            <span>Page <span id="admin-page-num">1</span></span>
-            <button class="btn" style="background:#222" onclick="changeAdminPage(1)">NEXT</button>
+        <div class="pagination-ctrl">
+            <button class="pagination-btn" onclick="changeOwnerPage(-1)">PREV</button>
+            <span>Page <span id="owner-page-num">1</span></span>
+            <button class="pagination-btn" onclick="changeOwnerPage(1)">NEXT</button>
         </div>
-        <button class="btn full" style="background: #444;" onclick="navTo('page-main')">Back</button>
     </div>
 
     <!-- REFERRALS -->
     <div id="page-referral" class="page">
+        <button class="btn btn-blue" style="margin-bottom:15px;" onclick="navTo('page-main')">⬅ Back</button>
         <h3>💎 Your Network</h3>
-        <div class="glass">
+        <div class="glass-card">
             <p>Code: <b id="ref-code-display" style="color:var(--neon)">-</b></p>
             <p>Bonus Earning: ₱<span id="ref-bonus-val">0.000</span></p>
-            <button class="btn full" style="background: #2ecc71;" onclick="claimReferralBonus()">Claim Bonus</button>
+            <button class="btn full btn-green" onclick="claimReferralBonus()">Claim Bonus</button>
         </div>
-        <div class="glass" style="margin-top: 15px;">
+        <div class="glass-card">
             <input type="text" id="ref-input" placeholder="Enter Friend's Code">
-            <button class="btn full" style="background: var(--neon); color:#000;" onclick="bindReferral()">Bind Friend</button>
+            <button class="btn full btn-neon" onclick="bindReferral()">Bind Friend</button>
         </div>
-        <button class="btn full" style="background: #444; margin-top: 10px;" onclick="navTo('page-main')">Back</button>
     </div>
 
-    <!-- GIFT -->
+    <!-- PAPER HOUSE GIFT (Individual ads) -->
     <div id="page-gift" class="page">
-        <h3>🍍💎 Ads Rewards</h3>
-        <div class="glass" style="text-align: center;">
-            <p>Next Reward: <span id="gift-timer">READY</span></p>
-            <button class="btn full" id="gift-btn" style="background: var(--neon); color:#000;" onclick="watchGiftAds()">Watch 3 Combined Ads</button>
+        <button class="btn btn-blue" style="margin-bottom:15px;" onclick="navTo('page-main')">⬅ Back</button>
+        <h3>🍍💎 PAPER HOUSE Gifts</h3>
+        <div class="glass-card" id="gift-1">
+            <h4>Gift #1 (₱0.01)</h4>
+            <button class="btn full btn-neon" id="gad-1" onclick="watchIndividualGiftAd(1)">Watch Ad</button>
+            <button class="btn full btn-green hidden" id="gcl-1" onclick="claimIndividualGift(1)">Claim Now</button>
+            <p id="gcd-1" style="font-size:11px; text-align:center; margin-top:5px;"></p>
         </div>
-        <button class="btn full" style="background: #444; margin-top: 10px;" onclick="navTo('page-main')">Back</button>
+        <div class="glass-card" id="gift-2">
+            <h4>Gift #2 (₱0.01)</h4>
+            <button class="btn full btn-neon" id="gad-2" onclick="watchIndividualGiftAd(2)">Watch Ad</button>
+            <button class="btn full btn-green hidden" id="gcl-2" onclick="claimIndividualGift(2)">Claim Now</button>
+            <p id="gcd-2" style="font-size:11px; text-align:center; margin-top:5px;"></p>
+        </div>
+        <div class="glass-card" id="gift-3">
+            <h4>Gift #3 (₱0.01)</h4>
+            <button class="btn full btn-neon" id="gad-3" onclick="watchIndividualGiftAd(3)">Watch Ad</button>
+            <button class="btn full btn-green hidden" id="gcl-3" onclick="claimIndividualGift(3)">Claim Now</button>
+            <p id="gcd-3" style="font-size:11px; text-align:center; margin-top:5px;"></p>
+        </div>
+    </div>
+
+    <!-- BONUS ADS (Combined ads) -->
+    <div id="page-bonus-ads" class="page">
+        <button class="btn btn-blue" style="margin-bottom:15px;" onclick="navTo('page-main')">⬅ Back</button>
+        <h3>💎💎 BONUS ADS (₱0.015)</h3>
+        <div class="glass-card" style="text-align: center;">
+            <p>Next Reward: <span id="bonus-ads-timer">READY</span></p>
+            <button class="btn full btn-neon" id="bonus-ads-btn" onclick="watchBonusAds()">Watch 3 Combined Ads</button>
+        </div>
     </div>
 
     <!-- ONLINE USERS -->
     <div id="page-online" class="page">
+        <button class="btn btn-blue" style="margin-bottom:15px;" onclick="navTo('page-main')">⬅ Back</button>
         <h3>👥 Online Now (<span id="online-total">0</span>)</h3>
-        <div id="online-list" class="glass"></div>
-        <button class="btn full" style="background: #444; margin-top: 10px;" onclick="navTo('page-main')">Back</button>
+        <div id="online-list" class="glass-card"></div>
     </div>
 
     <!-- LEADERBOARD -->
     <div id="page-leader" class="page">
+        <button class="btn btn-blue" style="margin-bottom:15px;" onclick="navTo('page-main')">⬅ Back</button>
         <h3>🍺 Top Empire Builders</h3>
-        <div class="glass" style="padding: 0;">
+        <div class="glass-card" style="padding: 0;">
             <table>
                 <thead><tr><th>Rank</th><th>User</th><th>Earned</th></tr></thead>
                 <tbody id="leader-body"></tbody>
             </table>
         </div>
-        <button class="btn full" style="background: #444; margin-top: 10px;" onclick="navTo('page-main')">Back</button>
     </div>
 
     <!-- HELP -->
     <div id="page-help" class="page">
+        <button class="btn btn-blue" style="margin-bottom:15px;" onclick="navTo('page-main')">⬅ Back</button>
         <h3>🗝 Help Section</h3>
-        <button class="btn full" style="background:#0088cc" onclick="window.open('https://t.me/paperhouseinc')">Telegram Group</button>
-        <button class="btn full" style="background:#3b5998" onclick="window.open('https://facebook.com/groups/1193693469083843/')">Facebook Community</button>
-        <button class="btn full" style="background: #444; margin-top: 10px;" onclick="navTo('page-main')">Back</button>
+        <button class="btn full btn-blue" onclick="window.open('https://t.me/paperhouseinc')">Telegram Group</button>
+        <button class="btn full btn-blue" style="margin-top:10px;" onclick="window.open('https://www.facebook.com/profile.php?id=61586281245735')">Facebook Page</button>
     </div>
 </div>
 
