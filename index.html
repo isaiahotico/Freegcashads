@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAPERHOUSE INC CHAT - V6</title>
+    <title>PAPERHOUSE INC CHAT - V7 EMPIRE</title>
     <!-- Monetag Core SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
     <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
@@ -17,152 +17,167 @@
         .bricks { background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)), url('https://www.transparenttextures.com/patterns/brick-wall.png'); }
         
         #app { max-width: 500px; margin: auto; padding: 15px; min-height: 100vh; display: flex; flex-direction: column; }
-        .glass-card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
+        .glass-card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 15px; margin-bottom: 15px; }
         
-        .header { text-align: center; padding: 10px; border: 1px solid var(--neon-blue); box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
-        .header h1 { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: var(--neon-blue); margin: 5px 0; }
-        #live-user { font-size: 1.2rem; font-weight: bold; color: #fff; text-shadow: 0 0 8px var(--neon-blue); }
+        .header { text-align: center; border: 1px solid var(--neon-blue); position: sticky; top: 10px; z-index: 1000; }
+        #live-user { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
 
-        .btn-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
-        .btn { padding: 14px; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn:active { transform: scale(0.96); }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .btn { padding: 12px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 11px; display: flex; align-items: center; justify-content: center; text-align: center; transition: 0.2s; }
+        .btn-full { grid-column: span 2; padding: 15px; font-size: 13px; }
+        .btn:active { transform: scale(0.95); }
 
-        /* Pages */
         .page { display: none; animation: fadeIn 0.3s ease; }
         .active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Chat */        .chat-area { height: 400px; overflow-y: auto; background: rgba(0,0,0,0.5); border-radius: 15px; padding: 15px; border: 1px solid #222; margin-bottom: 10px; }
-        .msg-bubble { margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 5px; }
-        .msg-name { color: var(--neon-blue); font-size: 12px; font-weight: bold; }
+        /* Tables & Chat */        .chat-area { height: 350px; overflow-y: auto; background: rgba(0,0,0,0.5); border-radius: 15px; padding: 15px; border: 1px solid #222; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th, td { padding: 8px; border-bottom: 1px solid #222; text-align: left; }
+        .status-pending { color: #f1c40f; }
+        .status-approved { color: #2ecc71; font-weight: bold; }
 
-        /* Gift System */
-        .gift-box { border: 1px solid #333; padding: 15px; border-radius: 15px; text-align: center; margin-bottom: 15px; background: rgba(255, 255, 255, 0.02); }
-        .cd-text { font-size: 12px; color: #f1c40f; margin-top: 5px; }
-
-        /* Admin Gate */
-        .admin-modal { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .admin-modal { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.98); z-index: 9999; display: none; align-items: center; justify-content: center; }
         
-        footer { margin-top: auto; text-align: center; padding: 20px; font-size: 10px; opacity: 0.5; }
+        footer { margin-top: auto; text-align: center; padding: 15px; font-size: 10px; opacity: 0.5; }
     </style>
 </head>
 <body class="bricks">
 
+<!-- Admin Gate -->
 <div id="admin-gate" class="admin-modal">
-    <div class="glass-card" style="width: 85%; text-align: center;">
+    <div class="glass-card" style="width: 80%; text-align: center;">
         <h2 style="color: var(--neon-purple);">ADMIN ACCESS</h2>
         <input type="password" id="admin-pass" placeholder="Password" style="width: 80%; padding: 12px; background: #000; color: white; border: 1px solid #333;">
-        <button class="btn" style="background: var(--neon-purple); width: 100%; margin-top: 15px;" onclick="verifyAdmin()">Login</button>
+        <button class="btn btn-full" style="background: var(--neon-purple); margin-top: 15px;" onclick="verifyAdmin()">Unlock Dashboard</button>
     </div>
 </div>
 
 <div id="app">
     <div class="glass-card header">
-        <h1>🔰💎 PAPERHOUSE INC CHAT 💎🔰</h1>
-        <div id="live-user">👤 User: @Loading...</div>
+        <div id="live-user">👤 @...</div>
+        <div style="font-size: 10px; color: #aaa;">PAPERHOUSE INC EMPIRE</div>
     </div>
 
-    <!-- 9 BUTTON NAVIGATION MENU -->
+    <!-- 10 BUTTON NAVIGATION MENU -->
     <div id="menu-page" class="page active">
         <div class="btn-grid">
-            <button class="btn" style="background: #e67e22;" onclick="showPage('gift-page')">🍍💎PAPER HOUSE Gift💎🍍</button>
-            <button class="btn" style="background: #3498db;" onclick="openChat('elementary')">📘 ELEMENTARY CHAT 📘</button>
-            <button class="btn" style="background: #27ae60;" onclick="openChat('highschool')">📗 HIGHSCHOOL CHAT 📗</button>
-            <button class="btn" style="background: #9b59b6;" onclick="openChat('college')">📙 COLLEGE CHAT 📙</button>            <button class="btn" style="background: #f1c40f; color: black;" onclick="showPage('leaderboard-page')">🍺 TOP LEADERBOARD 🍺</button>
-            <button class="btn" style="background: #8e44ad;" onclick="showPage('online-page')">👥 Online Users 👥</button>
-            <button class="btn" style="background: #c0392b;" onclick="showPage('withdraw-page')">🔔 Withdrawal 🔔</button>
-            <button class="btn" style="background: #34495e;" onclick="showPage('help-page')">🗝 Help Section 🗝</button>
-            <button class="btn" id="admin-nav-btn" style="background: #222; display: none;" onclick="showPage('admin-page')">⚙️ Admin Panel</button>
+            <button class="btn btn-full" style="background: #e67e22;" onclick="showPage('gift-page')">🍍💎PAPER HOUSE Gift💎🍍</button>
+            <button class="btn" style="background: #3498db;" onclick="openChat('elementary')">📘 ELEMENTARY 📘</button>
+            <button class="btn" style="background: #27ae60;" onclick="openChat('highschool')">📗 HIGHSCHOOL 📗</button>
+            <button class="btn" style="background: #9b59b6;" onclick="openChat('college')">📙 COLLEGE 📙</button>
+            <button class="btn" style="background: #f1c40f; color: black;" onclick="showPage('leaderboard-page')">🍺 LEADERBOARD 🍺</button>            <button class="btn" style="background: #1abc9c;" onclick="showPage('referral-page')">💎 REFERRALS 💎</button>
+            <button class="btn" style="background: #8e44ad;" onclick="showPage('online-page')">👥 ONLINE USERS 👥</button>
+            <button class="btn" style="background: #c0392b;" onclick="showPage('withdraw-page')">🔔 WITHDRAWAL 🔔</button>
+            <button class="btn" style="background: #34495e;" onclick="showPage('help-page')">🗝 HELP SECTION 🗝</button>
+            <button class="btn" id="admin-nav-btn" style="background: #222; display: none;" onclick="showPage('admin-page')">⚙️ ADMIN PANEL</button>
         </div>
-        <p onclick="randomizeTheme()" style="text-align: center; cursor: pointer; color: var(--neon-blue); margin-top: 20px;">✨ Change Appearance ✨</p>
     </div>
 
-    <!-- CHAT ROOMS -->
+    <!-- CHAT PAGE -->
     <div id="chat-page" class="page">
-        <h3 id="chat-title" style="color: var(--neon-blue);">Room</h3>
+        <h3 id="chat-title">Chat</h3>
+        <p id="chat-cooldown-timer" style="font-size:12px; color:orange;"></p>
         <div class="chat-area" id="chat-box"></div>
-        <input type="text" id="chat-input" placeholder="Type message..." style="width:100%; padding:15px; box-sizing:border-box; background:#111; color:white; border:1px solid #333; border-radius:10px;">
-        <button class="btn" style="background: var(--neon-blue); color: black; margin-top: 10px;" onclick="sendChat()">Send Message (3 Ads)</button>
-        <button class="btn" style="background: #444;" onclick="showPage('menu-page')">Back to Menu</button>
-    </div
+        <input type="text" id="chat-input" placeholder="Message..." style="width:100%; padding:12px; background:#111; color:white; border:1px solid #333; border-radius:8px;">
+        <button class="btn btn-full" id="chat-send-btn" style="background: var(--neon-blue); color: black; margin-top: 10px;" onclick="sendChat()">Send & Earn ₱0.015</button>
+        <button class="btn btn-full" style="background: #444;" onclick="showPage('menu-page')">Back</button>
+    </div>
 
-    <!-- GIFT PAGE -->
-    <div id="gift-page" class="page">
-        <h3>🍍💎 PAPER HOUSE Gifts</h3>
-        <p style="text-align: center;">Current Balance: ₱<span id="gift-balance">0.000</span></p>
-        <div class="gift-box" id="gb-1">
-            <h4>Gift #1 (₱0.01)</h4>
-            <button class="btn" style="background: var(--neon-blue); color: black;" id="ad-btn-1" onclick="watchGiftAd(1)">Watch Ad</button>
-            <button class="btn" style="background: #2ecc71; display: none;" id="claim-btn-1" onclick="claimGift(1)">Claim Now</button>
-            <div class="cd-text" id="cd-1">Ready!</div>
+    <!-- REFERRAL PAGE -->
+    <div id="referral-page" class="page">
+        <h3>💎 Referrals</h3>
+        <div class="glass-card"><p>Your Referral Code: <b id="my-ref-code" style="color:var(--neon-blue)">-</b></p>
+            <p style="font-size: 12px;">Earn 10% bonus from your friend's earnings!</p>
+            <div id="ref-input-area">
+                <input type="text" id="ref-input" placeholder="Enter Friend's Username" style="width: 70%; padding: 10px; background:#000; color:white; border:1px solid #444;">
+                <button class="btn" style="display:inline-block; background:var(--neon-blue); color:black; padding:10px;" onclick="submitReferral()">Bind</button>
+            </div>
         </div>
-        <div class="gift-box" id="gb-2">
-            <h4>Gift #2 (₱0.01)</h4>
-            <button class="btn" style="background: var(--neon-blue); color: black;" id="ad-btn-2" onclick="watchGiftAd(2)">Watch Ad</button>
-            <button class="btn" style="background: #2ecc71; display: none;" id="claim-btn-2" onclick="claimGift(2)">Claim Now</button>
-            <div class="cd-text" id="cd-2">Ready!</div>
+        <div class="glass-card">
+            <h4>Claimable Bonus: ₱<span id="ref-bonus-amt">0.000</span></h4>
+            <button class="btn btn-full" style="background:#2ecc71;" onclick="claimReferralBonus()">Claim to Main Balance</button>
         </div>
-        <div class="gift-box" id="gb-3">
-            <h4>Gift #3 (₱0.01)</h4>
-            <button class="btn" style="background: var(--neon-blue); color: black;" id="ad-btn-3" onclick="watchGiftAd(3)">Watch Ad</button>
-            <button class="btn" style="background: #2ecc71; display: none;" id="claim-btn-3" onclick="claimGift(3)">Claim Now</button>
-            <div class="cd-text" id="cd-3">Ready!</div>
-        </div>
-        <button class="btn" style="background: #444;" onclick="showPage('menu-page')">Back</button>
+        <button class="btn btn-full" style="background: #444;" onclick="showPage('menu-page')">Back</button>
     </div>
 
     <!-- WITHDRAWAL PAGE -->
     <div id="withdraw-page" class="page">
         <h3>🔔 Withdrawal</h3>
         <div class="glass-card">
-            <p>Your Balance: ₱<span id="withdraw-balance">0.000</span></p>
-            <input type="number" id="gcash-num" placeholder="GCash Number" style="width: 100%; padding: 12px; background: #000; color: white; border: 1px solid #444; border-radius: 8px;">
-            <div id="yt-lock" style="display:none; color: gold; margin-top: 10px;">
-                Verify at YouTube: <span id="yt-timer">30</span>s
-            </div>
-            <button class="btn" style="background: #c0392b; margin-top: 15px;" onclick="handleWithdraw()">Process Withdraw</button>
+            <p>Balance: ₱<span id="wd-bal">0.000</span></p>
+            <input type="number" id="gcash-num" placeholder="GCash Number" style="width: 100%; padding: 12px; background: #000; color: white; border: 1px solid #333; border-radius: 8px;">
+            <button class="btn btn-full" style="background: #c0392b; margin-top: 10px;" onclick="handleWithdraw()">Withdraw Now</button>
         </div>
-        <h4>Recent Requests</h4>
-        <table style="width: 100%; font-size: 12px;">
-            <tbody id="user-history"></tbody>
-        </table>
-        <button class="btn" style="background: #444; margin-top: 10px;" onclick="showPage('menu-page')">Back</button>
+        <h4>History (Real-time)</h4>
+        <div class="glass-card" style="padding: 5px;">
+            <table>
+                <thead><tr><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody id="wd-history-body"></tbody>
+            </table>
+        </div>
+        <button class="btn btn-full" style="background: #444;" onclick="showPage('menu-page')">Back</button>
+    </div>
+
+    <!-- ADMIN PAGE -->
+    <div id="admin-page" class="page">
+        <h3>⚙️ Admin Live Dashboard</h3>
+        <p>Total Approved: ₱<span id="admin-total-approved">0.00</span></p>
+        <div id="admin-requests" class="glass-card">
+            <!-- Admin requests injected here -->
+        </div>
+        <button class="btn btn-full" style="background: #444;" onclick="showPage('menu-page')">Back</button>
+    </div>
+
+    <!-- LEADERBOARD PAGE -->
+    <div id="leaderboard-page" class="page">
+        <h3>🍺 Weekly Top Earners</h3>
+        <p style="font-size: 11px; text-align: center;">Resets every Sunday 12:00 AM</p>
+        <div class="glass-card">
+            <table id="leader-table">
+                <thead><tr><th>Rank</th><th>User</th><th>Weekly Earned</th></tr></thead>
+                <tbody id="leader-body"></tbody>
+            </table>
+        </div>
+        <button class="btn btn-full" style="background: #444;" onclick="showPage('menu-page')">Back</button>
     </div>
 
     <!-- ONLINE USERS -->
     <div id="online-page" class="page">
-        <h3>👥 Online Users</h3>
+        <h3 id="online-count-header">👥 Online Users (0)</h3>
         <div class="glass-card" id="online-list"></div>
-        <button class="btn" style="background: #444;" onclick="showPage('menu-page')">Back</button>
-    </div>
-
-    <!-- LEADERBOARD -->
-    <div id="leaderboard-page" class="page">
-        <h3>🍺 TOP LEADERBOARD</h3>
-        <div class="glass-card">
-            <table style="width: 100%;" id="leader-table"></table>
-        </div>
-        <button class="btn" style="background: #444;" onclick="showPage('menu-page')">Back</button>
+        <button class="btn btn-full" style="background: #444;" onclick="showPage('menu-page')">Back</button>
     </div>
 
     <!-- HELP SECTION -->
     <div id="help-page" class="page">
         <h3>🗝 Help Section</h3>
-        <button class="btn" style="background:#0088cc" onclick="window.open('https://t.me/paperhouseinc')">Telegram Group</button>
-        <button class="btn" style="background:#0088cc" onclick="window.open('https://t.me/PAPERHOUSE_INC')">Telegram Channel</button>
-        <button class="btn" style="background:#3b5998" onclick="window.open('https://facebook.com/groups/1193693469083843/')">Facebook Group</button>
-        <button class="btn" style="background:#3b5998" onclick="window.open('https://www.facebook.com/profile.php?id=61586281245735')">Facebook Page</button>
-        <button class="btn" style="background: #444;" onclick="showPage('menu-page')">Back</button>
+        <button class="btn btn-full" style="background:#0088cc" onclick="window.open('https://t.me/paperhouseinc')">Telegram Group</button>
+        <button class="btn btn-full" style="background:#0088cc" onclick="window.open('https://t.me/PAPERHOUSE_INC')">Telegram Channel</button>
+        <button class="btn btn-full" style="background:#3b5998" onclick="window.open('https://facebook.com/groups/1193693469083843/')">Facebook Group</button>
+        <button class="btn btn-full" style="background:#3b5998" onclick="window.open('https://www.facebook.com/profile.php?id=61586281245735')">Facebook Page</button>
+        <button class="btn btn-full" style="background: #444;" onclick="showPage('menu-page')">Back</button>
     </div>
 
-    <!-- ADMIN PANEL -->
-    <div id="admin-page" class="page">
-        <h3>⚙️ Admin Panel</h3>
-        <div class="glass-card" id="admin-content">
-            <p>Approved Total: ₱<span id="admin-total">0.00</span></p>
-            <div id="admin-pending-list"></div>
+    <!-- GIFT PAGE -->
+    <div id="gift-page" class="page">
+        <h3>🍍💎 PAPER HOUSE Gifts</h3>
+        <div class="glass-card" id="gift-1">
+            <button class="btn btn-full" style="background: var(--neon-blue); color:black;" id="gad-1" onclick="watchGiftAd(1)">Watch Gift #1 Ad</button>
+            <button class="btn btn-full" style="background: #2ecc71; display:none;" id="gcl-1" onclick="claimGift(1)">Claim ₱0.01</button>
+            <p id="gcd-1" class="cd-text" style="text-align:center; font-size:11px;"></p>
         </div>
-        <button class="btn" style="background: #444;" onclick="showPage('menu-page')">Back</button>
+        <div class="glass-card" id="gift-2">
+            <button class="btn btn-full" style="background: var(--neon-blue); color:black;" id="gad-2" onclick="watchGiftAd(2)">Watch Gift #2 Ad</button>
+            <button class="btn btn-full" style="background: #2ecc71; display:none;" id="gcl-2" onclick="claimGift(2)">Claim ₱0.01</button>
+            <p id="gcd-2" class="cd-text" style="text-align:center; font-size:11px;"></p>
+        </div>
+        <div class="glass-card" id="gift-3">
+            <button class="btn btn-full" style="background: var(--neon-blue); color:black;" id="gad-3" onclick="watchGiftAd(3)">Watch Gift #3 Ad</button>
+            <button class="btn btn-full" style="background: #2ecc71; display:none;" id="gcl-3" onclick="claimGift(3)">Claim ₱0.01</button>
+            <p id="gcd-3" class="cd-text" style="text-align:center; font-size:11px;"></p>
+        </div>
+        <button class="btn btn-full" style="background: #444;" onclick="showPage('menu-page')">Back</button>
     </div>
 
     <footer>
