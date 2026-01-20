@@ -1,57 +1,51 @@
-<!-- ================= index.html ================= -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PAPERHOUSE INC</title>
+  <title>Telegram Balance Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Telegram -->
+  <!-- Telegram SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Monetag SDKs -->
-  <script src="//libtl.com/sdk.js" data-zone="10276123" data-sdk="show_10276123"></script>
-  <script src="//libtl.com/sdk.js" data-zone="10337795" data-sdk="show_10337795"></script>
-  <script src="//libtl.com/sdk.js" data-zone="10337853" data-sdk="show_10337853"></script>
+  <!-- Firebase -->
+  <script type="module" src="app.js"></script>
 
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header id="header">
-  <div>PAPERHOUSE INC</div>
-  <div id="userBar">User:</div>
-  <div>Balance: <span id="balance">0.000</span> PHP</div>
-</header>
 
-<nav>
-  <button onclick="openPage('ads')">ADS AREA</button>
-  <button onclick="openPage('gift')">GIFT AREA</button>
-  <button onclick="openPage('signin')">SIGN IN</button>
-  <button onclick="openPage('withdraw')">WITHDRAW</button>
-  <button onclick="openPage('referral')">REFERRAL</button>
-  <button onclick="openPage('leaderboard')">LEADERBOARD</button>
-  <button onclick="openPage('chat')">CHAT</button>
-  <button onclick="openPage('owner')">OWNER</button>
-</nav>
+  <!-- TOP BAR -->
+  <div id="topBar">
+    <div id="userBar">👤 User:</div>
+    <button id="adminBtn">Admin</button>
+  </div>
 
-<main>
-  <section id="ads" class="page"></section>
-  <section id="gift" class="page"></section>
-  <section id="signin" class="page"></section>
-  <section id="withdraw" class="page"></section>
-  <section id="referral" class="page"></section>
-  <section id="leaderboard" class="page"></section>
-  <section id="chat" class="page"></section>
-  <section id="owner" class="page"></section>
-</main>
+  <!-- BALANCE -->
+  <div class="card">
+    <h2>Balance</h2>
+    <div id="balance">₱50,000</div>
+  </div>
 
-<footer>
-  © <span id="date"></span> PAPERHOUSE INC · otico.isai2@gmail.com
-</footer>
+  <!-- WITHDRAW -->
+  <div class="card">
+    <h3>Withdraw (GCash)</h3>
+    <input id="gcash" placeholder="GCash Number" />
+    <input id="amount" type="number" placeholder="Amount" />
+    <button id="withdrawBtn">Request Withdrawal</button>
+  </div>
 
-<script type="module" src="app.js"></script>
-<script>
-  document.getElementById('date').innerText = new Date().toLocaleString();
-</script>
+  <!-- USER WITHDRAWALS -->
+  <div class="card">
+    <h3>Your Withdrawals</h3>
+    <ul id="userWithdrawals"></ul>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="card hidden" id="adminPanel">
+    <h3>Admin Panel</h3>
+    <ul id="adminWithdrawals"></ul>
+  </div>
+
 </body>
 </html>
