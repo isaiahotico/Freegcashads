@@ -1,3 +1,4 @@
+ChatGPT | Midjourney:
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,278 +7,123 @@
     <title>🎖🤑PAPERHOUSE INC ADS🤑🎖</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Monetag SDK -->
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
     <style>
-        body { background: #020617; color: #e2e8f0; font-family: 'Inter', sans-serif; }
-        .gold-gradient { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .nav-active { color: #fbbf24; border-bottom: 2px solid #fbbf24; }
-        .cooldown-active { filter: grayscale(1); pointer-events: none; opacity: 0.5; }
-        #ad-timer { font-variant-numeric: tabular-nums; }
-        .chat-message-bubble { background-color: #1e293b; padding: 0.75rem; border-radius: 1rem; border-top-left-radius: 0.25rem; max-width: 85%; width: fit-content; }
-        .my-chat-message { margin-left: auto; background-color: #3b82f6; border-top-right-radius: 0.25rem; border-top-left-radius: 1rem;}
-        .profile-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: #1e293b; padding: 2rem; border-radius: 1.5rem; max-width: 90%; width: 400px; position: relative; }
-        /* For webkit browsers like Chrome, Safari */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1e293b; /* Darker background for the track */
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #475569; /* Grayish blue for the thumb */
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #64748b; /* Lighter gray on hover */
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; overflow-x: hidden; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .reward-btn { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); transition: transform 0.2s; }
+        .reward-btn:active { transform: scale(0.95); }
+        .tab-content { display: none; padding-bottom: 80px; }
+        .active-tab { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .nav-bar { position: fixed; bottom: 0; width: 100%; height: 70px; display: flex; justify-content: space-around; align-items: center; background: rgba(15, 23, 42, 0.9); border-top: 1px solid rgba(255,255,255,0.1); z-index: 50; }
+        .nav-item { color: #94a3b8; font-size: 1.2rem; cursor: pointer; }
+        .nav-item.active { color: #fbbf24; }
     </style>
 </head>
-<body class="select-none">
+<body>
 
-    <!-- Login/Onboarding -->
-    <div id="login-screen" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-8">
-        <div class="text-6xl mb-6">🎖</div>
+    <!-- Header -->
+    <header class="p-6 flex justify-between items-center border-b border-white/10">
+        <div>
+            <h1 class="text-xs font-bold text-yellow-500 tracking-widest uppercase">Paperhouse Inc</h1>
+            <p id="user-balance" class="text-2xl font-black">₱ 0.000</p>
+        </div>
+        <button onclick="openAdmin()" class="text-white/20"><i class="fas fa-shield-halved"></i></button>
+    </header>
 
-        <h1 class="text-2xl font-black text-center mb-2 uppercase tracking-tighter">Paperhouse Inc Ads</h1>
-        <p class="text-slate-400 text-sm mb-8">Premium GCash Rewards System</p>
-        <input type="text" id="reg-name" placeholder="Username" class="w-full p-4 rounded-2xl bg-slate-900 border border-slate-800 mb-4 focus:outline-none focus:border-yellow-500">
-        <input type="number" id="reg-gcash" placeholder="GCash Number (09...)" class="w-full p-4 rounded-2xl bg-slate-900 border border-slate-800 mb-6 focus:outline-none focus:border-yellow-500">
-        <button onclick="app.register()" class="w-full gold-gradient py-4 rounded-2xl font-bold text-slate-900 shadow-lg shadow-yellow-500/20">ENTER DASHBOARD</button>
-    </div>
+    <!-- Main Screens -->
+    <main class="p-4">
+        
+        <!-- Home Screen -->
+        <div id="home" class="tab-content active-tab">
+            <div class="glass rounded-3xl p-8 text-center mb-6 mt-4">
+                <i class="fas fa-coins text-5xl text-yellow-500 mb-4"></i>
+                <h2 class="text-xl font-bold mb-2">Ready to Earn?</h2>
+                <p class="text-gray-400 text-sm mb-6">Watch ads to earn up to ₱0.01 per view.</p>
 
-    <!-- Main App -->
-    <div id="app" class="hidden min-h-screen pb-24">
-        <!-- Top Bar -->
-        <header class="p-5 flex justify-between items-center sticky top-0 z-40 glass">
-            <div>
-                <h2 id="user-display" class="font-bold text-white">---</h2>
-                <p class="text-[10px] text-yellow-500 font-bold uppercase tracking-widest">Premium Member</p>
+                <button onclick="watchAd()" class="reward-btn w-full py-4 rounded-2xl text-slate-900 font-bold text-lg shadow-lg shadow-yellow-500/20">
+                    <i class="fas fa-play-circle mr-2"></i> WATCH AD
+                </button>
             </div>
-            <div class="text-right">
-                <p class="text-[10px] text-slate-400 uppercase font-bold">Balance</p>
-                <h2 id="balance-display" class="text-xl font-black text-white">₱0.00</h2>
-            </div>
-        </header>
 
-        <main class="p-4 space-y-6">
-            <!-- Home Section -->
-            <section id="sec-home" class="space-y-4">
-                <div class="glass rounded-[2rem] p-8 text-center relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-wallet text-6xl"></i></div>
-                    <p class="text-slate-400 text-sm mb-1">Available to Withdraw</p>
-                    <h1 id="big-balance" class="text-5xl font-black text-white mb-6">₱0.00</h1>
-                    <div id="cooldown-box" class="hidden mb-4 text-xs font-bold text-yellow-500 bg-yellow-500/10 py-2 rounded-full">
-                        NEXT AD IN: <span id="ad-timer">30</span>s
-                    </div>
-                    <button onclick="app.requestWithdraw()" class="w-full py-3 rounded-xl bg-white text-black font-bold text-sm">CASH OUT NOW</button>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass p-4 rounded-2xl">
+                    <p class="text-gray-400 text-xs">Total Ads</p>
+                    <p id="total-ads" class="text-xl font-bold">0</p>
                 </div>
-
-                <!-- Ad Buttons -->
-                <div class="grid grid-cols-2 gap-4" id="ad-container">
-                    <button onclick="app.playAd('inter')" class="ad-btn glass p-6 rounded-3xl flex flex-col items-center hover:bg-slate-800 transition">
-                        <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mb-3">
-                            <i class="fas fa-bolt text-blue-400 text-xl"></i>
-                        </div>
-                        <span class="font-bold text-sm">Turbo Ad</span>
-                        <span class="text-[10px] text-slate-500">Earn ₱0.01</span>
-                    </button>
-                    <button onclick="app.playAd('pop')" class="ad-btn glass p-6 rounded-3xl flex flex-col items-center hover:bg-slate-800 transition">
-                        <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-3">
-                            <i class="fas fa-rocket text-purple-400 text-xl"></i>
-                        </div>
-                        <span class="font-bold text-sm">Premium Ad</span>
-                        <span class="text-[10px] text-slate-500">Earn ₱0.01</span>
-                    </button>
-                </div>
-            </section>
-
-            <!-- Referrals Section -->
-            <section
-
-id="sec-referral" class="hidden space-y-4">
-                <div class="gold-gradient p-6 rounded-3xl text-slate-900">
-                    <h3 class="font-black text-xl mb-1">Affiliate Program</h3>
-                    <p class="text-sm font-medium opacity-80">Earn 8% lifetime commission from every ad your friends watch.</p>
-                </div>
-                <div class="glass p-5 rounded-2xl">
-                    <p class="text-xs text-slate-400 mb-2 font-bold uppercase">Your Referral Link</p>
-                    <div class="flex gap-2">
-                        <input id="ref-link" readonly class="flex-1 bg-slate-900/50 p-3 rounded-lg text-xs border border-white/5 text-slate-300">
-                        <button onclick="app.copyRef()" class="bg-white text-black px-4 rounded-lg font-bold text-xs">COPY</button>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="glass p-4 rounded-2xl text-center">
-                        <p class="text-[10px] text-slate-400">Total Referrals</p>
-                        <p id="ref-count" class="text-xl font-bold">0</p>
-                    </div>
-                    <div class="glass p-4 rounded-2xl text-center">
-                        <p class="text-[10px] text-slate-400">Total Commissions</p>
-                        <p id="ref-earnings" class="text-xl font-bold text-green-400">₱0.00</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- History Section -->
-            <section id="sec-history" class="hidden space-y-4">
-                <h3 class="font-bold text-lg">Withdrawal History</h3>
-                <div id="history-list" class="space-y-3">
-                    <p class="text-center text-slate-500 py-10">No history found.</p>
-                </div>
-            </section>
-
-            <!-- Leaderboard -->
-            <section id="sec-leaderboard" class="hidden space-y-3">
-                <h3 class="font-bold text-lg">Global Ranking</h3>
-                <div id="leaderboard-list" class="space-y-2"></div>
-            </section>
-            
-            <!-- Profile Section -->
-            <section id="sec-profile" class="hidden space-y-4">
-                <h3 class="font-bold text-lg">Your Performance</h3>
-                <div class="glass p-5 rounded-2xl text-center">
-                    <p class="text-xs text-slate-400">Total Ads Viewed (All Time)</p>
-                    <p id="profile-total-ads" class="text-3xl font-bold mt-2">0</p>
-                </div>
-                <div class="glass p-5 rounded-2xl text-center">
-                    <p class="text-xs text-slate-400">Ads Viewed Today</p>
-                    <p id="profile-daily-ads" class="text-3xl font-bold mt-2">0</p>
-                </div>
-            </section>
-
-            <!-- Online Users Section -->
-            <section id="sec-online" class="hidden space-y-4">
-                <h3 class="font-bold text-lg">Online Users (<span id="online-users-count">0</span>)</h3>
-                <div id="online-users-list" class="space-y-2"></div>
-            </section>
-
-            <!-- Topics/Forum Section -->
-            <section id="sec-topics-list" class="hidden space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-lg">Community Board</h3>
-                    <button onclick="app.showCreateTopicModal()" class="bg-yellow-500 text-black px-4 py-2 rounded-lg font-bold text-sm">New Topic</button>
-                </div>
-                <div id="topics-list" class="space-y-3">
-                    <p class="text-center text-slate-500 py-10">No topic
-
-s yet. Be the first!</p>
-                </div>
-            </section>
-
-            <!-- Single Topic View -->
-            <section id="sec-topic-view" class="hidden space-y-4">
-                <button onclick="app.nav('topics-list')" class="text-yellow-500 text-sm mb-4"><i class="fas fa-arrow-left mr-2"></i>Back to Topics</button>
-                <h3 id="topic-view-title" class="font-bold text-xl mb-2"></h3>
-                <p id="topic-view-creator" class="text-xs text-slate-400"></p>
-                <div class="glass p-5 rounded-2xl text-sm" id="topic-view-content"></div>
-                
-                <h4 class="font-bold text-md mt-6">Comments</h4>
-                <div id="topic-comments" class="space-y-3 p-2 h-64 overflow-y-auto border-t border-slate-700 pt-4"></div>
-                
-                <div class="flex gap-2 mt-4">
-                    <input type="text" id="comment-input" placeholder="Add a comment..." class="flex-1 bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm">
-                    <button id="add-comment-btn" onclick="" class="bg-green-500 p-3 rounded-xl text-black"><i class="fas fa-comment"></i></button>
-                </div>
-            </section>
-
-            <!-- Chat Room -->
-            <section id="sec-chat" class="hidden flex flex-col h-[65vh]">
-                <div id="chat-box" class="flex-1 overflow-y-auto space-y-4 mb-4 pr-2"></div>
-                <div class="flex gap-2 p-2 glass rounded-2xl">
-                    <input type="text" id="chat-input" placeholder="Say something..." class="flex-1 bg-transparent p-2 focus:outline-none text-sm">
-                    <button onclick="app.sendMessage()" class="bg-yellow-500 text-black w-10 h-10 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </section>
-            
-            <!-- Help Section -->
-            <section id="sec-help" class="hidden space-y-4">
-                <h3 class="font-bold text-lg">Need Help? Follow Us!</h3>
-                <div class="glass p-5 rounded-2xl space-y-3">
-                    <a href="https://t.me/paperhouseinc" target="_blank" class="flex items-center gap-3 text-white hover:text-yellow-500 transition">
-                        <i class="fab fa-telegram-plane text-xl text-blue-400"></i>
-                        <span class="font-medium">Telegram Group</span>
-                        <i class="fas fa-external-link-alt ml-auto text-xs text-slate-500"></i>
-                    </a>
-                    <a href="https://t.me/PAPERHOUSE_INC" target="_blank" class="flex items-center gap-3 text-white hover:text-yellow-500 transition">
-                        <i class="fab fa-telegram-plane text-xl text-blue-400"></i>
-                        <span class="font-medium">Telegram Channel</span>
-                        <i class="fas fa-external-link-alt ml-auto text-xs text-slate-500"></i>
-                    </a>
-                    <a href="https://facebook.com/groups/1193693469083843/" target="_blank" class="flex items-center gap-3 text-white hover:text-yellow-500 transition">
-                        <i class="fab fa-facebook-f text-xl text-blue-600"></i>
-                        <span class="font-medium">Facebook Group</span>
-                        <i class="fas fa-external-link-alt ml-auto text-xs text-slate-500"></i>
-                    </a>
-                    <a href="https://www.facebook.com/profile.php?id=61586281245735" target="_blank" class="flex items-center gap-3 text-white hover:text-yellow-500 transition">
-                        <i class="fab fa-facebook-f text-xl text-blue-60
-
-0"></i>
-                        <span class="font-medium">Facebook Page</span>
-                        <i class="fas fa-external-link-alt ml-auto text-xs text-slate-500"></i>
-                    </a>
-                </div>
-            </section>
-
-            <!-- Admin Section -->
-            <section id="sec-admin" class="hidden space-y-4">
-                <h2 class="text-xl font-black text-red-500">PAYOUT MANAGEMENT</h2>
-                <div id="admin-list" class="space-y-4"></div>
-            </section>
-        </main>
-
-        <!-- Bottom Navigation -->
-        <nav class="fixed bottom-0 left-0 right-0 glass border-t border-white/5 flex justify-around items-center p-3 z-50 overflow-x-auto">
-            <button onclick="app.nav('home')" class="nav-btn nav-active flex flex-col items-center p-2"><i class="fas fa-home mb-1"></i><span class="text-[9px]">Home</span></button>
-            <button onclick="app.nav('referral')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-users mb-1"></i><span class="text-[9px]">Refer</span></button>
-            <button onclick="app.nav('chat')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-comment-dots mb-1"></i><span class="text-[9px]">Chat</span></button>
-            <button onclick="app.nav('topics-list')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-clipboard-list mb-1"></i><span class="text-[9px]">Topics</span></button>
-            <button onclick="app.nav('leaderboard')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-trophy mb-1"></i><span class="text-[9px]">Leaderbd</span></button>
-            <button onclick="app.nav('online')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-wifi mb-1"></i><span class="text-[9px]">Online</span></button>
-            <button onclick="app.nav('profile')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-user mb-1"></i><span class="text-[9px]">Profile</span></button>
-            <button onclick="app.nav('history')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-clock-rotate-left mb-1"></i><span class="text-[9px]">History</span></button>
-            <button onclick="app.nav('help')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-question-circle mb-1"></i><span class="text-[9px]">Help</span></button>
-            <button onclick="app.nav('admin')" class="nav-btn flex flex-col items-center p-2 text-slate-600"><i class="fas fa-user-shield mb-1"></i><span class="text-[9px]">Admin</span></button>
-        </nav>
-    </div>
-
-    <!-- Modals -->
-    <!-- User Profile Modal -->
-    <div id="user-profile-modal" class="profile-modal">
-        <div class="modal-content text-center">
-            <button onclick="document.getElementById('user-profile-modal').style.display='none'" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
-            <h3 id="modal-username" class="font-bold text-2xl text-yellow-500 mb-4"></h3>
-            <div class="space-y-3">
-                <div class="glass p-4 rounded-xl">
-                    <p class="text-xs text-slate-400">Total Ads Viewed</p>
-                    <p id="modal-total-ads" class="text-xl font-bold mt-1">0</p>
-                </div>
-                <div class="glass p-4 rounded-xl">
-                    <p class="text-xs text-slate-400">Ads Viewed Today</p>
-                    <p id="modal-daily-ads" class="text-xl font-bold mt-1">0</p>
+                <div class="glass p-4 rounded-2xl">
+                    <p class="text-gray-400 text-xs">Referrals</p>
+                    <p id="ref-count" class="text-xl font-bold">0</p>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Create Topic Modal -->
-
-<div id="create-topic-modal" class="profile-modal">
-        <div class="modal-content">
-            <button onclick="document.getElementById('create-topic-modal').style.display='none'" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
-            <h3 class="font-bold text-xl mb-4">Create New Topic</h3>
-            <input type="text" id="new-topic-title" placeholder="Topic Title" class="w-full p-3 rounded-lg bg-slate-800 border border-slate-700 mb-3 focus:outline-none focus:border-yellow-500">
-            <textarea id="new-topic-content" placeholder="Topic Content" rows="5" class="w-full p-3 rounded-lg bg-slate-800 border border-slate-700 mb-4 focus:outline-none focus:border-yellow-500"></textarea>
-            <button onclick="app.submitTopic()" class="w-full gold-gradient py-3 rounded-lg font-bold text-slate-900">Post Topic</button>
+        <!-- Chat Screen -->
+        <div id="chat" class="tab-content">
+            <div class="glass rounded-2xl flex flex-col h-[70vh]">
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+                <div class="p-4 flex gap-2 border-t border-white/10">
+                    <input id="chat-input" type="text" placeholder="Type a message..." class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 flex-1 focus:outline-none">
+                    <button onclick="sendMessage()" class="bg-yellow-500 text-black px-4 rounded-xl font-bold"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
         </div>
-    </div>
 
+        <!-- Leaderboard -->
+        <div id="leaderboard" class="tab-content">
+            <h2 class="text-xl font-bold mb-4">Top Earners</h2>
+            <div id="leaderboard-list" class="space-y-2"></div>
+        </div>
 
+        <!-- Profile / Withdrawal -->
+        <div id="profile" class="tab-content">
+            <div class="glass p-6 rounded-3xl mb-4">
+                <h2 class="font-bold mb-4">Withdraw to GCash</h2>
+                <input id="gcash-num" type="number" placeholder="GCash Number (09...)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mb-3">
+                <button onclick="requestWithdraw()" class="w-full bg-green-500 py-3 rounded-xl font-bold">Withdraw (Min ₱0.02)</button>
+            </div>
+            
+            <div class="glass p-6 rounded-3xl">
+                <p class="text-sm text-gray-400 mb-1">Your Referral Code (Name):</p>
+                <p id="my-ref-code" class="text-lg font-bold text-yellow-500">Loading...</p>
+                <p class="text-xs text-gray-500 mt-2 italic">*Earn 10% of what your friends earn!</p>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard (Overlay) -->
+        <div id="admin-panel" class="fixed inset-0 bg-slate-900 z-[100] hidden overflow-y-auto p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Admin Panel</h2>
+                <button onclick="closeAdmin()" class="text-2xl">&times;</button>
+            </div>
+            <div id="admin-stats" class="grid grid-cols-2 gap-4 mb-6"></div>
+            <h3 class="font-bold mb-2">Pending Withdrawals</h3>
+            <div id="withdrawal-requests" class="space-y-2"></div>
+        </div>
+
+    </main>
+
+    <!-- Navigation -->
+    <nav class="nav-bar">
+        <div class="nav-item active" onclick="switchTab('home', this)"><i class="fas fa-home"></i></div>
+        <div class="nav-item" onclick="switchTab('chat', this)"><i class="fas fa-comment-dots"></i></div>
+        <div class="nav-item" onclick="switchTab('leaderboard', this)"><i class="fas fa-trophy"></i></div>
+        <div class="nav-item" onclick="switchTab('profile
+
+', this)"><i class="fas fa-user"></i></div>
+    </nav>
+
+    <!-- Firebase SDKs -->
     <script type="module" src="app.js"></script>
+    <script>
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active-tab');
+            el.classList.add('active');
+        }
+    </script>
 </body>
 </html>
