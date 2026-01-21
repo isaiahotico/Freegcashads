@@ -1,123 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔰💎📄PAPERHOUSE INC CHAT📄💎🔰</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
-    <!-- Monetag SDK Scripts -->
-    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
-    
-    <!-- Firebase Configuration (Assuming firebase-config.js is available) -->
-    <!-- NOTE: In a real environment, you need to ensure firebase-config.js is loaded -->
-    <!-- <script type="module" src="firebase-config.js"></script> -->
+<meta charset="UTF-8">
+<title>🔰💎📄 PAPERHOUSE INC CHAT 📄💎🔰</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <style>
-        /* Basic Reset */
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; transition: background-color 0.5s ease; }
-        header { background-color: #333; color: white; padding: 15px 20px; text-align: center; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-        .user-info { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background-color: #e0e0e0; border-bottom: 1px solid #ccc; }
-        .container { padding: 20px; text-align: center; }
-        .chat-button { display: block; width: 80%; max-width: 400px; margin: 15px auto; padding: 15px 20px; font-size: 1.2em; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease, transform 0.1s; }
-        .chat-button:active { transform: scale(0.98); }
-        .aide-text { margin-top: 30px; padding: 15px; border: 2px solid #ccc; border-radius: 8px; background-color: #fff; color: #555; font-style: italic; cursor: pointer; }
-        footer { position: fixed; bottom: 0; width: 100%; background-color: #333; color: white; padding: 10px 20px; font-size: 0.8em; text-align: center; border-top: 1px solid #444; }
-        .brick-background { 
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60"><rect width="50" height="30" fill="%23cc6666"/><rect x="50" width="50" height="30" fill="%23aa4444"/><rect y="30" width="50" height="30" fill="%23aa4444"/><rect x="50" y="30" width="50" height="30" fill="%23cc6666"/></svg>');
-            background-size: 100px 60px; background-repeat: repeat;        }
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script type="module" src="app.js"></script>
 
-        /* Button Colors */
-        #elementary-chat-btn { background-color: #007bff; }
-        #highschool-chat-btn { background-color: #28a745; }
-        #college-chat-btn { background-color: #ffc107; }
-        #online-users-btn { background-color: #6c757d; }
-        #leaderboard-btn { background-color: #ff9800; }
-        #referrals-btn { background-color: #9c27b0; }
-        #help-btn { background-color: #00bcd4; }
-        #bonus-ads-btn { background-color: #4caf50; }
-        #withdrawal-btn { background-color: #dc3545; }
-        #owner-dashboard-btn { background-color: #17a2b8; }
-
-        /* Reward Pop-up Styles */
-        .reward-popup {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); padding: 30px 50px;
-            background: linear-gradient(45deg, #ffeb3b, #ff9800); color: #333; border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); z-index: 1000; font-size: 1.8em; font-weight: bold;
-            text-align: center; transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); opacity: 0;
-        }
-        .reward-popup.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        
-        /* Status Badges for Withdrawal History */
-        .status-pending { color: orange; font-weight: bold; }
-        .status-approved { color: green; font-weight: bold; }
-        .status-rejected { color: red; font-weight: bold; }
-    </style>
+<style>
+body{margin:0;font-family:system-ui;background:#0e0e0e;color:#fff}
+header{background:#000;padding:10px;display:flex;justify-content:space-between;align-items:center}
+button{padding:10px;margin:5px;border-radius:8px;border:0;cursor:pointer}
+.page{display:none;padding:10px}
+.page.active{display:block}
+.card{background:#161616;padding:10px;border-radius:10px;margin-bottom:10px}
+footer{text-align:center;font-size:12px;opacity:.7;padding:10px}
+</style>
 </head>
-<body id="main-body">
 
-    <header>
-        <h1>🔰💎📄PAPERHOUSE INC CHAT📄💎🔰</h1>
-    </header>
+<body>
 
-    <div class="user-info">
-        <span id="userBar">👤 User: Guest</span>
-        <span id="userBalance">💰 Balance: P0.00</span>
-    </div>
+<header>
+  <div id="userBar">👤 Loading…</div>
+  <div id="balance">💰 ₱0.000</div>
+</header>
 
-    <div class="container">
-        
-        <div class="aide-text" id="aideText">
-            Click this text to change the background color and style!
-        </div>
+<div id="home" class="page active">
+  <button onclick="nav('online')">👥 Online Users</button>
+  <button onclick="nav('elem')">📘 Elementary Chat</button>
+  <button onclick="nav('high')">📗 Highschool Chat</button>
+  <button onclick="nav('college')">📙 College Chat</button>
+  <button onclick="nav('leader')">🍺 Top Leaderboard</button>
+  <button onclick="nav('withdraw')">🔔 Withdrawal</button>
+  <button onclick="nav('ref')">💎 Referrals</button>
+  <button onclick="nav('bonus')">💎💎 Bonus Ads</button>
+  <button onclick="nav('gift')">🍍💎 Gifts</button>
+  <button onclick="nav('owner')">🎖 Owner Dashboard</button>
+  <button onclick="nav('help')">🗝 Help</button>
+</div>
 
-        <!-- Chat Buttons -->
-        <button class="chat-button" id="elementary-chat-btn">📘 ELEMENTARY CHAT 📘</button>
-        <button class="chat-button" id="highschool-chat-btn">📗 HIGHSCHOOL CHAT 📗</button>
-        <button class="chat-button" id="college-chat-btn">📙 COLLEGE CHAT 📙</button>
-        
-        <!-- Utility Buttons -->
-        <button class="chat-button" id="online-users-btn">👥 Online Users 👥</button>
-        <button class="chat-button" id="leaderboard-btn">🍺 TOP LEADERBOARD 🍺</button>
-        <button class="chat-button" id="referrals-btn">🍺 Referrals 🍺</button>
-        <button class="chat-button" id="help-btn">🗝 Help Section 🗝</button>
-        <button class="chat-button" id="bonus-ads-btn">💎💎 BONUS ADS 💎💎</button>
+<div id="online" class="page"><h3>👥 Online Users</h3><div id="onlineList"></div></div>
 
-        <!-- Admin/Finance Buttons -->
-        <button class="chat-button" id="withdrawal-btn">🔔 Withdrawal 🔔</button>
-        <button class="chat-button" id="owner-dashboard-btn">🎖 OWNER DASHBOARD 🎖</button>
+<div id="elem" class="page"><h3>📘 Elementary Chat</h3><div id="chatElem"></div></div>
+<div id="high" class="page"><h3>📗 Highschool Chat</h3><div id="chatHigh"></div></div>
+<div id="college" class="page"><h3>📙 College Chat</h3><div id="chatCollege"></div></div>
 
-    </div>
-    
-    <!-- Reward Pop-up Element -->
-    <div id="rewardPopup" class="reward-popup">
-        🎉 REWARD! +P0.015 🎉
-    </div>
+<div id="leader" class="page"><h3>🍺 Top Leaderboard</h3><div id="leaderList"></div></div>
 
-    <footer>
-        <div>PAPERHOUSE INC</div>
-        <div id="dateTime"></div>
-        <div>otico.isai2@gmail.com</div>
-    </footer>
+<div id="withdraw" class="page">
+  <h3>🔔 Withdrawal</h3>
+  <div class="card">
+    <input id="gcash" placeholder="GCash Number">
+    <input id="amount" type="number" step="0.001" placeholder="Amount">
+    <button onclick="requestWithdraw()">Request Withdrawal</button>
+  </div>
+  <div id="withdrawHistory"></div>
+</div>
 
-    <!-- Monetag In-App Interstitial Configuration (Must be placed after SDK load) -->
-    <script>
-        // These scripts initiate the automatic rotation upon page load
-        // NOTE: These functions must be available globally from the SDK scripts above.
-        if (typeof show_10337853 === 'function') {
-            show_10337853({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
-        }
-        if (typeof show_10276123 === 'function') {
-            show_10276123({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
-        }
-        if (typeof show_10337795 === 'function') {
-            show_10337795({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
-        }
-    </script>
-    
-    <!-- Link External JavaScript Logic -->
-    <script type="module" src="app.js"></script>
+<div id="ref" class="page"><h3>💎 Referrals</h3><div id="refBox"></div></div>
+<div id="bonus" class="page"><h3>💎💎 Bonus Ads</h3></div>
+<div id="gift" class="page"><h3>🍍💎 Gifts</h3></div>
+
+<div id="owner" class="page">
+  <h3>🎖 Owner Dashboard</h3>
+  <input id="ownerPass" placeholder="Password">
+  <button onclick="ownerLogin()">Login</button>
+  <div id="ownerWithdrawals"></div>
+</div>
+
+<div id="help" class="page">
+  <a href="https://t.me/paperhouseinc">Telegram Group</a><br>
+  <a href="https://t.me/PAPERHOUSE_INC">Telegram Channel</a><br>
+  <a href="https://facebook.com/groups/1193693469083843/">Facebook Group</a>
+</div>
+
+<footer>
+PAPERHOUSE INC • <span id="time"></span><br>
+otico.isai2@gmail.com
+</footer>
+
+<script>
+function nav(id){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+}
+setInterval(()=>time.innerText=new Date().toLocaleString(),1000);
+</script>
+
 </body>
 </html>
