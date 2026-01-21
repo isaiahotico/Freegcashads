@@ -17,19 +17,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* Telegram Username (REAL + IMMEDIATE) */
-let username = "guest";
-if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
-  const u = Telegram.WebApp.initDataUnsafe.user;
-  username = u.username || `${u.first_name}_${u.id}`;
-}
+/* REAL TELEGRAM USERNAME (NO GUEST) */
+let tg = Telegram.WebApp.initDataUnsafe.user;
+let username =
+  tg.username ||
+  `${tg.first_name || ""} ${tg.last_name || ""}`.trim() + ` (${tg.id})`;
+
 tgUser.innerText = "Telegram: @" + username;
 
-/* Balance */
+/* Balance (LIVE) */
 const balanceRef = ref(db, "balances/" + username);
-runTransaction(balanceRef, b => b ?? 500000);
-onValue(balanceRef, s => {
-  balance.innerText = "₱" + (s.val() || 0);
+runTransaction(balanceRef, bal => bal ?? 500000);
+onValue(balanceRef, snap => {
+  balance.innerText = "₱" + (snap.val() || 0);
 });
 
 /* Withdraw */
@@ -44,9 +44,11 @@ window.requestWithdraw = () => {
     status: "PENDING",
     time: Date.now()
   });
+
+  alert("Wait for a moment, please monitor status in your withdrawal history.");
 };
 
-/* USER HISTORY — LIVE STATUS */
+/* USER HISTORY — SNAPSHOT LISTENER */
 onValue(ref(db, "withdrawals"), snap => {
   history.innerHTML = "";
   snap.forEach(c => {
@@ -62,7 +64,7 @@ onValue(ref(db, "withdrawals"), snap => {
   });
 });
 
-/* Admin */
+/* ADMIN */
 window.openAdmin = () => admin.style.display = "block";
 window.closeAdmin = () => admin.style.display = "none";
 window.loginAdmin = () => {
@@ -70,11 +72,16 @@ window.loginAdmin = () => {
   else alert("Wrong password");
 };
 
-/* OWNER LIVE DASHBOARD */
+/* OWNER DASHBOARD + LIVE STATS */
 onValue(ref(db, "withdrawals"), snap => {
   adminList.innerHTML = "";
+  let pending = 0, approved = 0;
+
   snap.forEach(c => {
     const d = c.val();
+    if (d.status === "PENDING") pending++;
+    if (d.status === "APPROVED") approved++;
+
     adminList.innerHTML += `
       <tr>
         <td>@${d.user}</td>
@@ -89,6 +96,8 @@ onValue(ref(db, "withdrawals"), snap => {
         </td>
       </tr>`;
   });
+
+  stats.innerText = `Pending: ${pending} | Approved: ${approved}`;
 });
 
 /* APPROVE + BALANCE DEDUCTION (ATOMIC) */
