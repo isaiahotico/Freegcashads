@@ -3,90 +3,71 @@
 <head>
 <meta charset="UTF-8">
 <title>🔰💎📄 PAPERHOUSE INC CHAT 📄💎🔰</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- Telegram WebApp -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script type="module" src="app.js"></script>
+
+<!-- Monetag SDKs (Highest RPM + Backup) -->
+<script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+<script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
+<script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
 
 <style>
-body{margin:0;font-family:system-ui;background:#0e0e0e;color:#fff}
-header{background:#000;padding:10px;display:flex;justify-content:space-between;align-items:center}
-button{padding:10px;margin:5px;border-radius:8px;border:0;cursor:pointer}
-.page{display:none;padding:10px}
-.page.active{display:block}
-.card{background:#161616;padding:10px;border-radius:10px;margin-bottom:10px}
-footer{text-align:center;font-size:12px;opacity:.7;padding:10px}
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:url("https://www.transparenttextures.com/patterns/brick-wall.png");
+  transition:.4s;
+}
+header{
+  background:#111;
+  color:#fff;
+  padding:12px;
+  display:flex;
+  justify-content:space-between;
+}
+button{
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  margin:5px;
+  font-size:15px;
+}
+textarea,input{
+  width:100%;
+  margin-top:5px;
+}
+#chatArea{
+  padding:10px;
+}
+footer{
+  font-size:12px;
+  text-align:center;
+  padding:10px;
+  background:#eee;
+}
 </style>
 </head>
 
-<body>
+<body id="bg">
 
 <header>
-  <div id="userBar">👤 Loading…</div>
+  <div id="userBar">👤 User: Loading...</div>
   <div id="balance">💰 ₱0.000</div>
 </header>
 
-<div id="home" class="page active">
-  <button onclick="nav('online')">👥 Online Users</button>
-  <button onclick="nav('elem')">📘 Elementary Chat</button>
-  <button onclick="nav('high')">📗 Highschool Chat</button>
-  <button onclick="nav('college')">📙 College Chat</button>
-  <button onclick="nav('leader')">🍺 Top Leaderboard</button>
-  <button onclick="nav('withdraw')">🔔 Withdrawal</button>
-  <button onclick="nav('ref')">💎 Referrals</button>
-  <button onclick="nav('bonus')">💎💎 Bonus Ads</button>
-  <button onclick="nav('gift')">🍍💎 Gifts</button>
-  <button onclick="nav('owner')">🎖 Owner Dashboard</button>
-  <button onclick="nav('help')">🗝 Help</button>
-</div>
-
-<div id="online" class="page"><h3>👥 Online Users</h3><div id="onlineList"></div></div>
-
-<div id="elem" class="page"><h3>📘 Elementary Chat</h3><div id="chatElem"></div></div>
-<div id="high" class="page"><h3>📗 Highschool Chat</h3><div id="chatHigh"></div></div>
-<div id="college" class="page"><h3>📙 College Chat</h3><div id="chatCollege"></div></div>
-
-<div id="leader" class="page"><h3>🍺 Top Leaderboard</h3><div id="leaderList"></div></div>
-
-<div id="withdraw" class="page">
-  <h3>🔔 Withdrawal</h3>
-  <div class="card">
-    <input id="gcash" placeholder="GCash Number">
-    <input id="amount" type="number" step="0.001" placeholder="Amount">
-    <button onclick="requestWithdraw()">Request Withdrawal</button>
-  </div>
-  <div id="withdrawHistory"></div>
-</div>
-
-<div id="ref" class="page"><h3>💎 Referrals</h3><div id="refBox"></div></div>
-<div id="bonus" class="page"><h3>💎💎 Bonus Ads</h3></div>
-<div id="gift" class="page"><h3>🍍💎 Gifts</h3></div>
-
-<div id="owner" class="page">
-  <h3>🎖 Owner Dashboard</h3>
-  <input id="ownerPass" placeholder="Password">
-  <button onclick="ownerLogin()">Login</button>
-  <div id="ownerWithdrawals"></div>
-</div>
-
-<div id="help" class="page">
-  <a href="https://t.me/paperhouseinc">Telegram Group</a><br>
-  <a href="https://t.me/PAPERHOUSE_INC">Telegram Channel</a><br>
-  <a href="https://facebook.com/groups/1193693469083843/">Facebook Group</a>
+<div id="chatArea">
+  <button onclick="openChat('elementary')">📘 ELEMENTARY CHAT 📘</button>
+  <button onclick="openChat('highschool')">📗 HIGHSCHOOL CHAT 📗</button>
+  <button onclick="openWithdraw()">💸 Withdraw</button>
+  <div id="view"></div>
 </div>
 
 <footer>
-PAPERHOUSE INC • <span id="time"></span><br>
-otico.isai2@gmail.com
+PAPERHOUSE INC | <span id="time"></span> | otico.isai2@gmail.com
 </footer>
 
-<script>
-function nav(id){
- document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
- document.getElementById(id).classList.add('active');
-}
-setInterval(()=>time.innerText=new Date().toLocaleString(),1000);
-</script>
-
+<script type="module" src="app.js"></script>
 </body>
 </html>
