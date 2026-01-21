@@ -1,113 +1,74 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getDatabase, ref, push, onValue, update, get
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FreeGcashads</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
+    header{background:#020617;padding:14px;display:flex;justify-content:space-between}
+    .card{background:#020617;margin:14px;padding:14px;border-radius:12px}
+    button{padding:8px 14px;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
+    .ok{background:#22c55e}
+    .no{background:#ef4444;color:#fff}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #334155;padding:6px;font-size:13px}
+    input{width:100%;padding:8px;margin:6px 0;border-radius:8px;border:none}
+  </style>
+</head>
+<body>
 
-/* Firebase Config */
-const firebaseConfig = {
-  apiKey: "AIzaSyBwpa8mA83JAv2A2Dj0rh5VHwodyv5N3dg",
-  authDomain: "freegcash-ads.firebaseapp.com",
-  databaseURL: "https://freegcash-ads-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "freegcash-ads",
-  storageBucket: "freegcash-ads.firebasestorage.app",
-  messagingSenderId: "608086825364",
-  appId: "1:608086825364:web:3a8e628d231b52c6171781"
-};
+<header>
+  <div id="tgUser">Telegram: loading...</div>
+  <button onclick="openAdmin()">Owner</button>
+</header>
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+<div class="card">
+  <h3>Balance</h3>
+  <h1 id="balance">₱0</h1>
+</div>
 
-/* Telegram User */
-let user = "guest";
-if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
-  user = Telegram.WebApp.initDataUnsafe.user.username ||
-         Telegram.WebApp.initDataUnsafe.user.first_name;
-}
-tgUser.innerText = "Telegram: @" + user;
+<div class="card">
+  <h3>Withdraw (GCash)</h3>
+  <input id="gcash" placeholder="GCash Number">
+  <input id="amount" type="number" placeholder="Amount">
+  <button class="ok" onclick="requestWithdraw()">Request</button>
+</div>
 
-/* Balance */
-const balanceRef = ref(db, "balances/" + user);
-get(balanceRef).then(s => {
-  if (!s.exists()) update(ref(db, "balances"), { [user]: 500000 });
-});
-onValue(balanceRef, s => {
-  balance.innerText = "₱" + (s.val() || 0);
-});
+<div class="card">
+  <h3>Withdrawal History</h3>
+  <table>
+    <thead><tr><th>Amount</th><th>Status</th></tr></thead>
+    <tbody id="history"></tbody>
+  </table>
+  <button onclick="prevPage()">Prev</button>
+  <button onclick="nextPage()">Next</button>
+</div>
 
-/* Withdraw */
-window.requestWithdraw = () => {
-  const amt = Number(amount.value);
-  if (!amt || !gcash.value) return alert("Complete fields");
-  push(ref(db, "withdrawals"), {
-    user,
-    amount: amt,
-    gcash: gcash.value,
-    status: "PENDING",
-    time: Date.now()
-  });
-};
+<!-- OWNER DASHBOARD -->
+<div id="admin" style="display:none;position:fixed;inset:0;background:#000c;padding:16px;overflow:auto">
+  <div class="card">
+    <input id="adminPass" type="password" placeholder="Owner Password">
+    <button onclick="loginAdmin()">Login</button>
+  </div>
 
-/* Pagination */
-let page = 0, size = 5;
-window.nextPage = () => page++;
-window.prevPage = () => page = Math.max(0, page - 1);
+  <div class="card" id="adminPanel" style="display:none">
+    <h3>Analytics</h3>
+    <div id="stats"></div>
 
-/* User History */
-onValue(ref(db, "withdrawals"), snap => {
-  let list = [];
-  snap.forEach(c => {
-    if (c.val().user === user) list.push(c.val());
-  });
-  list.sort((a, b) => b.time - a.time);
-  history.innerHTML = "";
-  list.slice(page * size, (page + 1) * size).forEach(d => {
-    history.innerHTML += `<tr><td>₱${d.amount}</td><td>${d.status}</td></tr>`;
-  });
-});
+    <h3>Pending</h3>
+    <table><tbody id="pending"></tbody></table>
 
-/* Admin */
-window.openAdmin = () => admin.style.display = "block";
-window.closeAdmin = () => admin.style.display = "none";
-window.loginAdmin = () => {
-  if (adminPass.value === "Propetas12") adminPanel.style.display = "block";
-  else alert("Wrong password");
-};
+    <h3>Approved</h3>
+    <table><tbody id="approved"></tbody></table>
 
-/* Admin Dashboard */
-onValue(ref(db, "withdrawals"), snap => {
-  pending.innerHTML = approved.innerHTML = rejected.innerHTML = "";
-  let p = 0, a = 0, r = 0;
+    <h3>Rejected</h3>
+    <table><tbody id="rejected"></tbody></table>
 
-  snap.forEach(c => {
-    const d = c.val();
-    if (d.status === "PENDING") {
-      p++;
-      pending.innerHTML += `
-        <tr>
-          <td>${d.user}</td>
-          <td>₱${d.amount}</td>
-          <td>
-            <button onclick="approve('${c.key}',${d.amount},'${d.user}')">Approve</button>
-          </td>
-        </tr>`;
-    }
-    if (d.status === "APPROVED") {
-      a++;
-      approved.innerHTML += `<tr><td>${d.user}</td><td>₱${d.amount}</td></tr>`;
-    }
-    if (d.status === "REJECTED") {
-      r++;
-      rejected.innerHTML += `<tr><td>${d.user}</td><td>₱${d.amount}</td></tr>`;
-    }
-  });
+    <button class="no" onclick="closeAdmin()">Close</button>
+  </div>
+</div>
 
-  stats.innerText = `Pending: ${p} | Approved: ${a} | Rejected: ${r}`;
-});
-
-/* Approve + Deduct Balance */
-window.approve = (id, amt, u) => {
-  update(ref(db, "withdrawals/" + id), { status: "APPROVED" });
-  get(ref(db, "balances/" + u)).then(s => {
-    update(ref(db, "balances/" + u), { ".value": (s.val() || 0) - amt });
-  });
-};
+<script type="module" src="app.js"></script>
+</body>
+</html>
