@@ -1,3 +1,4 @@
+ChatGPT | Midjourney:
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -280,6 +281,52 @@ watch.</p>
             <section id="sec-topic-view" class="hidden space-y-4">
                 <button onclick="app.nav('topics-list')" class="text-yellow-500 text-sm mb-4"><i class="fas fa-arrow-left mr-2
 
+ec-admin" class="hidden space-y-4">
+                <h2 class="text-xl font-black text-red-500">PAYOUT MANAGEMENT</h2>
+                <div id="admin-list" class="space-y-4"></div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 glass border-t border-white/5 flex justify-around items-center p-3 z-50 overflow-x-auto">
+            <button onclick="app.nav('home')" class="nav-btn nav-active flex flex-col items-center p-2"><i class="fas fa-home mb-1"></i><span class="text-[9px]">Home</span></button>
+            <button onclick="app.nav('referral')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-users mb-1"></i><span class="text-[9px]">Refer</span></button>
+            <button onclick="app.nav('chat')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-comment-dots mb-1"></i><span class="text-[9px]">Chat</span></button>
+            <button onclick="app.nav('topics-list')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-clipboard-list mb-1"></i><span class="text-[9px]">Topics</span></button>
+            <button onclick="app.nav('leaderboard')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-trophy mb-1"></i><span class="text-[9px]">Leaderbd</span></button>
+            <button onclick="app.nav('online')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-wifi mb-1"></i><span class="text-[9px]">Online</span></button>
+            <button onclick="app.nav('profile')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-user mb-1"></i><span class="text-[9px]">Profile</span></button>
+            <button onclick="app.nav('history')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-clock-rotate-left mb-1"></i><span class="text-[9px]">History</span></button>
+            <button onclick="app.nav('help')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-question-circle mb-1"></i><span class="text-[9px]">Help</span></button>
+            <button onclick="app.nav('admin')" class="nav-btn flex flex-col items-center p-2 text-slate-600"><i class="fas fa-user-shield mb-1"></i><span class="text-[9px]">Admin</span></button>
+        </nav>
+    </div>
+
+    <!-- Modals -->
+    <!-- User Profile Modal -->
+    <div id="user-profile-modal" class="profile-modal">
+        <div class="modal-content text-center">
+            <button onclick="document.getElementById('user-profile-modal').style.display='none'" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+            <h3 id="modal-username" class="font-bold text-2xl text-yellow-500 mb-4"></h3>
+            <div class="space-y-3">
+                <div class="glass p-4 rounded-xl">
+                    <p class="text-xs text-slate-400">Total Ads Viewed</p>
+                    <p id="modal-total-ads" class="text-xl font-bold mt-1">0</p>
+                </div>
+                <div class="glass p-4 rounded-xl">
+                    <p class="text-xs text-slate-400">Ads Viewed Today</p>
+                    <p id="modal-daily-ads" class="text-xl font-bold mt-1">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Topic Modal -->
+    <div id="create-topic-modal" class="profile-modal">
+        <div class="modal-content">
+            <button onclick="document.getElementById('create-topic-modal').style.display='none'" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+            <h3 class
+
 "></i>Back to Topics</button>
                 <h3 id="topic-view-title" class="font-bold text-xl mb-2"></h3>
                 <p id="topic-view-creator" class="text-xs text-slate-400"></p>
@@ -333,55 +380,7 @@ watch.</p>
             </section>
 
             <!-- Admin Section -->
-            <section id="s
-
-ec-admin" class="hidden space-y-4">
-                <h2 class="text-xl font-black text-red-500">PAYOUT MANAGEMENT</h2>
-                <div id="admin-list" class="space-y-4"></div>
-            </section>
-        </main>
-
-        <!-- Bottom Navigation -->
-        <nav class="fixed bottom-0 left-0 right-0 glass border-t border-white/5 flex justify-around items-center p-3 z-50 overflow-x-auto">
-            <button onclick="app.nav('home')" class="nav-btn nav-active flex flex-col items-center p-2"><i class="fas fa-home mb-1"></i><span class="text-[9px]">Home</span></button>
-            <button onclick="app.nav('referral')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-users mb-1"></i><span class="text-[9px]">Refer</span></button>
-            <button onclick="app.nav('chat')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-comment-dots mb-1"></i><span class="text-[9px]">Chat</span></button>
-            <button onclick="app.nav('topics-list')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-clipboard-list mb-1"></i><span class="text-[9px]">Topics</span></button>
-            <button onclick="app.nav('leaderboard')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-trophy mb-1"></i><span class="text-[9px]">Leaderbd</span></button>
-            <button onclick="app.nav('online')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-wifi mb-1"></i><span class="text-[9px]">Online</span></button>
-            <button onclick="app.nav('profile')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-user mb-1"></i><span class="text-[9px]">Profile</span></button>
-            <button onclick="app.nav('history')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-clock-rotate-left mb-1"></i><span class="text-[9px]">History</span></button>
-            <button onclick="app.nav('help')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-question-circle mb-1"></i><span class="text-[9px]">Help</span></button>
-            <button onclick="app.nav('admin')" class="nav-btn flex flex-col items-center p-2 text-slate-600"><i class="fas fa-user-shield mb-1"></i><span class="text-[9px]">Admin</span></button>
-        </nav>
-    </div>
-
-    <!-- Modals -->
-    <!-- User Profile Modal -->
-    <div id="user-profile-modal" class="profile-modal">
-        <div class="modal-content text-center">
-            <button onclick="document.getElementById('user-profile-modal').style.display='none'" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
-            <h3 id="modal-username" class="font-bold text-2xl text-yellow-500 mb-4"></h3>
-            <div class="space-y-3">
-                <div class="glass p-4 rounded-xl">
-                    <p class="text-xs text-slate-400">Total Ads Viewed</p>
-                    <p id="modal-total-ads" class="text-xl font-bold mt-1">0</p>
-                </div>
-                <div class="glass p-4 rounded-xl">
-                    <p class="text-xs text-slate-400">Ads Viewed Today</p>
-                    <p id="modal-daily-ads" class="text-xl font-bold mt-1">0</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Create Topic Modal -->
-    <div id="create-topic-modal" class="profile-modal">
-        <div class="modal-content">
-            <button onclick="document.getElementById('create-topic-modal').style.display='none'" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
-            <h3 class
-
-="font-bold text-xl mb-4">Create New Topic</h3>
+            <section id="s="font-bold text-xl mb-4">Create New Topic</h3>
             <input type="text" id="new-topic-title" placeholder="Topic Title" class="w-full p-3 rounded-lg bg-slate-800 border border-slate-700 mb-3 focus:outline-none focus:border-yellow-500">
             <textarea id="new-topic-content" placeholder="Topic Content" rows="5" class="w-full p-3 rounded-lg bg-slate-800 border border-slate-700 mb-4 focus:outline-none focus:border-yellow-500"></textarea>
             <button onclick="app.submitTopic()" class="w-full gold-gradient py-3 rounded-lg font-bold text-slate-900">Post Topic</button>
