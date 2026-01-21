@@ -3,109 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAPERHOUSE INC</title>
+    <title>PAPERHOUSE INC | Pro Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Monetag SDKs -->
+    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+
     <style>
-        .page { display: none; }
-        .active { display: block; }
+        body { background: #0f172a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; }
+        .nav-btn { transition: 0.3s; text-transform: uppercase; font-weight: bold; padding: 20px; text-align: center; cursor: pointer; }
+        .nav-btn:hover { background: rgba(255,255,255,0.1); transform: scale(1.02); }
+        .hidden { display: none; }
+        .active-page { display: block !important; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-gray-900 text-white font-sans">
+<body class="p-4">
 
-    <!-- Header / User Info -->
-    <div class="p-4 bg-gray-800 flex justify-between items-center border-b border-yellow-500">
+    <!-- TOP BAR -->
+    <div class="max-w-4xl mx-auto flex justify-between items-center p-4 glass mb-6">
         <div>
-            <p id="user-display-name" class="font-bold text-yellow-400">Loading User...</p>
-            <p class="text-xs text-gray-400">Balance: <span id="main-balance" class="text-green-400">0.00</span> PHP</p>
+            <h1 class="text-xl font-black text-blue-500">PAPERHOUSE INC.</h1>
+            <p id="display-username" class="text-xs text-green-400">@loading...</p>
         </div>
-        <h1 class="text-xl font-black">PAPERHOUSE</h1>
-    </div>
-
-    <!-- Navigation Menu -->
-    <div id="main-menu" class="p-4 grid grid-cols-2 gap-4 active page">
-        <button onclick="showPage('chat-page')" class="bg-blue-600 p-4 rounded-lg font-bold">📘 ELEMENTARY CHAT 📘</button>
-        <button onclick="showPage('referral-page')" class="bg-orange-600 p-4 rounded-lg font-bold">🍺 Referrals 🍺</button>
-        <button onclick="showPage('withdraw-page')" class="bg-green-600 p-4 rounded-lg font-bold">🤑 WITHDRAW 🤑</button>
-        <button onclick="showPage('leaderboard-page')" class="bg-purple-600 p-4 rounded-lg font-bold">🍺 TOP LEADERBOARD 🍺</button>
-        <button onclick="showPage('admin-login')" class="bg-red-700 p-4 rounded-lg font-bold col-span-2">🎖 OWNER DASHBOARD 🎖</button>
-    </div>
-
-    <!-- Chat Page -->
-    <div id="chat-page" class="page p-4">
-        <button onclick="showPage('main-menu')" class="mb-4 text-sm text-yellow-500 underline">← Back</button>
-        <h2 class="text-xl mb-2">Elementary Chat</h2>
-        <div id="chat-box" class="h-64 bg-gray-800 overflow-y-auto p-2 rounded mb-4 text-sm"></div>
-        <div class="flex flex-col gap-2">
-            <input id="chat-input" type="text" placeholder="Type a message..." class="p-2 rounded bg-gray-700 text-white">
-            <p class="text-[10px] text-gray-400">Sending shows 3 ads. Reward: 0.015 PHP. Cooldown: 3m.</p>
-            <button id="send-msg-btn" onclick="handleSendMessage()" class="bg-blue-500 p-2 rounded font-bold">Send Message (Watch Ads)</button>
+        <div class="text-right">
+            <p class="text-[10px] uppercase opacity-50">Total Balance</p>
+            <p class="text-2xl font-bold text-yellow-400">₱<span id="bal-val">0.000</span></p>
         </div>
     </div>
 
-    <!-- Referral Page -->
-    <div id="referral-page" class="page p-4">
-<button onclick="showPage('main-menu')" class="mb-4 text-sm text-yellow-500 underline">← Back</button>
-        <h2 class="text-xl mb-2">Referral System</h2>
-        <div class="bg-gray-800 p-4 rounded mb-4 text-center">
-            <p>Your Code: <span id="my-ref-code" class="text-yellow-400 font-mono">...</span></p>
+    <!-- MAIN MENU -->
+    <div id="page-main" class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div onclick="showPage('page-elem')" class="nav-btn glass border-blue-500/50">📘 ELEMENTARY CHAT 📘</div>
+        <div onclick="showPage('page-high')" class="nav-btn glass border-green-500/50">📗 HIGHSCHOOL CHAT 📗</div>
+        <div onclick="showPage('page-leaderboard')" class="nav-btn glass border-yellow-500/50">🍺 TOP LEADERBOARD 🍺</div>        <div onclick="showPage('page-daily')" class="nav-btn glass border-purple-500/50">📅 DAILY LOGIN 📅</div>
+        <div onclick="showPage('page-referral')" class="nav-btn glass border-pink-500/50">🍺 REFERRALS 🍺</div>
+        <div onclick="showPage('page-withdraw')" class="nav-btn glass border-red-500/50 text-red-400">🤑 WITHDRAW 🤑</div>
+        <div onclick="showPage('page-owner')" class="nav-btn glass border-gray-500/50 text-xs mt-4 col-span-full">🎖️ OWNER DASHBOARD</div>
+        <div onclick="checkAdminLinks()" class="nav-btn glass border-white/20 text-[10px] col-span-full py-2">UPDATED LINKS</div>
+    </div>
+
+    <!-- ELEMENTARY PAGE -->
+    <div id="page-elem" class="hidden max-w-4xl mx-auto">
+        <button onclick="showPage('page-main')" class="mb-4 text-sm"><i class="fa fa-arrow-left"></i> Back</button>
+        <div class="glass h-96 overflow-y-auto p-4 mb-4" id="elem-chat-box">
+            <table class="w-full text-sm"><tbody id="elem-chat-content"></tbody></table>
         </div>
-        <div class="bg-gray-800 p-4 rounded mb-4">
-            <input id="input-ref-code" type="text" placeholder="Enter referral code" class="w-full p-2 rounded bg-gray-700 mb-2">
-            <button onclick="activateReferral()" class="w-full bg-orange-500 p-2 rounded font-bold">Activate Code</button>
-        </div>
-        <div class="bg-gray-800 p-4 rounded">
-            <p>Claimable Bonus: <span id="claimable-bonus" class="text-green-400">0.00</span> PHP</p>
-            <button onclick="claimBonus()" class="w-full mt-2 bg-green-600 p-2 rounded font-bold">Claim 8% Bonus</button>
+        <div class="flex gap-2">
+            <input id="elem-input" class="flex-1 glass p-3 outline-none" placeholder="Type here...">
+            <button onclick="sendElemChat()" class="bg-blue-600 px-6 rounded-lg font-bold">SEND (ADS)</button>
         </div>
     </div>
 
-    <!-- Withdraw Page -->
-    <div id="withdraw-page" class="page p-4">
-        <button onclick="showPage('main-menu')" class="mb-4 text-sm text-yellow-500 underline">← Back</button>
-        <h2 class="text-xl mb-2">Withdraw GCash</h2>
-        <div class="bg-gray-800 p-4 rounded">
-            <input id="wd-amount" type="number" placeholder="Amount" class="w-full p-2 rounded bg-gray-700 mb-2">
-            <input id="wd-number" type="text" placeholder="GCash Number" class="w-full p-2 rounded bg-gray-700 mb-2">
-            <button onclick="requestWithdrawal()" class="w-full bg-green-500 p-2 rounded font-bold">Submit Request</button>
+    <!-- HIGHSCHOOL PAGE -->
+    <div id="page-high" class="hidden max-w-4xl mx-auto">
+        <button onclick="showPage('page-main')" class="mb-4 text-sm"><i class="fa fa-arrow-left"></i> Back</button>
+        <div class="grid grid-cols-3 gap-2 mb-4">
+            <div class="h-24 glass flex items-center justify-center text-[10px] italic opacity-30">Ad Slot 1</div>
+            <div class="h-24 glass flex items-center justify-center text-[10px] italic opacity-30">Ad Slot 2</div>
+            <div class="h-24 glass flex items-center justify-center text-[10px] italic opacity-30">Ad Slot 3</div>
         </div>
-        <div class="mt-4">
-            <h3 class="text-sm font-bold mb-2">Withdrawal History</h3>
-            <div id="wd-history" class="text-xs bg-gray-800 p-2 rounded h-32 overflow-y-auto"></div>
-        </div>
+        <button id="hs-claim-btn" onclick="claimHighSchool()" class="w-full bg-green-600 p-4 rounded-xl font-bold mb-4 hidden">CLAIM ₱0.015 & SEND</button>
+        <input id="hs-input" class="w-full glass p-3 mb-4 outline-none" placeholder="Enter message first...">        <div class="glass h-64 overflow-y-auto p-4"><table class="w-full text-sm"><tbody id="hs-chat-content"></tbody></table></div>
     </div>
 
-    <!-- Leaderboard Page -->
-    <div id="leaderboard-page" class="page p-4">
-        <button onclick="showPage('main-menu')" class="mb-4 text-sm text-yellow-500 underline">← Back</button>
-        <h2 class="text-xl mb-2 text-center text-purple-400">TOP 500 EARNERS</h2>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs bg-gray-800 rounded">
-                <thead>
-                    <tr class="bg-gray-700">
-                        <th class="p-2">Rank</th>
-                        <th class="p-2">User</th>
-                        <th class="p-2">Earnings</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderboard-table"></tbody>
+    <!-- LEADERBOARD PAGE -->
+    <div id="page-leaderboard" class="hidden max-w-2xl mx-auto glass p-6">
+        <button onclick="showPage('page-main')" class="mb-4 text-sm">Back</button>
+        <h2 class="text-xl font-bold mb-4 text-yellow-500 italic">TOP 500 EARNERS</h2>
+        <div class="overflow-y-auto h-96">
+            <table class="w-full text-left">
+                <thead class="sticky top-0 bg-slate-900"><tr><th class="p-2">Rank</th><th>User</th><th>Earned</th></tr></thead>
+                <tbody id="leaderboard-list"></tbody>
             </table>
         </div>
     </div>
 
-    <!-- Owner Login -->
-    <div id="admin-login" class="page p-4">
-        <button onclick="showPage('main-menu')" class="mb-4 text-sm text-yellow-500 underline">← Back</button>
-        <h2 class="text-xl mb-4">Admin Access</h2>
-        <input id="admin-pw" type="password" placeholder="Enter Password" class="w-full p-2 rounded bg-gray-700 mb-4">
-        <button onclick="checkAdmin()" class="w-full bg-red-600 p-2 rounded font-bold">Enter Dashboard</button>
+    <!-- DAILY LOGIN PAGE -->
+    <div id="page-daily" class="hidden max-w-xl mx-auto glass p-6">
+        <button onclick="showPage('page-main')" class="mb-4 text-sm">Back</button>
+        <h2 class="text-xl font-bold mb-6 italic">DAILY TASKS</h2>
+        <div class="space-y-4">
+            <div class="p-4 glass border-l-4 border-blue-500">
+                <p class="text-sm font-bold">Task 1: Join & Register</p>
+                <button onclick="runDailyTask(1)" id="task1-btn" class="mt-2 bg-blue-600 px-4 py-2 rounded text-xs">START (₱0.01)</button>
+            </div>
+            <div class="p-4 glass border-l-4 border-purple-500">
+                <p class="text-sm font-bold">Task 2: Join & Register</p>
+                <button onclick="runDailyTask(2)" id="task2-btn" class="mt-2 bg-purple-600 px-4 py-2 rounded text-xs">START (₱0.01)</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Owner Dashboard -->
-    <div id="owner-dashboard" class="page p-4">
-        <button onclick="showPage('main-menu')" class="mb-4 text-sm text-yellow-500 underline">← Back</button>
-        <h2 class="text-xl mb-2">Pending Withdrawals</h2>
-        <div id="admin-wd-list" class="space-y-2"></div>
+    <!-- WITHDRAW PAGE -->
+    <div id="page-withdraw" class="hidden max-w-xl mx-auto glass p-6">
+        <button onclick="showPage('page-main')" class="mb-4 text-sm">Back</button>
+        <input id="wd-amount" type="number" class="w-full glass p-4 mb-4" placeholder="Amount (Min 0.015)">
+        <input id="wd-number" type="text" class="w-full glass p-4 mb-4" placeholder="GCash Number">
+        <button onclick="submitWithdraw()" class="w-full bg-red-600 p-4 rounded-xl font-bold">REQUEST WITHDRAWAL</button>
+        <h3 class="mt-6 text-xs uppercase opacity-50">Live History</h3>
+        <div id="wd-history" class="text-[10px] mt-2"></div>
+    </div>
+
+    <!-- OWNER PAGE -->
+    <div id="page-owner" class="hidden max-w-4xl mx-auto glass p-6">
+        <div id="owner-auth">
+            <input id="owner-pass" type="password" class="glass p-3 w-full mb-4" placeholder="Password">
+            <button onclick="loginOwner()" class="bg-white text-black px-6 py-2 rounded">Login</button>
+        </div>
+        <div id="owner-panel" class="hidden">
+            <h2 class="text-xl font-bold mb-4">OWNER PANEL</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs text-left">
+                    <thead><tr><th>User</th><th>Amount</th><th>GCash</th><th>Date</th><th>Action</th></tr></thead>
+                    <tbody id="owner-wd-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPDATED LINKS ADMIN (MODAL) -->
+    <div id="page-admin-links" class="hidden max-w-xl mx-auto glass p-6">
+        <h2 class="font-bold mb-4 text-orange-400">UPDATE DAILY LINKS</h2>
+        <input id="link1-input" class="w-full glass p-2 mb-2 text-xs" placeholder="Link 1">
+        <input id="link2-input" class="w-full glass p-2 mb-4 text-xs" placeholder="Link 2">
+        <button onclick="saveLinks()" class="bg-orange-600 px-4 py-2 rounded">UPDATE LIVE</button>
+        <button onclick="showPage('page-main')" class="ml-2">Cancel</button>
     </div>
 
     <!-- Firebase SDKs -->
