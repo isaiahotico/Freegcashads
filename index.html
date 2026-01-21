@@ -1,4 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAPERHOUSE INC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        .page { display: none; }
+        .active { display: block; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+
+    <!-- Header / User Info -->
+    <div class="p-4 bg-gray-800 flex justify-between items-center border-b border-yellow-500">
+        <div>
+            <p id="user-display-name" class="font-bold text-yellow-400">Loading User...</p>
+            <p class="text-xs text-gray-400">Balance: <span id="main-balance" class="text-green-400">0.00</span> PHP</p>
+        </div>
+        <h1 class="text-xl font-black">PAPERHOUSE</h1>
+    </div>
+
+    <!-- Navigation Menu -->
+    <div id="main-menu" class="p-4 grid grid-cols-2 gap-4 active page">
+        <button onclick="showPage('chat-page')" class="bg-blue-600 p-4 rounded-lg font-bold">📘 ELEMENTARY CHAT 📘</button>
+        <button onclick="showPage('referral-page')" class="bg-orange-600 p-4 rounded-lg font-bold">🍺 Referrals 🍺</button>
+        <button onclick="showPage('withdraw-page')" class="bg-green-600 p-4 rounded-lg font-bold">🤑 WITHDRAW 🤑</button>
+        <button onclick="showPage('leaderboard-page')" class="bg-purple-600 p-4 rounded-lg font-bold">🍺 TOP LEADERBOARD 🍺</button>
+        <button onclick="showPage('admin-login')" class="bg-red-700 p-4 rounded-lg font-bold col-span-2">🎖 OWNER DASHBOARD 🎖</button>
+    </div>
+
+    <!-- Chat Page -->
+    <div id="chat-page" class="page p-4">
         <button onclick="showPage('main-menu')" class="mb-4 text-sm text-yellow-500 underline">← Back</button>
+        <h2 class="text-xl mb-2">Elementary Chat</h2>
+        <div id="chat-box" class="h-64 bg-gray-800 overflow-y-auto p-2 rounded mb-4 text-sm"></div>
+        <div class="flex flex-col gap-2">
+            <input id="chat-input" type="text" placeholder="Type a message..." class="p-2 rounded bg-gray-700 text-white">
+            <p class="text-[10px] text-gray-400">Sending shows 3 ads. Reward: 0.015 PHP. Cooldown: 3m.</p>
+            <button id="send-msg-btn" onclick="handleSendMessage()" class="bg-blue-500 p-2 rounded font-bold">Send Message (Watch Ads)</button>
+        </div>
+    </div>
+
+    <!-- Referral Page -->
+    <div id="referral-page" class="page p-4">
+<button onclick="showPage('main-menu')" class="mb-4 text-sm text-yellow-500 underline">← Back</button>
         <h2 class="text-xl mb-2">Referral System</h2>
         <div class="bg-gray-800 p-4 rounded mb-4 text-center">
             <p>Your Code: <span id="my-ref-code" class="text-yellow-400 font-mono">...</span></p>
