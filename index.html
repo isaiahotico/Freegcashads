@@ -3,559 +3,267 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔰💎📄PAPERHOUSE INC CHAT📄💎🔰</title>
-    
-    <!-- Firebase SDKs (Compat Version) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    
-    <!-- Telegram WebApp SDK -->
+    <title>Paper House Network</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css"> <!-- Assuming you have a style.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-    <!-- Monetag SDKs -->
-    <!-- High CPM Interstitials for Auto-Show -->
-    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853' data-type='inApp' data-settings='{"frequency": 2, "capping": 0.1, "interval": 30, "timeout": 5, "everyPage": false}'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123' data-type='inApp' data-settings='{"frequency": 2, "capping": 0.1, "interval": 30, "timeout": 5, "everyPage": false}'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795' data-type='inApp' data-settings='{"frequency": 2, "capping": 0.1, "interval": 30, "timeout": 5, "everyPage": false}'></script>
-    
-    <!-- Backup Interstitial Ad -->
-    <script src='//libtl.com/sdk.js' data-zone='YOUR_BACKUP_INTERSTITIAL_ZONE_ID' data-sdk='show_GENERIC' data-type='inApp' data-settings='{"frequency": 2, "capping": 0.1, "interval": 30, "timeout": 5, "everyPage": false}'></script> 
-
-    <!-- Rewarded Ads for Bonus Section (Ensure these are the ones with highest CPM) -->
-    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123' data-type='rewarded'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795' data-type='rewarded'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853' data-type='rewarded'></script>
-    <!-- Add more backup rewarded ads if necessary -->
-
-    <style>
-        :root { --main-text-color: #333; }
-        body {
-            margin: 0; font-family: 'Arial', sans-serif;
-            transition: background 0.3s ease; min-height: 100vh;
-            display: flex; flex-direction: column; overflow-x: hidden;
-            background-color: #f0f2f5; /* Default light background */
-            color: var(--main-text-color);
-        }
-        .brick-bg {            background-image:  linear-gradient(335deg, #b00 23px, transparent 23px),
-            linear-gradient(155deg, #d00 23px, transparent 23px),
-            linear-gradient(335deg, #b00 23px, transparent 23px),
-            linear-gradient(155deg, #d00 23px, transparent 23px);
-            background-size: 58px 58px;
-            background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
-        }
-        header {
-            background: linear-gradient(to right, #0a0a0a, #333333); 
-            color: #ffd700; padding: 15px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid #555; position: sticky; top: 0; z-index: 1000;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-        .container { flex: 1; padding: 20px; text-align: center; }
-        .page-view {
-            background: rgba(255, 255, 255, 0.95); border-radius: 15px;
-            padding: 20px; margin: 20px auto; max-width: 650px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: none; /* Hidden by default, managed by JS */
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-        }
-        #mainMenu { display: block; /* Visible by default */ }
-
-        /* General Buttons */
-        .btn {
-            padding: 12px 24px; margin: 10px; border: none; border-radius: 30px;
-            color: white; font-weight: bold; cursor: pointer; transition: 0.2s transform, 0.2s background-color;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.3); }
-        .btn-primary { background: #007bff; } /* Blue */
-        .btn-success { background: #28a745; } /* Green */
-        .btn-warning { background: #ffc107; color: #333; } /* Yellow */
-        .btn-info { background: #17a2b8; } /* Cyan */
-        .btn-danger { background: #dc3545; } /* Red */
-        .btn-dark { background: #343a40; } /* Dark */
-        .btn-secondary { background: #6c757d; } /* Grey */
-        .btn-light { background: #f8f9fa; color: #333; } /* Light Grey */
-        .btn-purple { background-color: #6f42c1; }
-
-        /* Chat Specific */
-        #msg-box {
-            height: 350px; overflow-y: auto; border: 1px solid #ccc;            margin-bottom: 15px; text-align: left; padding: 10px; background: #fefefe;
-            border-radius: 8px; scroll-behavior: smooth;
-        }
-        .msg { border-bottom: 1px solid #eee; padding: 8px; font-size: 0.9rem; }
-        .msg b { color: #007bff; }
-        .cooldown-text { color: #d9534f; font-weight: bold; margin-top: 5px; animation: flashRed 1s infinite; }
-        @keyframes flashRed { 0% { color: #d9534f; } 50% { color: #ffeb3b; } 100% { color: #d9534f; } }
-        
-        #claimRewardBtn { 
-            display: none; background: #ffc107; color: #333; 
-            animation: pulse 1.5s infinite alternate, glow 1s infinite alternate; 
-            padding: 15px 30px; border-radius: 40px; 
-        }
-        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
-        @keyframes glow { 0% {box-shadow: 0 0 5px #ffc107;} 100% {box-shadow: 0 0 20px #ffc107, 0 0 30px #ffeb3b;} }
-
-        /* Online Users */
-        #onlineUsersList {
-            min-height: 200px; max-height: 400px; overflow-y: auto;
-            border: 1px solid #ccc; border-radius: 8px; background: #fefefe;
-            padding: 10px; margin-top: 15px;
-        }
-        .online-user-item { padding: 8px; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: center; }
-        .online-user-item:last-child { border-bottom: none; }
-        .status-dot { height: 10px; width: 10px; background-color: #28a745; border-radius: 50%; display: inline-block; margin-right: 5px; }
-
-        /* Withdrawal */
-        #withdrawalForm label { display: block; margin-top: 15px; font-weight: bold; }
-        #withdrawalForm input {
-            width: calc(100% - 20px); padding: 10px; margin-top: 5px;
-            border: 1px solid #ccc; border-radius: 5px; font-size: 1rem;
-        }
-        #withdrawalHistoryTable {
-            width: 100%; border-collapse: collapse; margin-top: 20px;
-            background: #fefefe; border-radius: 8px; overflow: hidden;
-        }
-        #withdrawalHistoryTable th, #withdrawalHistoryTable td {
-            border: 1px solid #eee; padding: 10px; text-align: left;
-            font-size: 0.9rem;
-        }
-        #withdrawalHistoryTable th { background-color: #e9ecef; font-weight: bold; }
-        .status-pending { color: #ffc107; font-weight: bold; }
-        .status-approved { color: #28a745; font-weight: bold; }
-        .status-denied { color: #dc3545; font-weight: bold; }
-
-        #firstTimeWithdrawalInfo {
-            background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 5px;
-            padding: 15px; margin-top: 20px; color: #856404;
-        }
-        #youtubeLink { font-weight: bold; color: #dc3545; text-decoration: none; }
-        #youtubeLink:hover { text-decoration: underline; }
-
-        /* Owner Dashboard */
-        #ownerDashboardTable {
-             width: 100%; border-collapse: collapse; margin-top: 20px;
-             background: #fefefe; border-radius: 8px; overflow: hidden;
-        }
-        #ownerDashboardTable th, #ownerDashboardTable td {
-            border: 1px solid #eee; padding: 10px; text-align: left;
-            font-size: 0.9rem;
-        }
-        #ownerDashboardTable th { background-color: #e9ecef; font-weight: bold; }
-        .owner-action-btn { padding: 5px 10px; border-radius: 5px; margin: 0 3px; cursor: pointer; font-weight: bold; }
-        .owner-approve { background: #28a745; color: white; }
-        .owner-deny { background: #dc3545; color: white; }
-        .owner-pending { color: #ffc107; }
-        #totalApprovedWithdrawals { font-size: 1.2rem; font-weight: bold; color: #28a745; margin-top: 15px; }
-
-        /* Leaderboard */
-        #leaderboardTable {
-            width: 100%; border-collapse: collapse; margin-top: 20px;
-            background: #fefefe; border-radius: 8px; overflow: hidden;
-        }
-        #leaderboardTable th, #leaderboardTable td {
-            border: 1px solid #eee; padding: 10px; text-align: left;
-            font-size: 0.9rem;
-        }
-        #leaderboardTable th { background-color: #e9ecef; font-weight: bold; }
-        .leader-rank { font-weight: bold; font-size: 1.1rem; color: #e67e22; }
-
-        /* Help Section */
-        .help-links a {
-            display: block; margin: 10px 0; color: #007bff; text-decoration: none;
-            font-size: 1.1rem; transition: color 0.2s;
-        }
-        .help-links a:hover { color: #0056b3; text-decoration: underline; }
-
-        /* Referrals */
-        #referralCodeDisplay {
-            background: #e0f7fa; padding: 15px; border-radius: 8px;
-            margin-bottom: 20px; font-size: 1.2rem; font-weight: bold; color: #007bff;
-            border: 1px dashed #00acc1;
-        }
-        #referralInput input { width: calc(100% - 120px); margin-right: 10px; }
-        #referralInput button { padding: 10px 20px; }
-        #referralEarnings { margin-top: 20px; padding: 15px; background: #fff9c4; border: 1px solid #fbc02d; border-radius: 8px; }
-        #claimReferralBonusBtn { background: #ff5722; color: white; margin-top: 10px; padding: 10px 20px; font-size: 1rem; }
-        .referrer-bonus-info { font-size: 0.9rem; color: #555; margin-top: 5px;}
-
-        /* Bonus Ads */
-        .bonus-ad-container {
-            margin-top: 20px; padding: 20px; background: #fff1e0; border-radius: 10px;
-            border: 1px solid #ffcc80;
-        }
-        .bonus-ad-container h4 { margin-top: 0; color: #e67e22; }
-        .bonus-ad-buttons button { margin: 5px; padding: 10px 20px; border-radius: 20px; background-color: #ff9800; color: white; }
-        .bonus-reward-section {
-            margin-top: 20px; padding: 15px; background: #fce4ec; border: 1px solid #f48fb1;
-            border-radius: 8px;
-        }
-        .bonus-reward-section p { margin: 5px 0; font-size: 0.95rem; }
-        #claimBonusRewardBtn {
-            background: #f44336; color: white; padding: 10px 25px;
-            border-radius: 30px; font-weight: bold; font-size: 1rem;
-            display: none; /* Hidden until ads are watched */
-            animation: pulse 1.5s infinite alternate;
-        }
-        #claimBonusRewardBtn:disabled { background: #ccc; cursor: not-allowed; animation: none; }
-
-        /* Reward Pop-up Animations */
-        .reward-popup {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: linear-gradient(45deg, #f0f8ff, #e0ffff);
-            padding: 25px 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-            z-index: 2000; font-size: 1.8rem; font-weight: bold; color: #0056b3;
-            text-align: center; animation-fill-mode: forwards;
-            animation: fadeInOut 2s ease-out forwards;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-        .reward-popup::before {
-            content: '🎁'; font-size: 2.5em; display: block; margin-bottom: 10px;
-        }
-        @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); display: none; }
-        }
-        .anim-bounce { animation: bounceReward 2.5s ease-out forwards; }
-        @keyframes bounceReward {
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-            40% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-            60% { transform: translate(-50%, -50%) scale(0.9); }
-            80% { transform: translate(-50%, -50%) scale(1.05); }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; display: none; }
-        }
-        .anim-slide-in { animation: slideInReward 2.5s ease-out forwards; }
-        @keyframes slideInReward {
-            0% { transform: translate(-150%, -50%) scale(0.8); opacity: 0; }
-            20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-            80% { transform: translate(-50%, -50%) scale(1); }
-            100% { transform: translate(50%, -50%) scale(0.7); opacity: 0; display: none; }
-        }
-        .anim-sparkle { animation: sparkleReward 2.5s ease-out forwards; background: radial-gradient(circle, #ffe66d 0%, #ffc107 100%); color: #8b4513; }
-        @keyframes sparkleReward {
-            0% { transform: translate(-50%, -50%) scale(0.5) rotate(0deg); opacity: 0; filter: drop-shadow(0 0 0 gold); }
-            25% { transform: translate(-50%, -50%) scale(1.2) rotate(15deg); opacity: 1; filter: drop-shadow(0 0 15px gold); }
-            50% { transform: translate(-50%, -50%) scale(1) rotate(-15deg); filter: drop-shadow(0 0 25px gold); }
-            75% { transform: translate(-50%, -50%) scale(1.1) rotate(0deg); filter: drop-shadow(0 0 10px gold); }
-            100% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; display: none; }
-        }
-        .anim-fade-up { animation: fadeUpReward 2.5s ease-out forwards; }
-        @keyframes fadeUpReward {0% { opacity: 0; transform: translate(-50%, 0%) scale(0.9); }
-            20% { opacity: 1; transform: translate(-50%, -60%) scale(1.1); }
-            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -100%) scale(0.7); display: none; }
-        }
-        .anim-rotate-in { animation: rotateInReward 2.5s ease-out forwards; }
-        @keyframes rotateInReward {
-            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5) rotate(-180deg); }
-            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2) rotate(0deg); }
-            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); display: none; }
-        }
-
-        /* Footer */
-        footer {
-            background: linear-gradient(to right, #0a0a0a, #333333); 
-            color: #ccc; padding: 20px; text-align: center; font-size: 0.8rem;
-            border-top: 2px solid #555;
-            box-shadow: 0 -4px 8px rgba(0,0,0,0.3);
-        }
-        .pagination-controls { margin-top: 15px; }
-        .pagination-controls button { margin: 0 5px; padding: 8px 15px; border-radius: 5px; border: 1px solid #ccc; background-color: #f0f0f0; cursor: pointer; }
-        .pagination-controls button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .table-responsive { overflow-x: auto; } /* For tables in smaller screens */
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body id="appBody" onclick="handleBgChange(event)">
+<body id="appBody" style="margin: 0; padding: 0;">
 
-<header>
-    <div id="userBar">👤 Loading...</div>
-    <div id="balanceBar">💎 Balance: ₱<span id="userBalance">0.000</span></div>
-</header>
-
-<div class="container" id="mainMenu">
-    <h1 style="color:white; text-shadow: 2px 2px 6px #000;">🔰 PAPERHOUSE INC CHAT 🔰</h1>
-    <p style="color: white; text-shadow: 1px 1px 2px #000;">Click anywhere to change background!</p>
-    <button class="btn btn-primary" onclick="openView('chatView', 'elementary')">📘 ELEMENTARY CHAT 📘</button>
-    <button class="btn btn-success" onclick="openView('chatView', 'highschool')">📗 HIGHSCHOOL CHAT 📗</button>
-    <button class="btn btn-info" onclick="openView('chatView', 'college')">📙 COLLEGE CHAT 📙</button>
-    <button class="btn btn-warning" onclick="openView('onlineUsersView')">👥 ONLINE USERS 👥</button>
-    <button class="btn btn-dark" onclick="openView('withdrawalView')">🔔 WITHDRAWAL 🔔</button>
-    <button class="btn btn-danger" onclick="openView('ownerDashboardView')">🎖 OWNER DASHBOARD 🎖</button>
-    <button class="btn btn-secondary" onclick="openView('leaderboardView')">🍺 TOP LEADERBOARD 🍺</button>
-    <button class="btn btn-light" onclick="openView('helpView')">🗝 HELP SECTION 🗝</button>
-    <button class="btn btn-purple" onclick="openView('referralsView')">⭐ REFERRALS ⭐</button>
-    <button class="btn btn-orange" style="background-color: #f57c00;" onclick="openView('bonusAdsView')">💎💎 BONUS ADS 💎💎</button> <!-- New Bonus Ads Button -->
-</div>
-
-<!-- Chat Interface (Reused for Elementary, Highschool, College) -->
-<div id="chatView" class="page-view">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-        <h3 id="chatTitle" style="margin: 0;">Chat</h3>
-        <div></div> <!-- Placeholder for alignment -->
-    </div>
-    <div id="msg-box"></div>
-    <div id="cooldownDisplay" class="cooldown-text"></div>
-    <div id="inputArea" style="display: flex; gap: 10px; margin-top: 15px;">
-        <input type="text" id="messageInput" placeholder="Write a message..." style="flex-grow: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc;"><button id="sendBtn" class="btn btn-primary" onclick="processMessage()">SEND</button>
-        <button id="claimRewardBtn" class="btn" onclick="claimReward()">🎁 CLAIM ₱0.015 🎁</button>
-    </div>
-    <!-- Chat Pagination -->
-    <div class="pagination-controls">
-        <button id="prevPageChat" onclick="navigateChatPage(-1)" disabled>Previous</button>
-        <span id="chatPageInfo">Page 1</span>
-        <button id="nextPageChat" onclick="navigateChatPage(1)">Next</button>
-    </div>
-</div>
-
-<!-- Online Users View -->
-<div id="onlineUsersView" class="page-view">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-        <h3 style="margin: 0;">👥 Online Users (<span id="onlineUsersCount">0</span>)</h3>
-        <div></div>
-    </div>
-    <div class="table-responsive">
-        <table id="onlineUsersTable" style="width: 100%;">
-            <thead>
-                <tr><th>Username</th><th>Status</th></tr>
-            </thead>
-            <tbody id="onlineUsersList"></tbody>
-        </table>
-    </div>
-    <!-- Online Users Pagination -->
-    <div class="pagination-controls">
-        <button id="prevPageOnline" onclick="navigateOnlinePage(-1)" disabled>Previous</button>
-        <span id="onlinePageInfo">Page 1</span>
-        <button id="nextPageOnline" onclick="navigateOnlinePage(1)">Next</button>
-    </div>
-</div>
-
-<!-- Withdrawal View -->
-<div id="withdrawalView" class="page-view">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-        <h3 style="margin: 0;">🔔 Withdrawal 🔔</h3>
-        <div></div>
+    <div class="header" id="userBar">
+        <span id="userDisplay">👤 User: Loading...</span>
+        <span id="balanceDisplay">₱0.000</span>
     </div>
 
-    <div id="withdrawalForm">
-        <p>Your Current Balance: <b>₱<span id="withdrawalBalanceDisplay">0.000</span></b></p>
-        <p style="color: #dc3545;">Minimum Withdrawal: ₱0.020</p>
+    <div class="container" id="mainMenu">
+        <h1 class="text-center my-4 animate__animated animate__pulse animate__infinite animate__slow">
+            <strong>✨ PAPER HOUSE NETWORK ✨</strong>
+        </h1>
 
-        <div id="firstTimeWithdrawalInfo" style="display: none;">
-            <p><strong>First-time Withdrawal Activation:</strong></p>
-            <p>To activate withdrawals, please subscribe to our YouTube channel and let the timer run.</p>
-            <p><a id="youtubeLink" href="https://www.youtube.com/@TKGAHLOVERS" target="_blank" rel="noopener noreferrer">📺 Subscribe to TKGAHLOVERS on YouTube!</a></p>
-            <p>Timer: <span id="youtubeTimer">30</span> seconds remaining.</p>
-            <button class="btn btn-success" id="activateWithdrawalBtn" onclick="startWithdrawalActivation()">Activate Withdrawal</button>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="btn-grid">
+                    <button class="btn btn-primary btn-lg btn-block mb-2" onclick="openView('elementaryChatView')">📘 ELEMENTARY CHAT 📘</button>
+                    <button class="btn btn-secondary btn-lg btn-block mb-2" onclick="openView('highschoolChatView')">📗 HIGHSCHOOL CHAT 📗</button>
+                    <button class="btn btn-dark btn-lg btn-block mb-2" onclick="openView('collegeChatView')">📙 COLLEGE CHAT 📙</button>
+                    
+                    <button class="btn btn-info btn-lg btn-block mb-2" onclick="openView('onlineUsersView')">👥 ONLINE USERS 👥</button>
+                    <button class="btn btn-warning btn-lg btn-block mb-2" onclick="openView('leaderboardView')">🍺 TOP LEADERBOARD 🍺</button>
+                    <button class="btn btn-success btn-lg btn-block mb-2" onclick="openView('withdrawalView')">🔔 WITHDRAWAL 🔔</button>
+                    <button class="btn btn-light btn-lg btn-block mb-2" onclick="openView('helpView')">🗝 HELP SECTION 🗝</button>
+                    
+                    <!-- Owner Dashboard Button (Conditional) -->lineUsersList"></ul>
+        <p id="onlineUsersCount"></p>
+    </div>
+
+    <!-- Leaderboard View -->
+    <div id="leaderboardView" class="page-view">
+        <div class="header-nav">
+            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
+            <h3>🍺 TOP LEADERBOARD 🍺</h3>
+            <div>
+                <button class="btn btn-primary" onclick="navigateLeaderboardPage('prev')" id="prevLeaderboardBtn" disabled>⬅️ Prev</button>
+                <button class="btn btn-primary" onclick="navigateLeaderboardPage('next')" id="nextLeaderboardBtn">Next ➡️</button>
+            </div>
         </div>
+        <ol id="leaderboardList"></ol>
+    </div>
 
-        <div id="withdrawalInputs" style="display: none;">
-            <label for="gcashNumberInput">GCash Number:</label>
-            <input type="text" id="gcashNumberInput" placeholder="Enter your GCash number (e.g., 09xxxxxxxxx)">
+    <!-- Withdrawal View -->
+    <div id="withdrawalView" class="page-view">
+        <div class="header-nav">
+            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
+            <h3>🔔 WITHDRAWAL 🔔</h3>
+            <div>
+                <button class="btn btn-primary" onclick="navigateWithdrawalPage('prev')" id="prevWithdrawalBtn" disabled>⬅️ Prev</button>
+                <button class="btn btn-primary" onclick="navigateWithdrawalPage('next')" id="nextWithdrawalBtn">Next ➡️</button>
+            </div>
+        </div>
+        <div id="withdrawalStatus">
+            <p>Current Balance: <strong id="withdrawalBalanceDisplay"></strong></p>
+            <p>Minimum Withdrawal: <strong>₱10.000</strong></p>
+            <p>First Time Withdrawal? <strong id="firstTimeWithdrawalStatus">Checking...</strong></p>
+        </div>
+        <div class="withdrawal-form">
+            <h4>Request Withdrawal</h4>
+            <input type="text" id="withdrawalAmount" placeholder="Amount to withdraw (e.g., 10.000)">
+            <input type="text" id="gcash_account" placeholder="GCash Account Number">
+            <input type="text" id="gcash_name" placeholder="GCash Account Name">
+            <button onclick="submitWithdrawal()" id="submitWithdrawalBtn">Request Withdrawal</button>
+            <p id="withdrawalMessage" class="mt-2"></p>
+        </div>
+        <h4>Withdrawal History</h4>
+        <ul id="withdrawalHistoryList"></ul>
+    </div>
 
-            <label for="withdrawalAmountInput">Amount to Withdraw (₱):</label>
-            <input type="number" id="withdrawalAmountInput" placeholder="Enter amount (min 0.02)">
-            
-            <button class="btn btn-primary" style="margin-top: 20px;" onclick="submitWithdrawal()">Submit Withdrawal Request</button>
+    <!-- Help Section View -->
+    <div id="helpView" class="page-view">
+        <div class="header-nav">
+            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
+            <h3>🗝 HELP SECTION 🗝</h3>
+            <div></div>
+        </div>
+        <div class="help-content">
+            <h4>Welcome to Paper House Network!</h4>
+            <p><strong>How to Earn:</strong></p>
+            <ul>
+                <li>Engage in chats (Elementary, Highschool, College) by sending messages. You'll earn ₱0.015 per message after watching an ad.</li>
+                <li>Watch bonus ads for extra rewards.</li>
+                <li>Claim daily gifts through the "Paper House Gift" section after watching special popup ads.</li>
+                <li>Refer friends to earn a percentage of their earnings.</li>
+            </ul>
+            <p><strong>Withdrawal:</strong></p>
+            <ul>
+                <li>Minimum withdrawal is ₱10.000.</li>
+                <li>Withdrawals are processed manually and may take time.</li>
+                <li>Ensure your GCash details are correct.</li>
+            </ul>
+            <p><strong>Important Notes:</strong></p>
+            <ul>
+                <li>Ads are essential to support our platform. Please disable ad blockers.</li>
+                <li>Abuse of the system (e.g., bots, spamming) will result in account suspension.</li>
+                <li>The value of Pesos earned may vary based on ad revenue.</li>
+            </ul>
+            <p><strong>Contact Support:</strong> If you have any issues, please contact our support channel within Telegram.</p>
         </div>
     </div>
 
-    <h4 style="margin-top: 30px;">Withdrawal History</h4>
-    <div class="table-responsive">
-        <table id="withdrawalHistoryTable">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Amount</th>
-                    <th>GCash</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="withdrawalHistoryBody">
-                <!-- History items will be loaded here -->
-            </tbody>
-        </table>
-    </div>
-    <!-- Withdrawal History Pagination -->
-    <div class="pagination-controls">
-        <button id="prevPageWithdrawal" onclick="navigateWithdrawalPage(-1)" disabled>Previous</button>
-        <span id="withdrawalPageInfo">Page 1</span>
-        <button id="nextPageWithdrawal" onclick="navigateWithdrawalPage(1)">Next</button>
-    </div>
-</div>
-
-<!-- Owner Dashboard View -->
-<div id="ownerDashboardView" class="page-view">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-        <h3 style="margin: 0;">🎖 Owner Dashboard 🎖</h3>
-        <button class="btn btn-primary" onclick="unlockOwnerFeatures()">Enter</button>
-    </div>
-    <div id="ownerDashboardContent" style="display: none;">
-        <div id="ownerAuthInput" style="margin-bottom: 20px;">
+    <!-- Owner Dashboard View -->
+    <div id="ownerDashboardView" class="page-view">
+        <div class="header-nav">
+            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
+            <h3>🎖 OWNER DASHBOARD 🎖</h3>
+            <div></div>
+        </div>
+        
+        <div id="ownerLogin">
+            <h4>Owner Authentication</h4>
             <input type="password" id="ownerPassword" placeholder="Enter Password">
-            <button class="btn btn-success" onclick="authenticateOwner()">Login</button>
+            <button onclick="authenticateOwner()">Login</button>
+            <p id="ownerLoginMessage"></p>
         </div>
-        <div id="ownerDashboardMain" style="display: none;">
-            <h4>All Withdrawal Requests</h4>
-            <div id="totalApprovedWithdrawals">Total Approved: ₱<span id="totalApprovedAmount">0.000</span></div>
-            <div class="table-responsive">
-                <table id="ownerDashboardTable">
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Date</th>
-                            <th>Amount</th>
-                            <th>GCash</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ownerDashboardBody">
-                        <!-- Withdrawal requests loaded here -->
-                    </tbody>
-                </table>
+
+        <div id="ownerDashboardContent" style="display: none;">
+            <h4>Dashboard Overview</h4>
+            <p>Total Users: <strong id="ownerTotalUsers"></strong></p>
+            <p>Total Approved Withdrawals: <strong id="ownerTotalApprovedWithdrawals"></strong></p>
+            <p>Total Pending Withdrawals: <strong id="ownerTotalPendingWithdrawals"></strong></p>
+            <p>Total Earnings (Estimated): <strong id="ownerTotalEarnings"></strong></p>
+
+            <h4>Withdrawal Management</h4>
+            <div class="owner-nav">
+                <button class="btn btn-primary" onclick="navigateOwnerPage('prev')" id="prevOwnerBtn" disabled>⬅️ Prev</button>
+                <button class="btn btn-primary" onclick="navigateOwnerPage('next')" id="nextOwnerBtn">Next ➡️</button>
             </div>
-            <div class="pagination-controls">
-                <button id="prevPageOwner" onclick="navigateOwnerPage(-1)" disabled>Previous</button>
-                <span id="ownerPageInfo">Page 1</span>
-                <button id="nextPageOwner" onclick="navigateOwnerPage(1)">Next</button>
+            <ul id="ownerWithdrawalList"></ul>
+            
+            <h4>Recent Activity Log</h4>
+            <ul id="ownerActivityLog"></ul>
+        </div>
+    </div>
+
+    <!-- NEW: Paper House Gift View -->
+    <div id="giftView" class="page-view">
+        <div class="header-nav">
+            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
+            <h3 style="margin: 0;">🍍💎 PAPER HOUSE GIFTS 💎🍍</h3>
+            <div></div>
+        </div>
+
+        <div class="bonus-ad-container" style="background: #e8f5e9; border: 1px solid #81c784; margin-top: 15px;">
+            <h4>Unlock Daily Gifts!</h4>
+            <p>Watch special popup ads to earn rewards.</p>
+            <div class="bonus-ad-buttons" style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+                <button class="btn btn-success mb-2" onclick="showGiftAd('gift1')">🍍💎 GIFT #1 💎🍍</button>
+                <button class="btn btn-info mb-2" onclick="showGiftAd('gift2')">🍍💎 GIFT #2 💎🍍</button>
+                <button class="btn btn-danger mb-2" onclick="showGiftAd('gift3')">🍍💎 GIFT #3 💎🍍</button>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Leaderboard View -->
-<div id="leaderboardView" class="page-view">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-        <h3 style="margin: 0;">🍺 Top Earners Leaderboard 🍺</h3>
-        <span id="leaderboardResetInfo" style="font-size: 0.8rem; color: #666;">Resets Weekly</span>
-    </div>
-    <div class="table-responsive">
-        <table id="leaderboardTable">
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Username</th>
-                    <th>Total Earned (₱)</th>
-                </tr>
-            </thead>
-            <tbody id="leaderboardBody">
-                <!-- Leaderboard data loaded here -->
-            </tbody>
-        </table>
-    </div>
-    <div class="pagination-controls">
-        <button id="prevPageLeaderboard" onclick="navigateLeaderboardPage(-1)" disabled>Previous</button>
-        <span id="leaderboardPageInfo">Page 1</span>
-        <button id="nextPageLeaderboard" onclick="navigateLeaderboardPage(1)">Next</button>
-    </div>
-</div>
-
-<!-- Help Section View -->
-<div id="helpView" class="page-view">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-        <h3 style="margin: 0;">🗝 Help Section 🗝</h3>
-        <div></div>
-    </div>
-    <div class="help-links">
-        <p>Follow us for updates and more!</p>
-        <a href="https://t.me/paperhouseinc" target="_blank" rel="noopener noreferrer">▶️ Telegram Group</a>
-        <a href="https://t.me/PAPERHOUSE_INC" target="_blank" rel="noopener noreferrer">📢 Telegram Channel</a>
-        <a href="https://facebook.com/groups/1193693469083843/" target="_blank" rel="noopener noreferrer">👥 Facebook Group</a>
-        <a href="https://www.facebook.com/profile.php?id=61586281245735" target="_blank" rel="noopener noreferrer">📘 Facebook Page</a>
-        <p>If you need further assistance, please contact our support via email: otico.isai2@gmail.com</p>
-    </div>
-</div>
-
-<!-- Referrals View -->
-<div id="referralsView" class="page-view">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-        <h3 style="margin: 0;">⭐ Referrals ⭐</h3>
-        <div></div>
-    </div>
-
-    <div id="referralCodeDisplay">
-        Your Referral Code: <b id="userReferralCode">LOADING...</b>
-    </div>
-
-    <div class="page-view-sub" style="background: rgba(230, 247, 250, 0.9);">
-        <h4>Enter a Referral Code</h4>
-        <div id="referralInput" style="display: flex; justify-content: center; align-items: center;">
-            <input type="text" id="referralCodeInput" placeholder="Paste or type code here">
-            <button class="btn btn-primary" onclick="activateReferral()">Activate</button>
+        <!-- Gift #1 Reward Section -->
+        <div class="bonus-reward-section" id="gift1RewardSection" style="background: #fff9c4; border: 1px solid #fbc02d; margin-top: 15px;">
+            <h4>Gift #1 Reward</h4>
+            <p>Unlock a ₱0.010 reward.</p>
+            <p id="gift1CooldownInfo">Reward available in: <span id="gift1RewardTimer">00:00:00</span></p>
+            <button id="claimGift1RewardBtn" class="btn btn-warning" onclick="claimGiftReward('gift1')" disabled style="background-color: #ffc107; color: #333; margin-top: 10px;">Claim ₱0.010</button>
+            <p class="referrer-bonus-info">Reward claimable once every 3 hours.</p>
         </div>
-        <p class="referrer-bonus-info">Entering a valid code activates your bonus earnings.</p>
-    </div>
 
-    <div id="referralEarnings" class="page-view-sub">
-        <h4>Your Referral Bonus</h4>
-        <p>Total Bonus Earned: <b>₱<span id="totalReferralBonus">0.000</span></b></p>
-        <button class="btn btn-success" id="claimReferralBonusBtn" onclick="claimReferralBonus()">Claim Bonus</button>
-        <p class="referrer-bonus-info">Earn 8% bonus from your invites' ad earnings.</p>
-    </div>
+        <!-- Gift #2 Reward Section -->
+        <div class="bonus-reward-section" id="gift2RewardSection" style="background: #fce4ec; border: 1px solid #f48fb1; margin-top: 15px;">
+            <h4>Gift #2 Reward</h4>
+            <p>Unlock a ₱0.010 reward.</p>
+            <p id="gift2CooldownInfo">Reward available in: <span id="gift2RewardTimer">00:00:00</span></p>
+            <button id="claimGift2RewardBtn" class="btn btn-danger" onclick="claimGiftReward('gift2')" disabled style="background: #dc3545; color: white; margin-top: 10px;">Claim ₱0.010</button>
+            <p class="referrer-bonus-info">Reward claimable once every 3 hours.</p>
+        </div>
 
-    <h4>Your Referrals (<span id="referralCount">0</span>)</h4>
-    <div class="table-responsive">
-        <table id="referralsTable">
-            <thead>
-                <tr>
-                    <th>Referral Username</th>
-                    <th>Date Referred</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="referralsList">
-                <!-- List of direct referrals -->
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Bonus Ads View -->
-<div id="bonusAdsView" class="page-view">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-        <h3 style="margin: 0;">💎💎 BONUS ADS 💎💎</h3>
-        <div></div>
-    </div>
-
-    <div class="bonus-ad-container">
-        <h4>Watch ads to earn bonus rewards!</h4>
-        <p>Each button combines 3 different high-CPM ads.</p>
-        <div class="bonus-ad-buttons">
-            <button class="btn btn-warning" onclick="showBonusAds('bonus1')">BONUS #1</button>
-            <button class="btn btn-info" onclick="showBonusAds('bonus2')">BONUS #2</button>
-            <button class="btn btn-danger" onclick="showBonusAds('bonus3')">BONUS #3</button>
+        <!-- Gift #3 Reward Section -->
+        <div class="bonus-reward-section" id="gift3RewardSection" style="background: #e0f7fa; border: 1px solid #80deea; margin-top: 15px;">
+            <h4>Gift #3 Reward</h4>
+            <p>Unlock a ₱0.010 reward.</p>
+            <p id="gift3CooldownInfo">Reward available in: <span id="gift3RewardTimer">00:00:00</span></p>
+            <button id="claimGift3RewardBtn" class="btn btn-info" onclick="claimGiftReward('gift3')" disabled style="background: #17a2b8; color: white; margin-top: 10px;">Claim ₱0.010</button>
+            <p class="referrer-bonus-info">Reward claimable once every 3 hours.</p>
         </div>
     </div>
 
-    <div class="bonus-reward-section">
-        <h4>Claim Your Reward</h4>
-        <p>Unlock a ₱0.015 reward after watching ads.</p>
-        <p id="claimCooldownInfo">Reward available in: <span id="rewardTimer">00:00</span></p>
-        <button id="claimBonusRewardBtn" onclick="claimBonusReward()" disabled>Claim ₱0.015</button>
-        <p class="referrer-bonus-info">Reward claimable once every 20 minutes.</p>
+    <!-- Referrals View -->
+    <div id="referralsView" class="page-view">
+        <div class="header-nav">
+            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
+            <h3>💎 REFERRALS 💎</h3>
+            <div>
+                <button class="btn btn-primary" onclick="navigateReferralsPage('prev')" id="prevReferralsBtn" disabled>⬅️ Prev</button>
+                <button class="btn btn-primary" onclick="navigateReferralsPage('next')" id="nextReferralsBtn">Next ➡️</button>
+            </div>
+        </div>
+        <div class="referral-info">
+            <h4>Your Referral Code: <strong id="userReferralCode"></strong></h4>
+            <p>Share this code with friends to earn rewards!</p>
+            <button onclick="copyReferralCode()" class="btn btn-secondary">Copy Code</button>
+        </div>
+        <div class="referral-stats">
+            <p>Friends Referred: <strong id="referralCount">0</strong></p>
+            <p>Total Referral Bonus Earned: <strong id="totalReferralBonus">₱0.000</strong></p>
+            <button onclick="claimReferralBonus()" class="btn btn-success" id="claimReferralBonusBtn" disabled>Claim Available Bonus</button>
+        </div>
+        <h4>Referral History</h4>
+        <ul id="referralHistoryList"></ul>
     </div>
-</div>
 
-<footer>
-    <div id="footer-brand">PAPERHOUSE INC</div>
-    <div id="footer-date"></div>
-    <div>Contact: otico.isai2@gmail.com</div>
-</footer>
+    <!-- Bonus Ads View -->
+    <div id="bonusAdsView" class="page-view">
+        <div class="header-nav">
+            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
+            <h3>💎💎 BONUS ADS 💎💎</h3>
+            <div></div>
+        </div>
+        <div class="bonus-ad-container" style="background: #e0f7fa; border: 1px solid #80deea;">
+            <h4>Watch Ads, Earn More!</h4>
+            <p>Watch rewarded ads to claim bonus rewards.</p>
+            <div class="bonus-ad-buttons" style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+                <button class="btn btn-primary mb-2" onclick="showBonusAds('bonus1')">💥 BONUS AD #1 💥</button>
+                <button class="btn btn-secondary mb-2" onclick="showBonusAds('bonus2')">💥 BONUS AD #2 💥</button>
+                <button class="btn btn-info mb-2" onclick="showBonusAds('bonus3')">💥 BONUS AD #3 💥</button>
+            </div>
+        </div>
 
-<!-- Reward Pop-up Container -->
-<div id="rewardPopupContainer"></div>
+        <div class="bonus-reward-section" id="bonus1RewardSection" style="background: #fff9c4; border: 1px solid #fbc02d; margin-top: 15px;">
+            <h4>Bonus Ad #1 Reward</h4>
+            <p>Unlock a ₱0.015 reward.</p>
+            <p id="bonus1CooldownInfo">Reward available in: <span id="bonus1RewardTimer">00:00:00</span></p>
+            <button id="claimBonus1RewardBtn" class="btn btn-warning" onclick="claimBonusReward('bonus1')" disabled style="background-color: #ffc107; color: #333; margin-top: 10px;">Claim ₱0.015</button>
+            <p class="referrer-bonus-info">Reward claimable once every 20 minutes.</p>
+        </div>
+        <div class="bonus-reward-section" id="bonus2RewardSection" style="background: #fce4ec; border: 1px solid #f48fb1; margin-top: 15px;">
+            <h4>Bonus Ad #2 Reward</h4>
+            <p>Unlock a ₱0.015 reward.</p>
+            <p id="bonus2CooldownInfo">Reward available in: <span id="bonus2RewardTimer">00:00:00</span></p>
+            <button id="claimBonus2RewardBtn" class="btn btn-danger" onclick="claimBonusReward('bonus2')" disabled style="background: #dc3545; color: white; margin-top: 10px;">Claim ₱0.015</button>
+            <p class="referrer-bonus-info">Reward claimable once every 20 minutes.</p>
+        </div>
+        <div class="bonus-reward-section" id="bonus3RewardSection" style="background: #e0f7fa; border: 1px solid #80deea; margin-top: 15px;">
+            <h4>Bonus Ad #3 Reward</h4>
+            <p>Unlock a ₱0.015 reward.</p>
+            <p id="bonus3CooldownInfo">Reward available in: <span id="bonus3RewardTimer">00:00:00</span></p>
+            <button id="claimBonus3RewardBtn" class="btn btn-info" onclick="claimBonusReward('bonus3')" disabled style="background: #17a2b8; color: white; margin-top: 10px;">Claim ₱0.015</button>
+            <p class="referrer-bonus-info">Reward claimable once every 20 minutes.</p>
+        </div>
+    </div>
 
-<script src="app.js"></script>
+    <!-- Reward Animation Container -->
+    <div id="rewardPopupContainer"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Paper House Inc. | <span id="footer-date"></span></p>
+    </footer>
+
+    <script src="app.js"></script>
 </body>
 </html>
