@@ -7,34 +7,46 @@ ChatGPT | Midjourney:
     <title>🎖🤑PAPERHOUSE INC ADS🤑🎖</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <!-- Monetag SDKs -->
+    <!-- IMPORTANT: Replace 'data-zone' values with your actual Monetag zone IDs. -->
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script> <!-- Zone 1 -->
     <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script> <!-- Zone 2 -->
     <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script> <!-- Zone 3 -->
+
     <style>
+        /* General styling */
         body { background: #020617; color: #e2e8f0; font-family: 'Inter', sans-serif; }
         .gold-gradient { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
         .nav-active { color: #fbbf24; border-bottom: 2px solid #fbbf24; }
+        
+        /* Cooldown visual for ad button */
         .cooldown-active { filter: grayscale(1); pointer-events: none; opacity: 0.5; }
-        #ad-timer { font-variant-numeric: tabular-nums; }
+        #ad-timer { font-variant-numeric: tabular-nums; } /* Monospaced numbers for timer */
+
+        /* Chat bubble styling */
         .chat-message-bubble { background-color: #1e293b; padding: 0.75rem; border-radius: 1rem; border-top-left-radius: 0.25rem; max-width: 85%; width: fit-content; }
         .my-chat-message { margin-left: auto; background-color: #3b82f6; border-top-right-radius: 0.25rem; border-top-left-radius: 1rem;}
+        
+        /* Modal styling */
         .profile-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: #1e293b; padding: 2rem; border-radius: 1.5rem; max-width: 90%; width: 400px; position: relative; }
-        /* Scrollbar styles */
+        
+        /* Custom scrollbar styles */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #1e293b; border-radius: 3px; }
         ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        /* Ad card interaction */
         .ad-card-wrapper { transition: transform 0.2s ease-in-out; cursor: pointer; }
         .ad-card-wrapper:active { transform: scale(0.95); }
     </style>
 </head>
 <body class="select-none">
 
-    <!-- Login/Onboarding -->
-
+    <!-- Login/Onboarding Screen -->
     <div id="login-screen" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-8">
         <div class="text-6xl mb-6">🎖</div>
         <h1 class="text-2xl font-black text-center mb-2 uppercase tracking-tighter">Paperhouse Inc Ads</h1>
@@ -44,9 +56,9 @@ ChatGPT | Midjourney:
         <button onclick="app.register()" class="w-full gold-gradient py-4 rounded-2xl font-bold text-slate-900 shadow-lg shadow-yellow-500/20">ENTER DASHBOARD</button>
     </div>
 
-    <!-- Main App -->
+    <!-- Main Application Interface -->
     <div id="app" class="hidden min-h-screen pb-24">
-        <!-- Top Bar -->
+        <!-- Top Bar (Header) -->
         <header class="p-5 flex justify-between items-center sticky top-0 z-40 glass">
             <div>
                 <h2 id="user-display" class="font-bold text-white">---</h2>
@@ -58,6 +70,7 @@ ChatGPT | Midjourney:
             </div>
         </header>
 
+        <!-- Main Content Area - All sections are initially hidden, app.js controls visibility -->
         <main class="p-4 space-y-6">
             <!-- Home Section -->
             <section id="sec-home" class="space-y-4">
@@ -71,263 +84,25 @@ ChatGPT | Midjourney:
                     <button onclick="app.requestWithdraw()" class="w-full py-3 rounded-xl bg-white text-black font-bold text-sm">CASH OUT NOW</button>
                 </div>
 
-                <!-- Combined Ad Button -->
-                <div class="ad-card-wrapper" onclick="app.playCombinedAds()" id="combined-ad-btn">
+                <!-- Combined Ad Button (for homepage earning) -->
+                <div class="ad-card-wrapper" onclick="app.playHomepageAds()" id="combined-ad-btn">
                     <div class="glass p-6 rounded-3xl flex flex-col items-center hover:bg-slate-800 transition">
                         <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center mb-3 shadow-lg shadow-yellow-500/30">
                             <i class="fas fa-play-circle text-3xl text-white"></i>
                         </div>
                         <span class="font-bold text-lg text-yellow-400">WATCH 3 ADS</span>
                         <span class="text-sm text-slate-400 mt-1">Earn ₱0.015 per click!</span>
-                    </div>
-                </div>
-            </section>
 
-            <!-- Referrals Section -->
-            <section id="sec-referral" class="hidden space-y-4">
-                <div class="gold-gradient p-6 rounded-3xl text-slate-900">
-                    <h3 class="font-black text-xl mb-1">Affiliate Program</h3>
-                    <p class="text-sm font-medium opacity-80">Earn 8% lifetime commission from every ad yo
-
-ur friends watch.</p>
-                </div>
-                <div class="glass p-5 rounded-2xl">
-                    <p class="text-xs text-slate-400 mb-2 font-bold uppercase">Your Referral Link</p>
-                    <div class="flex gap-2">
-                        <input id="ref-link" readonly class="flex-1 bg-slate-900/50 p-3 rounded-lg text-xs border border-white/5 text-slate-300">
-                        <button onclick="app.copyRef()" class="bg-white text-black px-4 rounded-lg font-bold text-xs">COPY</button>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="glass p-4 rounded-2xl text-center">
-                        <p class="text-[10px] text-slate-400">Total Referrals</p>
-                        <p id="ref-count" class="text-xl font-bold">0</p>
-                    </div>
-                    <div class="glass p-4 rounded-2xl text-center">
-                        <p class="text-[10px] text-slate-400">Total Commissions</p>
-                        <p id="ref-earnings" class="text-xl font-bold text-green-400">₱0.00</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- History Section -->
-            <section id="sec-history" class="hidden space-y-4">
-                <h3 class="font-bold text-lg">Withdrawal History</h3>
-                <div id="history-list" class="space-y-3">
-                    <p class="text-center text-slate-500 py-10">No history found.</p>
-                </div>
-            </section>
-
-            <!-- Leaderboard -->
-            <section id="sec-leaderboard" class="hidden space-y-3">
-                <h3 class="font-bold text-lg">Global Ranking</h3>
-                <div id="leaderboard-list" class="space-y-2"></div>
-            </section>
-            
-            <!-- Profile Section -->
-            <section id="sec-profile" class="hidden space-y-4">
-                <h3 class="font-bold text-lg">Your Performance</h3>
-                <div class="glass p-5 rounded-2xl text-center">
-                    <p class="text-xs text-slate-400">Total Ads Viewed (All Time)</p>
-                    <p id="profile-total-ads" class="text-3xl font-bold mt-2">0</p>
-                </div>
-                <div class="glass p-5 rounded-2xl text-center">
-                    <p class="text-xs text-slate-400">Ads Viewed Today</p>
-                    <p id="profile-daily-ads" class="text-3xl font-bold mt-2">0</p>
-                </div>
-            </section>
-
-            <!-- Online Users Section -->
-            <section id="sec-online" class="hidden space-y-4">
-                <h3 class="font-bold text-lg">Online Users (<span id="online-users-count">0</span>)</h3>
-                <div id="online-users-list" class="space-y-2"></div>
-            </section>
-
-            <!-- Topics/Forum Section -->
-            <section id="sec-topics-list" class="hidden space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-lg">Community Board</h3>
-                    <button onclick="app.showCreateTopicModal()" class="bg-yellow-500 text-black px-4 py-2 rounded-lg font-bold text-sm">New Topic</button>
+tton>
                 </div>
                 <div id="topics-list" class="space-y-3">
                     <p class="text-center text-slate-500 py-10">No topics yet. Be the first!</p>
                 </div>
             </section>
 
-            <!-- Single Topic View -->
+            <!-- Single Topic View Section -->
             <section id="sec-topic-view" class="hidden space-y-4">
-                <button onclick="app.nav('topics-list')" class="text-yellow-500 text-sm mb-4"><i class="fas fa-arrow\
-
-    <div id="login-screen" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-8">
-        <div class="text-6xl mb-6">🎖</div>
-        <h1 class="text-2xl font-black text-center mb-2 uppercase tracking-tighter">Paperhouse Inc Ads</h1>
-        <p class="text-slate-400 text-sm mb-8">Premium GCash Rewards System</p>
-        <input type="text" id="reg-name" placeholder="Username" class="w-full p-4 rounded-2xl bg-slate-900 border border-slate-800 mb-4 focus:outline-none focus:border-yellow-500">
-        <input type="number" id="reg-gcash" placeholder="GCash Number (09...)" class="w-full p-4 rounded-2xl bg-slate-900 border border-slate-800 mb-6 focus:outline-none focus:border-yellow-500">
-        <button onclick="app.register()" class="w-full gold-gradient py-4 rounded-2xl font-bold text-slate-900 shadow-lg shadow-yellow-500/20">ENTER DASHBOARD</button>
-    </div>
-
-    <!-- Main App -->
-    <div id="app" class="hidden min-h-screen pb-24">
-        <!-- Top Bar -->
-        <header class="p-5 flex justify-between items-center sticky top-0 z-40 glass">
-            <div>
-                <h2 id="user-display" class="font-bold text-white">---</h2>
-                <p class="text-[10px] text-yellow-500 font-bold uppercase tracking-widest">Premium Member</p>
-            </div>
-            <div class="text-right">
-                <p class="text-[10px] text-slate-400 uppercase font-bold">Balance</p>
-                <h2 id="balance-display" class="text-xl font-black text-white">₱0.00</h2>
-            </div>
-        </header>
-
-        <main class="p-4 space-y-6">
-            <!-- Home Section -->
-            <section id="sec-home" class="space-y-4">
-                <div class="glass rounded-[2rem] p-8 text-center relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-wallet text-6xl"></i></div>
-                    <p class="text-slate-400 text-sm mb-1">Available to Withdraw</p>
-                    <h1 id="big-balance" class="text-5xl font-black text-white mb-6">₱0.00</h1>
-                    <div id="cooldown-box" class="hidden mb-4 text-xs font-bold text-yellow-500 bg-yellow-500/10 py-2 rounded-full">
-                        NEXT AD REWARD IN: <span id="ad-timer">60</span>s
-                    </div>
-                    <button onclick="app.requestWithdraw()" class="w-full py-3 rounded-xl bg-white text-black font-bold text-sm">CASH OUT NOW</button>
-                </div>
-
-                <!-- Combined Ad Button -->
-                <div class="ad-card-wrapper" onclick="app.playCombinedAds()" id="combined-ad-btn">
-                    <div class="glass p-6 rounded-3xl flex flex-col items-center hover:bg-slate-800 transition">
-                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center mb-3 shadow-lg shadow-yellow-500/30">
-                            <i class="fas fa-play-circle text-3xl text-white"></i>
-                        </div>
-                        <span class="font-bold text-lg text-yellow-400">WATCH 3 ADS</span>
-                        <span class="text-sm text-slate-400 mt-1">Earn ₱0.015 per click!</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Referrals Section -->
-            <section id="sec-referral" class="hidden space-y-4">
-                <div class="gold-gradient p-6 rounded-3xl text-slate-900">
-                    <h3 class="font-black text-xl mb-1">Affiliate Program</h3>
-                    <p class="text-sm font-medium opacity-80">Earn 8% lifetime commission from every ad your friends
-
-watch.</p>
-                </div>
-                <div class="glass p-5 rounded-2xl">
-                    <p class="text-xs text-slate-400 mb-2 font-bold uppercase">Your Referral Link</p>
-                    <div class="flex gap-2">
-                        <input id="ref-link" readonly class="flex-1 bg-slate-900/50 p-3 rounded-lg text-xs border border-white/5 text-slate-300">
-                        <button onclick="app.copyRef()" class="bg-white text-black px-4 rounded-lg font-bold text-xs">COPY</button>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="glass p-4 rounded-2xl text-center">
-                        <p class="text-[10px] text-slate-400">Total Referrals</p>
-                        <p id="ref-count" class="text-xl font-bold">0</p>
-                    </div>
-                    <div class="glass p-4 rounded-2xl text-center">
-                        <p class="text-[10px] text-slate-400">Total Commissions</p>
-                        <p id="ref-earnings" class="text-xl font-bold text-green-400">₱0.00</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- History Section -->
-            <section id="sec-history" class="hidden space-y-4">
-                <h3 class="font-bold text-lg">Withdrawal History</h3>
-                <div id="history-list" class="space-y-3">
-                    <p class="text-center text-slate-500 py-10">No history found.</p>
-                </div>
-            </section>
-
-            <!-- Leaderboard -->
-            <section id="sec-leaderboard" class="hidden space-y-3">
-                <h3 class="font-bold text-lg">Global Ranking</h3>
-                <div id="leaderboard-list" class="space-y-2"></div>
-            </section>
-            
-            <!-- Profile Section -->
-            <section id="sec-profile" class="hidden space-y-4">
-                <h3 class="font-bold text-lg">Your Performance</h3>
-                <div class="glass p-5 rounded-2xl text-center">
-                    <p class="text-xs text-slate-400">Total Ads Viewed (All Time)</p>
-                    <p id="profile-total-ads" class="text-3xl font-bold mt-2">0</p>
-                </div>
-                <div class="glass p-5 rounded-2xl text-center">
-                    <p class="text-xs text-slate-400">Ads Viewed Today</p>
-                    <p id="profile-daily-ads" class="text-3xl font-bold mt-2">0</p>
-                </div>
-            </section>
-
-            <!-- Online Users Section -->
-            <section id="sec-online" class="hidden space-y-4">
-                <h3 class="font-bold text-lg">Online Users (<span id="online-users-count">0</span>)</h3>
-                <div id="online-users-list" class="space-y-2"></div>
-            </section>
-
-            <!-- Topics/Forum Section -->
-            <section id="sec-topics-list" class="hidden space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-lg">Community Board</h3>
-                    <button onclick="app.showCreateTopicModal()" class="bg-yellow-500 text-black px-4 py-2 rounded-lg font-bold text-sm">New Topic</button>
-                </div>
-                <div id="topics-list" class="space-y-3">
-                    <p class="text-center text-slate-500 py-10">No topics yet. Be the first!</p>
-                </div>
-            </section>
-
-            <!-- Single Topic View -->
-            <section id="sec-topic-view" class="hidden space-y-4">
-                <button onclick="app.nav('topics-list')" class="text-yellow-500 text-sm mb-4"><i class="fas fa-arrow-left mr-2
-
-ec-admin" class="hidden space-y-4">
-                <h2 class="text-xl font-black text-red-500">PAYOUT MANAGEMENT</h2>
-                <div id="admin-list" class="space-y-4"></div>
-            </section>
-        </main>
-
-        <!-- Bottom Navigation -->
-        <nav class="fixed bottom-0 left-0 right-0 glass border-t border-white/5 flex justify-around items-center p-3 z-50 overflow-x-auto">
-            <button onclick="app.nav('home')" class="nav-btn nav-active flex flex-col items-center p-2"><i class="fas fa-home mb-1"></i><span class="text-[9px]">Home</span></button>
-            <button onclick="app.nav('referral')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-users mb-1"></i><span class="text-[9px]">Refer</span></button>
-            <button onclick="app.nav('chat')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-comment-dots mb-1"></i><span class="text-[9px]">Chat</span></button>
-            <button onclick="app.nav('topics-list')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-clipboard-list mb-1"></i><span class="text-[9px]">Topics</span></button>
-            <button onclick="app.nav('leaderboard')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-trophy mb-1"></i><span class="text-[9px]">Leaderbd</span></button>
-            <button onclick="app.nav('online')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-wifi mb-1"></i><span class="text-[9px]">Online</span></button>
-            <button onclick="app.nav('profile')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-user mb-1"></i><span class="text-[9px]">Profile</span></button>
-            <button onclick="app.nav('history')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-clock-rotate-left mb-1"></i><span class="text-[9px]">History</span></button>
-            <button onclick="app.nav('help')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-question-circle mb-1"></i><span class="text-[9px]">Help</span></button>
-            <button onclick="app.nav('admin')" class="nav-btn flex flex-col items-center p-2 text-slate-600"><i class="fas fa-user-shield mb-1"></i><span class="text-[9px]">Admin</span></button>
-        </nav>
-    </div>
-
-    <!-- Modals -->
-    <!-- User Profile Modal -->
-    <div id="user-profile-modal" class="profile-modal">
-        <div class="modal-content text-center">
-            <button onclick="document.getElementById('user-profile-modal').style.display='none'" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
-            <h3 id="modal-username" class="font-bold text-2xl text-yellow-500 mb-4"></h3>
-            <div class="space-y-3">
-                <div class="glass p-4 rounded-xl">
-                    <p class="text-xs text-slate-400">Total Ads Viewed</p>
-                    <p id="modal-total-ads" class="text-xl font-bold mt-1">0</p>
-                </div>
-                <div class="glass p-4 rounded-xl">
-                    <p class="text-xs text-slate-400">Ads Viewed Today</p>
-                    <p id="modal-daily-ads" class="text-xl font-bold mt-1">0</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Create Topic Modal -->
-    <div id="create-topic-modal" class="profile-modal">
-        <div class="modal-content">
-            <button onclick="document.getElementById('create-topic-modal').style.display='none'" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
-            <h3 class
-
-"></i>Back to Topics</button>
+                <button onclick="app.navTo('topics-list')" class="text-yellow-500 text-sm mb-4"><i class="fas fa-arrow-left mr-2"></i>Back to Topics</button>
                 <h3 id="topic-view-title" class="font-bold text-xl mb-2"></h3>
                 <p id="topic-view-creator" class="text-xs text-slate-400"></p>
                 <div class="glass p-5 rounded-2xl text-sm" id="topic-view-content"></div>
@@ -341,7 +116,7 @@ ec-admin" class="hidden space-y-4">
                 </div>
             </section>
 
-            <!-- Chat Room -->
+            <!-- Chat Room Section -->
             <section id="sec-chat" class="hidden flex flex-col h-[65vh]">
                 <div id="chat-box" class="flex-1 overflow-y-auto space-y-4 mb-4 pr-2"></div>
                 <div class="flex gap-2 p-2 glass rounded-2xl">
@@ -371,7 +146,77 @@ ec-admin" class="hidden space-y-4">
                         <span class="font-medium">Facebook Group</span>
                         <i class="fas fa-external-link-alt ml-auto text-xs text-slate-500"></i>
                     </a>
-                    <a href="https://www.facebook.com/profile.php?id=61586281245735" target="_blank" class="flex items-center gap-3 text-white hover:text-yellow-500 transition">
+                    <a href="https://www.facebook.com/profile.php?id=6158
+
+</div>
+                </div>
+            </section>
+
+            <!-- Referrals Section -->
+            <section id="sec-referral" class="hidden space-y-4">
+                <div class="gold-gradient p-6 rounded-3xl text-slate-900">
+                    <h3 class="font-black text-xl mb-1">Affiliate Program</h3>
+                    <p class="text-sm font-medium opacity-80">Earn 8% lifetime commission from every ad your friends watch.</p>
+                </div>
+                <div class="glass p-5 rounded-2xl">
+                    <p class="text-xs text-slate-400 mb-2 font-bold uppercase">Your Referral Link</p>
+                    <div class="flex gap-2">
+                        <input id="ref-link" readonly class="flex-1 bg-slate-900/50 p-3 rounded-lg text-xs border border-white/5 text-slate-300">
+                        <button onclick="app.copyReferralLink()" class="bg-white text-black px-4 rounded-lg font-bold text-xs">COPY</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass p-4 rounded-2xl text-center">
+                        <p class="text-[10px] text-slate-400">Total Referrals</p>
+                        <p id="ref-count" class="text-xl font-bold">0</p>
+                    </div>
+                    <div class="glass p-4 rounded-2xl text-center">
+                        <p class="text-[10px] text-slate-400">Total Commissions</p>
+                        <p id="ref-earnings" class="text-xl font-bold text-green-400">₱0.00</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section (Withdrawals) -->
+            <section id="sec-history" class="hidden space-y-4">
+                <h3 class="font-bold text-lg">Withdrawal History</h3>
+                <div id="history-list" class="space-y-3">
+                    <p class="text-center text-slate-500 py-10">No history found.</p>
+                </div>
+            </section>
+
+            <!-- Leaderboard Section -->
+            <section id="sec-leaderboard" class="hidden space-y-3">
+                <h3 class="font-bold text-lg">Global Ranking</h3>
+                <div id="leaderboard-list" class="space-y-2"></div>
+            </section>
+            
+            <!-- Profile Section -->
+            <section id="sec-profile" class="hidden space-y-4">
+                <h3 class="font-bold text-lg">Your Performance</h3>
+                <div class="glass p-5 rounded-2xl text-center">
+                    <p class="text-xs text-slate-400">Total Ads Viewed (All Time)</p>
+                    <p id="profile-total-ads" class="text-3xl font-bold mt-2">0</p>
+                </div>
+                <div class="glass p-5 rounded-2xl text-center">
+                    <p class="text-xs text-slate-400">Ads Viewed Today</p>
+                    <p id="profile-daily-ads" class="text-3xl font-bold mt-2">0</p>
+                </div>
+            </section>
+
+            <!-- Online Users Section -->
+            <section id="sec-online" class="hidden space-y-4">
+                <h3 class="font-bold text-lg">Online Users (<span id="online-users-count">0</span>)</h3>
+                <div id="online-users-list" class="space-y-2"></div>
+            </section>
+
+            <!-- Topics/Forum Section (List View) -->
+            <section id="sec-topics-list" class="hidden space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-lg">Community Board</h3>
+                    <button onclick="app.showCreateTopicModal()" class="bg-yellow-500 text-black px-4 py-2 rounded-lg font-bold text-sm">New Topic</bu
+
+6281245735" target="_blank" class="flex items-center gap-3 text-white hover:text-yellow-500 transition">
                         <i class="fab fa-facebook-f text-xl text-blue-600"></i>
                         <span class="font-medium">Facebook Page</span>
                         <i class="fas fa-external-link-alt ml-auto text-xs text-slate-500"></i>
@@ -380,7 +225,53 @@ ec-admin" class="hidden space-y-4">
             </section>
 
             <!-- Admin Section -->
-            <section id="s="font-bold text-xl mb-4">Create New Topic</h3>
+            <section id="sec-admin" class="hidden space-y-4">
+                <h2 class="text-xl font-black text-red-500">PAYOUT MANAGEMENT</h2>
+                <div id="admin-list" class="space-y-4"></div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav class="fixed bottom-0 left-0 right-0 glass border-t border-white/5 flex justify-around items-center p-3 z-50 overflow-x-auto">
+            <button onclick="app.navTo('home')" class="nav-btn nav-active flex flex-col items-center p-2"><i class="fas fa-home mb-1"></i><span class="text-[9px]">Home</span></button>
+            <button onclick="app.navTo('referral')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-users mb-1"></i><span class="text-[9px]">Refer</span></button>
+            <button onclick="app.navTo('chat')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-comment-dots mb-1"></i><span class="text-[9px]">Chat</span></button>
+            <button onclick="app.navTo('topics-list')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-clipboard-list mb-1"></i><span class="text-[9px]">Topics</span></button>
+            <button onclick="app.navTo('leaderboard')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-trophy mb-1"></i><span class="text-[9px]">Leaderbd</span></button>
+            <button onclick="app.navTo('online')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-wifi mb-1"></i><span class="text-[9px]">Online</span></button>
+            <button onclick="app.navTo('profile')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-user mb-1"></i><span class="text-[9px]">Profile</span></button>
+            <button onclick="app.navTo('history')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-clock-rotate-left mb-1"></i><span class="text-[9px]">History</span></button>
+            <button onclick="app.navTo('help')" class="nav-btn flex flex-col items-center p-2"><i class="fas fa-question-circle mb-1"></i><span class="text-[9px]">Help</span></button>
+            <button onclick="app.navTo('admin')" class="nav-btn flex flex-col items-center p-2 text-slate-600"><i class="fas fa-user-shield mb-1"></i><span class="text-[9px]">Admin</span></button>
+        </nav>
+    </div>
+
+    <!-- Modals -->
+    <!-- User Profile Details Modal -->
+    <div id="user-profile-modal" class="profile-modal">
+        <div class="modal-content text-center">
+            <button onclick="document.getElementById('user-profile-modal').style.display='none'" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+            <h3 id="modal-username" class="font-bold text-2xl text-yellow-500 mb-4"></h3>
+            <div class="space-y-3">
+                <div class="glass p-4 rounded-xl">
+                    <p class="text-xs text-slate-400">Total Ads Viewed</p>
+                    <p id="modal-total-ads" class="text-xl font-bold mt-1">0</p>
+                </div>
+                <div class="glass p-4 rounded-xl">
+                    <p class="text-xs text-slate-400">Ads Viewed
+
+Today</p>
+                    <p id="modal-daily-ads" class="text-xl font-bold mt-1">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create New Topic Modal -->
+    <div id="create-topic-modal" class="profile-modal">
+        <div class="modal-content">
+            <button onclick="document.getElementById('create-topic-modal').style.display='none'" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+            <h3 class="font-bold text-xl mb-4">Create New Topic</h3>
             <input type="text" id="new-topic-title" placeholder="Topic Title" class="w-full p-3 rounded-lg bg-slate-800 border border-slate-700 mb-3 focus:outline-none focus:border-yellow-500">
             <textarea id="new-topic-content" placeholder="Topic Content" rows="5" class="w-full p-3 rounded-lg bg-slate-800 border border-slate-700 mb-4 focus:outline-none focus:border-yellow-500"></textarea>
             <button onclick="app.submitTopic()" class="w-full gold-gradient py-3 rounded-lg font-bold text-slate-900">Post Topic</button>
