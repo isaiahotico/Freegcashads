@@ -3,334 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paper House Network</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css"> <!-- Assuming you have a style.css -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <title>🔰💎📄PAPERHOUSE INC CHAT📄💎🔰</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-<body id="appBody" style="margin: 0; padding: 0;">
+    
+    <!-- Monetag SDK Scripts -->
+    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+    
+    <!-- Firebase Configuration (Assuming firebase-config.js is available) -->
+    <!-- NOTE: In a real environment, you need to ensure firebase-config.js is loaded -->
+    <!-- <script type="module" src="firebase-config.js"></script> -->
 
-    <div class="header" id="userBar">
-        <span id="userDisplay">👤 User: Loading...</span>
-        <span id="balanceDisplay">₱0.000</span>
-    </div>
+    <style>
+        /* Basic Reset */
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; transition: background-color 0.5s ease; }
+        header { background-color: #333; color: white; padding: 15px 20px; text-align: center; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+        .user-info { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; background-color: #e0e0e0; border-bottom: 1px solid #ccc; }
+        .container { padding: 20px; text-align: center; }
+        .chat-button { display: block; width: 80%; max-width: 400px; margin: 15px auto; padding: 15px 20px; font-size: 1.2em; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease, transform 0.1s; }
+        .chat-button:active { transform: scale(0.98); }
+        .aide-text { margin-top: 30px; padding: 15px; border: 2px solid #ccc; border-radius: 8px; background-color: #fff; color: #555; font-style: italic; cursor: pointer; }
+        footer { position: fixed; bottom: 0; width: 100%; background-color: #333; color: white; padding: 10px 20px; font-size: 0.8em; text-align: center; border-top: 1px solid #444; }
+        .brick-background { 
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60"><rect width="50" height="30" fill="%23cc6666"/><rect x="50" width="50" height="30" fill="%23aa4444"/><rect y="30" width="50" height="30" fill="%23aa4444"/><rect x="50" y="30" width="50" height="30" fill="%23cc6666"/></svg>');
+            background-size: 100px 60px; background-repeat: repeat;        }
 
-    <div class="container" id="mainMenu">
-        <h1 class="text-center my-4 animate__animated animate__pulse animate__infinite animate__slow">
-            <strong>✨ PAPER HOUSE NETWORK ✨</strong>
-        </h1>
+        /* Button Colors */
+        #elementary-chat-btn { background-color: #007bff; }
+        #highschool-chat-btn { background-color: #28a745; }
+        #college-chat-btn { background-color: #ffc107; }
+        #online-users-btn { background-color: #6c757d; }
+        #leaderboard-btn { background-color: #ff9800; }
+        #referrals-btn { background-color: #9c27b0; }
+        #help-btn { background-color: #00bcd4; }
+        #bonus-ads-btn { background-color: #4caf50; }
+        #withdrawal-btn { background-color: #dc3545; }
+        #owner-dashboard-btn { background-color: #17a2b8; }
 
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="btn-grid">
-                    <button class="btn btn-primary btn-lg btn-block mb-2" onclick="openView('elementaryChatView')">📘 ELEMENTARY CHAT 📘</button>
-                    <button class="btn btn-secondary btn-lg btn-block mb-2" onclick="openView('highschoolChatView')">📗 HIGHSCHOOL CHAT 📗</button>
-                    <button class="btn btn-dark btn-lg btn-block mb-2" onclick="openView('collegeChatView')">📙 COLLEGE CHAT 📙</button>
-                    
-                    <button class="btn btn-info btn-lg btn-block mb-2" onclick="openView('onlineUsersView')">👥 ONLINE USERS 👥</button>
-                    <button class="btn btn-warning btn-lg btn-block mb-2" onclick="openView('leaderboardView')">🍺 TOP LEADERBOARD 🍺</button>
-                    <button class="btn btn-success btn-lg btn-block mb-2" onclick="openView('withdrawalView')">🔔 WITHDRAWAL 🔔</button>
-                    <button class="btn btn-light btn-lg btn-block mb-2" onclick="openView('helpView')">🗝 HELP SECTION 🗝</button>
-                    
-                    <!-- Owner Dashboard Button (Conditional) -->                    <button id="ownerDashboardBtn" class="btn btn-danger btn-lg btn-block mb-2" onclick="openView('ownerDashboardView')" style="display: none;">🎖 OWNER DASHBOARD 🎖</button>
-
-                    <!-- NEW: Paper House Gift Button -->
-                    <button class="btn btn-success btn-lg btn-block mb-2" style="background-color: #4CAF50; border: 2px solid #388E3C;" onclick="openView('giftView')">🍍💎 PAPER HOUSE GIFT 💎🍍</button>
-
-                    <button class="btn btn-purple btn-lg btn-block mb-2" onclick="openView('referralsView')">💎 REFERRALS 💎</button>
-                    <button class="btn btn-orange btn-lg btn-block mb-2" style="background-color: #f57c00;" onclick="openView('bonusAdsView')">💎💎 BONUS ADS 💎💎</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Chat Views -->
-    <div id="elementaryChatView" class="page-view">
-        <div class="header-nav">
-            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-            <h3 id="chatTitle">📘 ELEMENTARY CHAT 📘</h3>
-            <button class="btn btn-primary" onclick="navigateChatPage('next')">Next ➡️</button>
-        </div>
-        <div id="chatMessages"></div>
-        <div class="chat-input-area">
-            <input type="text" id="chatInput" placeholder="Type a message...">
-            <button id="sendBtn" onclick="sendMessage()">Send</button>
-            <button id="claimRewardBtn" onclick="claimReward()" style="display: none;">Claim ₱0.015</button>
-        </div>
-        <div id="chatCooldownInfo" class="cooldown-info"></div>
-    </div>
-
-    <div id="highschoolChatView" class="page-view">
-        <div class="header-nav">
-            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-            <h3 id="chatTitle">📗 HIGHSCHOOL CHAT 📗</h3>
-            <button class="btn btn-primary" onclick="navigateChatPage('next')">Next ➡️</button>
-        </div>
-        <div id="chatMessages"></div>
-        <div class="chat-input-area">
-            <input type="text" id="chatInput" placeholder="Type a message...">
-            <button id="sendBtn" onclick="sendMessage()">Send</button>            <button id="claimRewardBtn" onclick="claimReward()" style="display: none;">Claim ₱0.015</button>
-        </div>
-        <div id="chatCooldownInfo" class="cooldown-info"></div>
-    </div>
-
-    <div id="collegeChatView" class="page-view">
-        <div class="header-nav">
-            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-            <h3 id="chatTitle">📙 COLLEGE CHAT 📙</h3>
-            <button class="btn btn-primary" onclick="navigateChatPage('next')">Next ➡️</button>
-        </div>
-        <div id="chatMessages"></div>
-        <div class="chat-input-area">
-            <input type="text" id="chatInput" placeholder="Type a message...">
-            <button id="sendBtn" onclick="sendMessage()">Send</button>
-            <button id="claimRewardBtn" onclick="claimReward()" style="display: none;">Claim ₱0.015</button>
-        </div>
-        <div id="chatCooldownInfo" class="cooldown-info"></div>
-    </div>
-
-    <!-- Online Users View -->
-    <div id="onlineUsersView" class="page-view">
-        <div class="header-nav">
-            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-            <h3>👥 ONLINE USERS 👥</h3>
-            <div>
-                <button class="btn btn-primary" onclick="navigateOnlinePage('prev')" id="prevOnlineBtn" disabled>⬅️ Prev</button>
-                <button class="btn btn-primary" onclick="navigateOnlinePage('next')" id="nextOnlineBtn">Next ➡️</button>
-            </div>
-        </div>
-        <ul id="onlineUsersList"></ul>
-        <p id="onlineUsersCount"></p>
-    </div>
-
-    <!-- Leaderboard View -->
-    <div id="leaderboardView" class="page-view">
-        <div class="header-nav">
-            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-            <h3>🍺 TOP LEADERBOARD 🍺</h3>
-            <div>
-                <button class="btn btn-primary" onclick="navigateLeaderboardPage('prev')" id="prevLeaderboardBtn" disabled>⬅️ Prev</button>
-                <button class="btn btn-primary" onclick="navigateLeaderboardPage('next')" id="nextLeaderboardBtn">Next ➡️</button>
-            </div>
-        </div>
-        <ol id="leaderboardList"></ol>
-    </div>
-
-    <!-- Withdrawal View -->
-    <div id="withdrawalView" class="page-view">
-        <div class="header-nav">
-            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-            <h3>🔔 WITHDRAWAL 🔔</h3>
-            <div>
-                <button class="btn btn-primary" onclick="navigateWithdrawalPage('prev')" id="prevWithdrawalBtn" disabled>⬅️ Prev</button>
-                <button class="btn btn-primary" onclick="navigateWithdrawalPage('next')" id="nextWithdrawalBtn">Next ➡️</button>
-            </div>
-        </div>
-        <div id="withdrawalStatus">
-            <p>Current Balance: <strong id="withdrawalBalanceDisplay"></strong></p>
-            <p>Minimum Withdrawal: <strong>₱10.000</strong></p>
-            <p>First Time Withdrawal? <strong id="firstTimeWithdrawalStatus">Checking...</strong></p>
-        </div>
-        <div class="withdrawal-form">
-            <h4>Request Withdrawal</h4>
-            <input type="text" id="withdrawalAmount" placeholder="Amount to withdraw (e.g., 10.000)">
-            <input type="text" id="gcash_account" placeholder="GCash Account Number">
-            <input type="text" id="gcash_name" placeholder="GCash Account Name">
-            <button onclick="submitWithdrawal()" id="submitWithdrawalBtn">Request Withdrawal</button>
-            <p id="withdrawalMessage" class="mt-2"></p>
-        </div>
-        <h4>Withdrawal History</h4>
-        <ul id="withdrawalHistoryList"></ul>
-    </div>
-
-    <!-- Help Section View -->
-    <div id="helpView" class="page-view">
-        <div class="header-nav">
-            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-            <h3>🗝 HELP SECTION 🗝</h3>
-            <div></div>
-        </div>
-        <div class="help-content">
-            <h4>Welcome to Paper House Network!</h4>
-            <p><strong>How to Earn:</strong></p>
-            <ul>
-                <li>Engage in chats (Elementary, Highschool, College) by sending messages. You'll earn ₱0.015 per message after watching an ad.</li>
-                <li>Watch bonus ads for extra rewards.</li>
-                <li>Claim daily gifts through the "Paper House Gift" section after watching special popup ads.</li>
-                <li>Refer friends to earn a percentage of their earnings.</li>
-            </ul>
-            <p><strong>Withdrawal:</strong></p>
-            <ul>
-                <li>Minimum withdrawal is ₱10.000.</li>
-                <li>Withdrawals are processed manually and may take time.</li>
-                <li>Ensure your GCash details are correct.</li>
-            </ul>
-            <p><strong>Important Notes:</strong></p>
-            <ul>
-                <li>Ads are essential to support our platform. Please disable ad blockers.</li>
-                <li>Abuse of the system (e.g., bots, spamming) will result in account suspension.</li>
-                <li>The value of Pesos earned may vary based on ad revenue.</li>
-            </ul>
-            <p><strong>Contact Support:</strong> If you have any issues, please contact our support channel within Telegram.</p>
-        </div>
-    </div>
-
-    <!-- Owner Dashboard View -->
-    <div id="ownerDashboardView" class="page-view">
-        <div class="header-nav">
-            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-            <h3>🎖 OWNER DASHBOARD 🎖</h3>
-            <div></div>
-        </div>
+        /* Reward Pop-up Styles */
+        .reward-popup {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); padding: 30px 50px;
+            background: linear-gradient(45deg, #ffeb3b, #ff9800); color: #333; border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); z-index: 1000; font-size: 1.8em; font-weight: bold;
+            text-align: center; transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); opacity: 0;
+        }
+        .reward-popup.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         
-        <div id="ownerLogin">
-            <h4>Owner Authentication</h4>
-            <input type="password" id="ownerPassword" placeholder="Enter Password">
-            <button onclick="authenticateOwner()">Login</button>
-            <p id="ownerLoginMessage"></p>
-        </div>
+        /* Status Badges for Withdrawal History */
+        .status-pending { color: orange; font-weight: bold; }
+        .status-approved { color: green; font-weight: bold; }
+        .status-rejected { color: red; font-weight: bold; }
+    </style>
+</head>
+<body id="main-body">
 
-        <div id="ownerDashboardContent" style="display: none;">
-            <h4>Dashboard Overview</h4>
-            <p>Total Users: <strong id="ownerTotalUsers"></strong></p>
-            <p>Total Approved Withdrawals: <strong id="ownerTotalApprovedWithdrawals"></strong></p>
-            <p>Total Pending Withdrawals: <strong id="ownerTotalPendingWithdrawals"></strong></p>
-            <p>Total Earnings (Estimated): <strong id="ownerTotalEarnings"></strong></p>
+    <header>
+        <h1>🔰💎📄PAPERHOUSE INC CHAT📄💎🔰</h1>
+    </header>
 
-            <h4>Withdrawal Management</h4>
-            <div class="owner-nav">
-                <button class="btn btn-primary" onclick="navigateOwnerPage('prev')" id="prevOwnerBtn" disabled>⬅️ Prev</button>
-                <button class="btn btn-primary" onclick="navigateOwnerPage('next')" id="nextOwnerBtn">Next ➡️</button>
-            </div>
-            <ul id="ownerWithdrawalList"></ul>
-            
-            <h4>Recent Activity Log</h4>
-            <ul id="ownerActivityLog"></ul>
-        </div>
+    <div class="user-info">
+        <span id="userBar">👤 User: Guest</span>
+        <span id="userBalance">💰 Balance: P0.00</span>
     </div>
 
-    <!-- NEW: Paper House Gift View -->
-    <div id="giftView" class="page-view">
-        <div class="header-nav">
-            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-            <h3 style="margin: 0;">🍍💎 PAPER HOUSE GIFTS 💎🍍</h3>
-            <div></div>
+    <div class="container">
+        
+        <div class="aide-text" id="aideText">
+            Click this text to change the background color and style!
         </div>
 
-        <div class="bonus-ad-container" style="background: #e8f5e9; border: 1px solid #81c784; margin-top: 15px;">
-            <h4>Unlock Daily Gifts!</h4>
-            <p>Watch special popup ads to earn rewards.</p>
-            <div class="bonus-ad-buttons" style="display: flex; justify-content: space-around; flex-wrap: wrap;">
-                <button class="btn btn-success mb-2" onclick="showGiftAd('gift1')">🍍💎 GIFT #1 💎🍍</button>
-                <button class="btn btn-info mb-2" onclick="showGiftAd('gift2')">🍍💎 GIFT #2 💎🍍</button>
-                <button class="btn btn-danger mb-2" onclick="showGiftAd('gift3')">🍍💎 GIFT #3 💎🍍</button>
-            </div>
-        </div>
+        <!-- Chat Buttons -->
+        <button class="chat-button" id="elementary-chat-btn">📘 ELEMENTARY CHAT 📘</button>
+        <button class="chat-button" id="highschool-chat-btn">📗 HIGHSCHOOL CHAT 📗</button>
+        <button class="chat-button" id="college-chat-btn">📙 COLLEGE CHAT 📙</button>
+        
+        <!-- Utility Buttons -->
+        <button class="chat-button" id="online-users-btn">👥 Online Users 👥</button>
+        <button class="chat-button" id="leaderboard-btn">🍺 TOP LEADERBOARD 🍺</button>
+        <button class="chat-button" id="referrals-btn">🍺 Referrals 🍺</button>
+        <button class="chat-button" id="help-btn">🗝 Help Section 🗝</button>
+        <button class="chat-button" id="bonus-ads-btn">💎💎 BONUS ADS 💎💎</button>
 
-        <!-- Gift #1 Reward Section -->
-        <div class="bonus-reward-section" id="gift1RewardSection" style="background: #fff9c4; border: 1px solid #fbc02d; margin-top: 15px;">
-            <h4>Gift #1 Reward</h4>
-            <p>Unlock a ₱0.010 reward.</p>
-            <p id="gift1CooldownInfo">Reward available in: <span id="gift1RewardTimer">00:00:00</span></p>
-            <button id="claimGift1RewardBtn" class="btn btn-warning" onclick="claimGiftReward('gift1')" disabled style="background-color: #ffc107; color: #333; margin-top: 10px;">Claim ₱0.010</button>
-            <p class="referrer-bonus-info">Reward claimable once every 3 hours.</p>
-        </div>
+        <!-- Admin/Finance Buttons -->
+        <button class="chat-button" id="withdrawal-btn">🔔 Withdrawal 🔔</button>
+        <button class="chat-button" id="owner-dashboard-btn">🎖 OWNER DASHBOARD 🎖</button>
 
-        <!-- Gift #2 Reward Section -->
-        <div class="bonus-reward-section" id="gift2RewardSection" style="background: #fce4ec; border: 1px solid #f48fb1; margin-top: 15px;">
-            <h4>Gift #2 Reward</h4>
-            <p>Unlock a ₱0.010 reward.</p>
-            <p id="gift2CooldownInfo">Reward available in: <span id="gift2RewardTimer">00:00:00</span></p>
-            <button id="claimGift2RewardBtn" class="btn btn-danger" onclick="claimGiftReward('gift2')" disabled style="background: #dc3545; color: white; margin-top: 10px;">Claim ₱0.010</button>
-            <p class="referrer-bonus-info">Reward claimable once every 3 hours.</p>
-        </div>
-
-        <!-- Gift #3 Reward Section -->
-        <div class="bonus-reward-section" id="gift3RewardSection" style="background: #e0f7fa; border: 1px solid #80deea; margin-top: 15px;">
-            <h4>Gift #3 Reward</h4>
-            <p>Unlock a ₱0.010 reward.</p>
-            <p id="gift3CooldownInfo">Reward available in: <span id="gift3RewardTimer">00:00:00</span></p>
-            <button id="claimGift3RewardBtn" class="btn btn-info" onclick="claimGiftReward('gift3')" disabled style="background: #17a2b8; color: white; margin-top: 10px;">Claim ₱0.010</button>
-            <p class="referrer-bonus-info">Reward claimable once every 3 hours.</p>
-        </div>
+    </div>
+    
+    <!-- Reward Pop-up Element -->
+    <div id="rewardPopup" class="reward-popup">
+        🎉 REWARD! +P0.015 🎉
     </div>
 
-    <!-- Referrals View -->
-    <div id="referralsView" class="page-view">
-        <div class="header-nav">
-            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-            <h3>💎 REFERRALS 💎</h3>
-            <div>
-                <button class="btn btn-primary" onclick="navigateReferralsPage('prev')" id="prevReferralsBtn" disabled>⬅️ Prev</button>
-                <button class="btn btn-primary" onclick="navigateReferralsPage('next')" id="nextReferralsBtn">Next ➡️</button>
-            </div>
-        </div>
-        <div class="referral-info">
-            <h4>Your Referral Code: <strong id="userReferralCode"></strong></h4>
-            <p>Share this code with friends to earn rewards!</p>
-            <button onclick="copyReferralCode()" class="btn btn-secondary">Copy Code</button>
-        </div>
-        <div class="referral-stats">
-            <p>Friends Referred: <strong id="referralCount">0</strong></p>
-            <p>Total Referral Bonus Earned: <strong id="totalReferralBonus">₱0.000</strong></p>
-            <button onclick="claimReferralBonus()" class="btn btn-success" id="claimReferralBonusBtn" disabled>Claim Available Bonus</button>
-        </div>
-        <h4>Referral History</h4>
-        <ul id="referralHistoryList"></ul>
-    </div>
-
-    <!-- Bonus Ads View -->
-    <div id="bonusAdsView" class="page-view">
-        <div class="header-nav">
-            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
-            <h3>💎💎 BONUS ADS 💎💎</h3>
-            <div></div>
-        </div>
-        <div class="bonus-ad-container" style="background: #e0f7fa; border: 1px solid #80deea;">
-            <h4>Watch Ads, Earn More!</h4>
-            <p>Watch rewarded ads to claim bonus rewards.</p>
-            <div class="bonus-ad-buttons" style="display: flex; justify-content: space-around; flex-wrap: wrap;">
-                <button class="btn btn-primary mb-2" onclick="showBonusAds('bonus1')">💥 BONUS AD #1 💥</button>
-                <button class="btn btn-secondary mb-2" onclick="showBonusAds('bonus2')">💥 BONUS AD #2 💥</button>
-                <button class="btn btn-info mb-2" onclick="showBonusAds('bonus3')">💥 BONUS AD #3 💥</button>
-            </div>
-        </div>
-
-        <div class="bonus-reward-section" id="bonus1RewardSection" style="background: #fff9c4; border: 1px solid #fbc02d; margin-top: 15px;">
-            <h4>Bonus Ad #1 Reward</h4>
-            <p>Unlock a ₱0.015 reward.</p>
-            <p id="bonus1CooldownInfo">Reward available in: <span id="bonus1RewardTimer">00:00:00</span></p>
-            <button id="claimBonus1RewardBtn" class="btn btn-warning" onclick="claimBonusReward('bonus1')" disabled style="background-color: #ffc107; color: #333; margin-top: 10px;">Claim ₱0.015</button>
-            <p class="referrer-bonus-info">Reward claimable once every 20 minutes.</p>
-        </div>
-        <div class="bonus-reward-section" id="bonus2RewardSection" style="background: #fce4ec; border: 1px solid #f48fb1; margin-top: 15px;">
-            <h4>Bonus Ad #2 Reward</h4>
-            <p>Unlock a ₱0.015 reward.</p>
-            <p id="bonus2CooldownInfo">Reward available in: <span id="bonus2RewardTimer">00:00:00</span></p>
-            <button id="claimBonus2RewardBtn" class="btn btn-danger" onclick="claimBonusReward('bonus2')" disabled style="background: #dc3545; color: white; margin-top: 10px;">Claim ₱0.015</button>
-            <p class="referrer-bonus-info">Reward claimable once every 20 minutes.</p>
-        </div>
-        <div class="bonus-reward-section" id="bonus3RewardSection" style="background: #e0f7fa; border: 1px solid #80deea; margin-top: 15px;">
-            <h4>Bonus Ad #3 Reward</h4>
-            <p>Unlock a ₱0.015 reward.</p>
-            <p id="bonus3CooldownInfo">Reward available in: <span id="bonus3RewardTimer">00:00:00</span></p>
-            <button id="claimBonus3RewardBtn" class="btn btn-info" onclick="claimBonusReward('bonus3')" disabled style="background: #17a2b8; color: white; margin-top: 10px;">Claim ₱0.015</button>
-            <p class="referrer-bonus-info">Reward claimable once every 20 minutes.</p>
-        </div>
-    </div>
-
-    <!-- Reward Animation Container -->
-    <div id="rewardPopupContainer"></div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <p>&copy; 2026 Paper House Inc. | <span id="footer-date"></span></p>
+    <footer>
+        <div>PAPERHOUSE INC</div>
+        <div id="dateTime"></div>
+        <div>otico.isai2@gmail.com</div>
     </footer>
 
-    <script src="app.js"></script>
+    <!-- Monetag In-App Interstitial Configuration (Must be placed after SDK load) -->
+    <script>
+        // These scripts initiate the automatic rotation upon page load
+        // NOTE: These functions must be available globally from the SDK scripts above.
+        if (typeof show_10337853 === 'function') {
+            show_10337853({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
+        }
+        if (typeof show_10276123 === 'function') {
+            show_10276123({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
+        }
+        if (typeof show_10337795 === 'function') {
+            show_10337795({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
+        }
+    </script>
+    
+    <!-- Link External JavaScript Logic -->
+    <script type="module" src="app.js"></script>
 </body>
 </html>
