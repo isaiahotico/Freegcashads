@@ -36,7 +36,74 @@
                     <button class="btn btn-success btn-lg btn-block mb-2" onclick="openView('withdrawalView')">🔔 WITHDRAWAL 🔔</button>
                     <button class="btn btn-light btn-lg btn-block mb-2" onclick="openView('helpView')">🗝 HELP SECTION 🗝</button>
                     
-                    <!-- Owner Dashboard Button (Conditional) -->lineUsersList"></ul>
+                    <!-- Owner Dashboard Button (Conditional) -->                    <button id="ownerDashboardBtn" class="btn btn-danger btn-lg btn-block mb-2" onclick="openView('ownerDashboardView')" style="display: none;">🎖 OWNER DASHBOARD 🎖</button>
+
+                    <!-- NEW: Paper House Gift Button -->
+                    <button class="btn btn-success btn-lg btn-block mb-2" style="background-color: #4CAF50; border: 2px solid #388E3C;" onclick="openView('giftView')">🍍💎 PAPER HOUSE GIFT 💎🍍</button>
+
+                    <button class="btn btn-purple btn-lg btn-block mb-2" onclick="openView('referralsView')">💎 REFERRALS 💎</button>
+                    <button class="btn btn-orange btn-lg btn-block mb-2" style="background-color: #f57c00;" onclick="openView('bonusAdsView')">💎💎 BONUS ADS 💎💎</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Views -->
+    <div id="elementaryChatView" class="page-view">
+        <div class="header-nav">
+            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
+            <h3 id="chatTitle">📘 ELEMENTARY CHAT 📘</h3>
+            <button class="btn btn-primary" onclick="navigateChatPage('next')">Next ➡️</button>
+        </div>
+        <div id="chatMessages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Type a message...">
+            <button id="sendBtn" onclick="sendMessage()">Send</button>
+            <button id="claimRewardBtn" onclick="claimReward()" style="display: none;">Claim ₱0.015</button>
+        </div>
+        <div id="chatCooldownInfo" class="cooldown-info"></div>
+    </div>
+
+    <div id="highschoolChatView" class="page-view">
+        <div class="header-nav">
+            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
+            <h3 id="chatTitle">📗 HIGHSCHOOL CHAT 📗</h3>
+            <button class="btn btn-primary" onclick="navigateChatPage('next')">Next ➡️</button>
+        </div>
+        <div id="chatMessages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Type a message...">
+            <button id="sendBtn" onclick="sendMessage()">Send</button>            <button id="claimRewardBtn" onclick="claimReward()" style="display: none;">Claim ₱0.015</button>
+        </div>
+        <div id="chatCooldownInfo" class="cooldown-info"></div>
+    </div>
+
+    <div id="collegeChatView" class="page-view">
+        <div class="header-nav">
+            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
+            <h3 id="chatTitle">📙 COLLEGE CHAT 📙</h3>
+            <button class="btn btn-primary" onclick="navigateChatPage('next')">Next ➡️</button>
+        </div>
+        <div id="chatMessages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Type a message...">
+            <button id="sendBtn" onclick="sendMessage()">Send</button>
+            <button id="claimRewardBtn" onclick="claimReward()" style="display: none;">Claim ₱0.015</button>
+        </div>
+        <div id="chatCooldownInfo" class="cooldown-info"></div>
+    </div>
+
+    <!-- Online Users View -->
+    <div id="onlineUsersView" class="page-view">
+        <div class="header-nav">
+            <button class="btn btn-dark" onclick="openView('mainMenu')">⬅️ Back</button>
+            <h3>👥 ONLINE USERS 👥</h3>
+            <div>
+                <button class="btn btn-primary" onclick="navigateOnlinePage('prev')" id="prevOnlineBtn" disabled>⬅️ Prev</button>
+                <button class="btn btn-primary" onclick="navigateOnlinePage('next')" id="nextOnlineBtn">Next ➡️</button>
+            </div>
+        </div>
+        <ul id="onlineUsersList"></ul>
         <p id="onlineUsersCount"></p>
     </div>
 
