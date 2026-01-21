@@ -12,54 +12,54 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
-        :root { --gold: #f1c40f; --dark: #111; --accent: #00ffcc; }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: #fff; overflow-x: hidden; }
+        :root { --gold: #f1c40f; --dark: #111; --blue: #3498db; --accent: #00ffcc; --bg: #f0f2f5; --card-bg: white; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #333; }
         
-        /* Reward Visual FX Overlay */
-        #fx-canvas { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:99999; overflow:hidden; }
-        .fx-item { position: absolute; font-size: 30px; user-select: none; }
-        
-        /* 5 Animation Styles */
-        @keyframes fx-float-up { 0% { transform: translateY(0) scale(1); opacity:1; } 100% { transform: translateY(-300px) scale(2); opacity:0; } }
-        @keyframes fx-burst { 0% { transform: translate(0,0) scale(0); opacity:1; } 100% { transform: translate(var(--tx), var(--ty)) scale(1.5); opacity:0; } }
-        @keyframes fx-rain { 0% { transform: translateY(-50px); opacity:1; } 100% { transform: translateY(90vh); opacity:0; } }
-        @keyframes fx-spin { 0% { transform: rotate(0deg) scale(0); } 100% { transform: rotate(720deg) scale(2); opacity:0; } }
-        @keyframes fx-pulse { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(3); filter: brightness(2); } 100% { transform: scale(4); opacity:0; } }
+        header { background: var(--dark); color: var(--gold); padding: 12px; text-align: center; border-bottom: 3px solid var(--gold); position: sticky; top: 0; z-index: 1000; font-weight: bold; }
+        .top-stats { background: #222; color: var(--accent); display: flex; justify-content: space-between; padding: 8px 15px; font-size: 12px; font-weight: bold; border-bottom: 1px solid #444; }
 
-        header { background: var(--dark); color: var(--gold); padding: 15px; text-align: center; border-bottom: 3px solid var(--gold); font-weight: bold; }
-        .stat-bar { background: #222; color: var(--accent); display: flex; justify-content: space-between; padding: 10px 20px; font-size: 14px; border-bottom: 1px solid #333; }
-
-        .nav-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }        button { border: none; padding: 12px 2px; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; font-size: 10px; transition: 0.2s; text-transform: uppercase; box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
-        button:active { transform: translateY(2px); box-shadow: none; }
+        .nav-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 10px; background: #ddd; }
+        button { border: none; padding: 10px 2px; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; font-size: 10px; text-transform: uppercase; transition: 0.2s; }
+        button:active { transform: scale(0.95); }
 
         .container { padding: 10px; max-width: 600px; margin: auto; }
-        .page { display: none; background: #222; border-radius: 15px; padding: 15px; border: 1px solid #333; margin-bottom: 20px; animation: fadeIn 0.4s; }
+        .page { display: none; background: var(--card-bg); border-radius: 12px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 20px; animation: fadeIn 0.3s; }
         .active-page { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Tables & Lists */
-        .card-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
-        .card-table th { background: #333; padding: 8px; text-align: left; color: var(--gold); }
-        .card-table td { padding: 8px; border-bottom: 1px solid #333; }
+        /* High-Density Tables (11px) */
+        .table-wrap { overflow-x: auto; margin-top: 10px; border: 1px solid #eee; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th { background: #f8f9fa; padding: 8px; text-align: left; border-bottom: 2px solid #dee2e6; }
+        td { padding: 6px 8px; border-bottom: 1px solid #eee; }
+        .status { font-weight: bold; text-transform: uppercase; font-size: 9px; padding: 2px 5px; border-radius: 3px; color: white; }        .status-pending { background: orange; } .status-approved { background: green; } .status-denied { background: red; }
 
         /* Chat System */
-        #msg-list { height: 350px; overflow-y: auto; background: #000; padding: 10px; border-radius: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .msg { padding: 10px; border-radius: 12px; max-width: 85%; font-size: 13px; line-height: 1.4; }
-        .msg-me { align-self: flex-end; background: #2980b9; color: white; }
-        .msg-other { align-self: flex-start; background: #333; color: #eee; }
+        #msg-list { height: 280px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 6px; border: 1px solid #eee; }
+        .msg { padding: 8px; border-radius: 8px; max-width: 85%; font-size: 12px; line-height: 1.4; }
+        .msg-me { align-self: flex-end; background: var(--blue); color: white; }
+        .msg-other { align-self: flex-start; background: #e9e9eb; color: #333; }
 
-        footer { padding: 20px; text-align: center; font-size: 11px; color: #555; }
+        /* Cards */
+        .card { background: var(--card-bg); border: 1px solid #eee; padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .card-header { font-weight: bold; margin-bottom: 8px; }
+        .cooldown-text { font-size: 10px; color: #e74c3c; margin-top: 4px; }
+        
+        /* Input Styles */
+        input[type="text"], input[type="password"], input[type="number"] { 
+            width: calc(100% - 20px); padding: 10px; margin-bottom: 8px; border: 1px solid #ccc; border-radius: 6px; background: #f8f8f8; font-size: 12px;
+        }
+        
+        footer { background: var(--dark); color: #888; padding: 15px; text-align: center; font-size: 11px; margin-top: 20px; }
     </style>
 </head>
 <body id="mainBody">
 
-    <div id="fx-canvas"></div>
-
-    <header onclick="changeBG()">
+    <header onclick="randomBg()">
         <h3>🔰💎 PAPERHOUSE INC CHAT 💎🔰</h3>
     </header>
 
-    <div class="stat-bar">
+    <div class="top-stats">
         <span id="st-user">👤 Loading...</span>
         <span id="st-bal">💰 0.000 Peso</span>
     </div>
@@ -69,83 +69,180 @@
             <button onclick="nav('elem')" style="background:#2980b9">📘 ELEM</button>
             <button onclick="nav('high')" style="background:#27ae60">📗 HIGH</button>
             <button onclick="nav('college')" style="background:#d35400">📙 COLLEGE</button>
-            <button onclick="nav('gift')" style="background:#e91e63">🍍 GIFTS</button>            <button onclick="nav('bonus')" style="background:#f1c40f; color:#000">💎 BONUS</button>
-            <button onclick="nav('lead')" style="background:#8e44ad">🍺 TOP LEADER</button>
-            <button onclick="nav('board')" style="background:#000; color:gold; border:1px solid gold">🎖 OWNER</button>
-            <button onclick="nav('refer')" style="background:#7f8c8d">🍺 REFER</button>
+            <button onclick="nav('bonus')" style="background:linear-gradient(to right, #f1c40f, #f39c12); color:#000">💎 BONUS</button>
+            <button onclick="nav('gift')" style="background:#e91e63">🍍 GIFT</button>
+            <button onclick="nav('online')" style="background:#1abc9c">👥 ONLINE</button>            <button onclick="nav('lead')" style="background:#8e44ad">🏆 LEADER</button>
             <button onclick="nav('wd')" style="background:#c0392b">🔔 WITHDRAW</button>
+            <button onclick="nav('refer')" style="background:#7f8c8d">🍺 REFER</button>
+            <button onclick="nav('help')" style="background:#2c3e50">🗝 HELP</button>
+            <button onclick="nav('board')" style="background:#000; color:gold; border:1px solid gold">🎖 OWNER</button>
         </div>
 
-        <!-- Chat Room -->
-        <div id="p-chat" class="page">
-            <h4 id="chat-title" style="margin-top:0">Room</h4>
-            <div id="msg-list"></div>
-            <div id="chat-reward-claim" style="display:none; text-align:center; padding:10px; background:#1b5e20; border-radius:8px; margin:10px 0">
-                <button onclick="claimChatReward()" style="background:#4caf50; width:100%">CLAIM 0.015 PESO</button>
+        <!-- Online Users Page -->
+        <div id="p-online" class="page">
+            <h4>👥 Online Users (<span id="online-count">0</span>)</h4>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>User</th><th>Last Seen</th><th>Status</th></tr></thead>
+                    <tbody id="online-list"></tbody>
+                </table>
             </div>
-            <div style="display:flex; gap:5px; margin-top:10px">
-                <input type="text" id="m-in" placeholder="Wait 4 mins between messages..." style="flex:1; padding:12px; border-radius:8px; border:none; background:#333; color:white">
-                <button id="sendBtn" style="background:var(--gold); color:black; width:50px">➜</button>
+        </div>
+
+        <!-- Chat Rooms (Elementary, Highschool, College) -->
+        <div id="p-chat" class="page">
+            <h4 id="chat-title" style="margin-top:0">Chat Room</h4>
+            <div id="msg-list"></div>
+            <div id="chat-reward-area" style="display:none; padding:10px; background:#e8f5e9; margin:5px 0; border-radius:5px">
+                <button id="chatClaimBtn" style="background:#2ecc71; width:100%">CLAIM 0.015 PESO</button>
+            </div>
+            <div id="room-cd-display" class="cooldown-text" style="text-align:center; margin-bottom:5px"></div>
+            <div style="display:flex; gap:5px">
+                <input type="text" id="m-in" placeholder="Say something..." style="flex:1; padding:10px; border-radius:5px; border:1px solid #ccc">
+                <button id="sendBtn" style="background:#333; width:50px">➜</button>
+            </div>
+        </div>
+
+        <!-- Bonus Ads Page -->
+        <div id="p-bonus" class="page">
+            <h4>💎 PREMIUM BONUS ADS 💎</h4>
+            <div id="bonus-slots">
+                <!-- Slot 1 -->
+                <div class="card">
+                    <div class="card-header">BONUS #1</div>
+                    <small>Watch 3 Ads for 0.015 Peso</small>
+                    <button id="btn-b1" onclick="startBonus(1)" style="background:#333; width:100%; margin:8px 0">WATCH SEQUENCE</button>
+                    <button id="clm-b1" onclick="claimBonus(1)" style="background:green; width:100%; display:none">CLAIM 0.015</button>
+                    <div id="cd-b1" class="cooldown-text"></div>
+                </div>
+                <!-- Slot 2 -->
+                <div class="card">
+                    <div class="card-header">BONUS #2</div>
+                    <small>Watch 3 Ads for 0.015 Peso</small>
+                    <button id="btn-b2" onclick="startBonus(2)" style="background:#333; width:100%; margin:8px 0">WATCH SEQUENCE</button>
+                    <button id="clm-b2" onclick="claimBonus(2)" style="background:green; width:100%; display:none">CLAIM 0.015</button>
+                    <div id="cd-b2" class="cooldown-text"></div>
+                </div>
+                <!-- Slot 3 -->
+                <div class="card">
+                    <div class="card-header">BONUS #3</div>
+                    <small>Watch 3 Ads for 0.015 Peso</small>
+                    <button id="btn-b3" onclick="startBonus(3)" style="background:#333; width:100%; margin:8px 0">WATCH SEQUENCE</button>
+                    <button id="clm-b3" onclick="claimBonus(3)" style="background:green; width:100%; display:none">CLAIM 0.015</button>
+                    <div id="cd-b3" class="cooldown-text"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gift Page -->
+        <div id="p-gift" class="page">
+            <h4>🍍💎 PAPER HOUSE GIFT 💎🍍</h4>
+            <div class="card">
+                <div class="card-header">Gift #1</div>
+                <button onclick="triggerGift(1)" style="background:#444; width:100%; margin:5px 0">SHOW AD (0.01)</button>
+                <button id="clm-g1" style="background:green; display:none; width:100%" onclick="claimGift(1)">CLAIM</button>
+                <div id="cd-g1" class="cooldown-text"></div>
+            </div>
+            <div class="card">
+                <div class="card-header">Gift #2</div>
+                <button onclick="triggerGift(2)" style="background:#444; width:100%; margin:5px 0">SHOW AD (0.01)</button>
+                <button id="clm-g2" style="background:green; display:none; width:100%" onclick="claimGift(2)">CLAIM</button>
+                <div id="cd-g2" class="cooldown-text"></div>
+            </div>
+            <div class="card">
+                <div class="card-header">Gift #3</div>
+                <button onclick="triggerGift(3)" style="background:#444; width:100%; margin:5px 0">SHOW AD (0.01)</button>
+                <button id="clm-g3" style="background:green; display:none; width:100%" onclick="claimGift(3)">CLAIM</button>
+                <div id="cd-g3" class="cooldown-text"></div>
             </div>
         </div>
 
         <!-- Withdrawal Page -->
         <div id="p-wd" class="page">
             <h4>🔔 GCash Withdrawal</h4>
-            <div style="background:#333; padding:15px; border-radius:12px; margin-bottom:15px">
-                <input type="number" id="wd-amt" placeholder="Amount (Min 0.02)" style="width:100%; padding:10px; margin-bottom:10px; background:#444; border:none; color:white">
-                <input type="text" id="wd-gcash" placeholder="GCash Mobile Number" style="width:100%; padding:10px; margin-bottom:10px; background:#444; border:none; color:white">
-                <button onclick="submitWd()" style="background:#27ae60; width:100%; padding:15px">SUBMIT WITHDRAWAL</button>
+            <div class="card" style="background:#fff"><input type="number" id="wd-amt" placeholder="Amount (Min 0.02)" style="width:98%; padding:10px; margin-bottom:8px">
+                <input type="text" id="wd-gcash" placeholder="GCash Number" style="width:98%; padding:10px; margin-bottom:8px">
+                <button onclick="requestWd()" style="background:#27ae60; width:100%; padding:15px">SUBMIT WITHDRAWAL</button>
             </div>
-            <h5>Request History</h5>
-            <table class="card-table">
-                <thead><tr><th>Date</th><th>GCash</th><th>Amount</th><th>Status</th></tr></thead>
-                <tbody id="wd-history"></tbody>
-            </table>
+            <h5>Withdrawal History (Live Sync)</h5>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Date</th><th>GCash</th><th>Amt</th><th>Status</th></tr></thead>
+                    <tbody id="user-wd-body"></tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- Top Leaderboard -->
+        <!-- Leaderboard -->
         <div id="p-lead" class="page">
-            <h4>🏆 TOP EARNERS LEADERBOARD</h4>
-            <p style="font-size:10px; color:#aaa">Syncs Real-time • Weekly Reset</p>
-            <table class="card-table">
-                <thead><tr><th>Rank</th><th>User</th><th>Total Earned</th></tr></thead>
-                <tbody id="lead-body"></tbody>
-            </table>
+            <h4>🏆 TOP 500 EARNERS</h4>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Rank</th><th>User</th><th>Balance</th></tr></thead>
+                    <tbody id="lead-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Referral Page -->
+        <div id="p-refer" class="page">
+            <h4>💎 REFERRAL SYSTEM 💎</h4>
+            <div class="card">
+                <div class="card-header">Your Referral Code</div>
+                <b id="ref-my-code" style="font-size:16px; color:var(--gold)">...</b>
+            </div>
+            <input type="text" id="ref-input" placeholder="Enter Friend's Code">
+            <button onclick="setReferrer()" style="background:var(--gold); color:black; width:100%">SYNC CODE</button>
+            <div class="card" style="margin-top:10px">
+                <div class="card-header">Claimable Bonus</div>
+                <b id="ref-bonus-val" style="font-size:16px; color:var(--blue)">0.000</b>
+                <button onclick="claimRefBonus()" style="background:green; width:100%; margin-top:10px">CLAIM TO BALANCE</button>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div id="p-help" class="page">
+            <h4>🗝 HELP & SUPPORT 🗝</h4>
+            <div id="help-content">
+                <!-- Help content will be loaded here dynamically -->
+            </div>
         </div>
 
         <!-- Owner Dashboard -->
         <div id="p-board" class="page">
             <h4>🎖 OWNER DASHBOARD</h4>
-            <div id="admin-gate">
-                <input type="password" id="admin-pass" placeholder="Propetas12" style="width:100%; padding:12px; border-radius:8px; background:#333; border:none; color:white">
-                <button onclick="accessAdmin()" style="background:#000; width:100%; margin-top:10px">LOGIN</button>
+            <div id="owner-login">
+                <input type="password" id="owner-pass" placeholder="Password" style="width:100%; padding:12px; border-radius:8px">
+                <button onclick="loginOwner()" style="background:#000; width:100%; margin-top:10px">UNLOCK</button>
             </div>
-            <div id="admin-panel" style="display:none">
+            <div id="owner-view" style="display:none">
                 <div style="background:var(--gold); color:#000; padding:15px; border-radius:10px; text-align:center; margin-bottom:10px; font-weight:bold">
-                    TOTAL PAID: <span id="admin-total-paid">0.00</span> Peso
+                    Total Approved: <span id="admin-total-paid">0.00</span> Peso
                 </div>
-                <table class="card-table">
-                    <thead><tr><th>User</th><th>GCash</th><th>Amt</th><th>Action</th></tr></thead>
-                    <tbody id="admin-wd-list"></tbody>
-                </table>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>User</th><th>GCash</th><th>Amt</th><th>Action</th></tr></thead>
+                        <tbody id="admin-wd-body"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
     <footer>
-        <p>PAPERHOUSE INC WORLD CONCEPTS</p>
-        <p id="timer"></p>
+        <p>PAPERHOUSE INC &copy; 2024</p>
+        <p id="footer-clk"></p>
         <p>otico.isai2@gmail.com</p>
     </footer>
 
     <script type="module" src="app.js"></script>
     <script>
-        function changeBG() {
-            const colors = ['#1a1a1a', '#2c3e50', '#000000', '#16a085', '#273c75'];
-            document.getElementById('mainBody').style.background = colors[Math.floor(Math.random()*colors.length)];
+        function randomBg(){
+            const colors = ['#f0f2f5','#e1f5fe','#f3e5f5','#e8f5e9','#fffde7'];
+            document.body.style.backgroundColor = colors[Math.floor\ 
+(Math.random()*colors.length)];
         }
-        setInterval(() => { document.getElementById('timer').innerText = new Date().toLocaleString(); }, 1000);
+        setInterval(()=> document.getElementById('footer-clk').innerText = new Date().toLocaleString(), 1000);
     </script>
 </body>
 </html>
