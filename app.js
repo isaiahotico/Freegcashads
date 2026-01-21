@@ -1,9 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
-  getDatabase, ref, push, onValue, update, get
+  getDatabase, ref, push, onValue, update, runTransaction
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/* Firebase Config */
+/* Firebase */
 const firebaseConfig = {
   apiKey: "AIzaSyBwpa8mA83JAv2A2Dj0rh5VHwodyv5N3dg",
   authDomain: "freegcash-ads.firebaseapp.com",
@@ -25,11 +25,9 @@ if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
 }
 tgUser.innerText = "Telegram: @" + user;
 
-/* Balance */
+/* Balance (LIVE) */
 const balanceRef = ref(db, "balances/" + user);
-get(balanceRef).then(s => {
-  if (!s.exists()) update(ref(db, "balances"), { [user]: 500000 });
-});
+runTransaction(balanceRef, b => b ?? 500000);
 onValue(balanceRef, s => {
   balance.innerText = "₱" + (s.val() || 0);
 });
@@ -52,16 +50,23 @@ let page = 0, size = 5;
 window.nextPage = () => page++;
 window.prevPage = () => page = Math.max(0, page - 1);
 
-/* User History */
+/* ✅ USER HISTORY — LIVE SYNC FIX */
 onValue(ref(db, "withdrawals"), snap => {
-  let list = [];
+  const rows = [];
   snap.forEach(c => {
-    if (c.val().user === user) list.push(c.val());
+    const d = c.val();
+    if (d.user === user) rows.push(d);
   });
-  list.sort((a, b) => b.time - a.time);
+
+  rows.sort((a,b)=>b.time-a.time);
   history.innerHTML = "";
-  list.slice(page * size, (page + 1) * size).forEach(d => {
-    history.innerHTML += `<tr><td>₱${d.amount}</td><td>${d.status}</td></tr>`;
+
+  rows.slice(page*size,(page+1)*size).forEach(d => {
+    history.innerHTML += `
+      <tr>
+        <td>₱${d.amount}</td>
+        <td>${d.status}</td>
+      </tr>`;
   });
 });
 
@@ -73,10 +78,10 @@ window.loginAdmin = () => {
   else alert("Wrong password");
 };
 
-/* Admin Dashboard */
+/* Admin Dashboard LIVE */
 onValue(ref(db, "withdrawals"), snap => {
   pending.innerHTML = approved.innerHTML = rejected.innerHTML = "";
-  let p = 0, a = 0, r = 0;
+  let p=0,a=0,r=0;
 
   snap.forEach(c => {
     const d = c.val();
@@ -87,7 +92,9 @@ onValue(ref(db, "withdrawals"), snap => {
           <td>${d.user}</td>
           <td>₱${d.amount}</td>
           <td>
-            <button onclick="approve('${c.key}',${d.amount},'${d.user}')">Approve</button>
+            <button onclick="approve('${c.key}','${d.user}',${d.amount})">
+              Approve
+            </button>
           </td>
         </tr>`;
     }
@@ -104,10 +111,12 @@ onValue(ref(db, "withdrawals"), snap => {
   stats.innerText = `Pending: ${p} | Approved: ${a} | Rejected: ${r}`;
 });
 
-/* Approve + Deduct Balance */
-window.approve = (id, amt, u) => {
+/* ✅ APPROVE + ATOMIC BALANCE DEDUCTION */
+window.approve = (id, u, amt) => {
   update(ref(db, "withdrawals/" + id), { status: "APPROVED" });
-  get(ref(db, "balances/" + u)).then(s => {
-    update(ref(db, "balances/" + u), { ".value": (s.val() || 0) - amt });
+
+  runTransaction(ref(db, "balances/" + u), bal => {
+    if (bal === null) return bal;
+    return bal - amt;
   });
 };
