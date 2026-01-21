@@ -11,46 +11,52 @@
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #f1c40f; --dark: #1a1a1a; --glass: rgba(255, 255, 255, 0.95); }
-        body { margin: 0; font-family: 'Roboto', sans-serif; background: #eee; overflow-x: hidden; }
+        :root { --gold: #f1c40f; --dark: #111; --accent: #00ffcc; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: #fff; overflow-x: hidden; }
         
-        header { background: var(--dark); color: var(--gold); padding: 15px; text-align: center; border-bottom: 3px solid var(--gold); position: sticky; top: 0; z-index: 1000; }
-        .stat-bar { background: #333; color: #0f9; display: flex; justify-content: space-between; padding: 8px 15px; font-size: 13px; font-weight: bold; }
+        /* Reward Visual FX Overlay */
+        #fx-canvas { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:99999; overflow:hidden; }
+        .fx-item { position: absolute; font-size: 30px; user-select: none; }
+        
+        /* 5 Animation Styles */
+        @keyframes fx-float-up { 0% { transform: translateY(0) scale(1); opacity:1; } 100% { transform: translateY(-300px) scale(2); opacity:0; } }
+        @keyframes fx-burst { 0% { transform: translate(0,0) scale(0); opacity:1; } 100% { transform: translate(var(--tx), var(--ty)) scale(1.5); opacity:0; } }
+        @keyframes fx-rain { 0% { transform: translateY(-50px); opacity:1; } 100% { transform: translateY(90vh); opacity:0; } }
+        @keyframes fx-spin { 0% { transform: rotate(0deg) scale(0); } 100% { transform: rotate(720deg) scale(2); opacity:0; } }
+        @keyframes fx-pulse { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(3); filter: brightness(2); } 100% { transform: scale(4); opacity:0; } }
 
-        .nav-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 10px; }
-        button { border: none; padding: 12px 2px; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; font-size: 10px; transition: 0.2s; text-transform: uppercase; }
-        button:active { transform: scale(0.95); }
+        header { background: var(--dark); color: var(--gold); padding: 15px; text-align: center; border-bottom: 3px solid var(--gold); font-weight: bold; }
+        .stat-bar { background: #222; color: var(--accent); display: flex; justify-content: space-between; padding: 10px 20px; font-size: 14px; border-bottom: 1px solid #333; }
+
+        .nav-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }        button { border: none; padding: 12px 2px; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; font-size: 10px; transition: 0.2s; text-transform: uppercase; box-shadow: 0 4px 0 rgba(0,0,0,0.3); }
+        button:active { transform: translateY(2px); box-shadow: none; }
 
         .container { padding: 10px; max-width: 600px; margin: auto; }
-        .page { display: none; background: var(--glass); border-radius: 15px; padding: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); margin-bottom: 20px; animation: fadeIn 0.3s; }
+        .page { display: none; background: #222; border-radius: 15px; padding: 15px; border: 1px solid #333; margin-bottom: 20px; animation: fadeIn 0.4s; }
         .active-page { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-        /* Unified Table Styling */
-        .table-res { overflow-x: auto; margin-top: 10px; border-radius: 10px; border: 1px solid #ddd; }
-        table { width: 100%; border-collapse: collapse; font-size: 11px; background: white; }
-        th { background: #f4f4f4; padding: 10px; text-align: left; }
-        td { padding: 8px 10px; border-top: 1px solid #eee; }
-        .status-badge { padding: 2px 5px; border-radius: 4px; font-weight: bold; color: white; }
+        /* Tables & Lists */
+        .card-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
+        .card-table th { background: #333; padding: 8px; text-align: left; color: var(--gold); }
+        .card-table td { padding: 8px; border-bottom: 1px solid #333; }
 
-        /* Chat UI */        #msg-list { height: 300px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 10px; display: flex; flex-direction: column; gap: 5px; }
-        .m-box { padding: 8px; border-radius: 8px; max-width: 80%; font-size: 12px; }
-        .m-me { align-self: flex-end; background: #3498db; color: white; }
-        .m-other { align-self: flex-start; background: #e0e0e0; }
+        /* Chat System */
+        #msg-list { height: 350px; overflow-y: auto; background: #000; padding: 10px; border-radius: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .msg { padding: 10px; border-radius: 12px; max-width: 85%; font-size: 13px; line-height: 1.4; }
+        .msg-me { align-self: flex-end; background: #2980b9; color: white; }
+        .msg-other { align-self: flex-start; background: #333; color: #eee; }
 
-        /* Gift Grid */
-        .gift-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-        .gift-card { background: #fff8e1; border: 1px solid #ffe082; padding: 10px; border-radius: 10px; text-align: center; }
-
-        footer { background: var(--dark); color: #777; padding: 20px; text-align: center; font-size: 11px; }
+        footer { padding: 20px; text-align: center; font-size: 11px; color: #555; }
     </style>
 </head>
-<body id="bg">
+<body id="mainBody">
 
-    <header onclick="changeTheme()">
-        <h3>🔰💎📄PAPERHOUSE INC CHAT📄💎🔰</h3>
+    <div id="fx-canvas"></div>
+
+    <header onclick="changeBG()">
+        <h3>🔰💎 PAPERHOUSE INC CHAT 💎🔰</h3>
     </header>
 
     <div class="stat-bar">
@@ -63,129 +69,83 @@
             <button onclick="nav('elem')" style="background:#2980b9">📘 ELEM</button>
             <button onclick="nav('high')" style="background:#27ae60">📗 HIGH</button>
             <button onclick="nav('college')" style="background:#d35400">📙 COLLEGE</button>
-            <button onclick="nav('gift')" style="background:#e91e63">🍍 GIFTS</button>
-            <button onclick="nav('bonus')" style="background:#f1c40f; color:#000">💎 BONUS</button>
-            <button onclick="nav('lead')" style="background:#8e44ad">🍺 LEADER</button>
-            <button onclick="nav('board')" style="background:#000; color:gold">🎖 OWNER</button>
-            <button onclick="nav('refer')" style="background:#fd79a8">🍺 REFER</button>
+            <button onclick="nav('gift')" style="background:#e91e63">🍍 GIFTS</button>            <button onclick="nav('bonus')" style="background:#f1c40f; color:#000">💎 BONUS</button>
+            <button onclick="nav('lead')" style="background:#8e44ad">🍺 TOP LEADER</button>
+            <button onclick="nav('board')" style="background:#000; color:gold; border:1px solid gold">🎖 OWNER</button>
+            <button onclick="nav('refer')" style="background:#7f8c8d">🍺 REFER</button>
             <button onclick="nav('wd')" style="background:#c0392b">🔔 WITHDRAW</button>
         </div>
 
-        <!-- Chat Page -->
+        <!-- Chat Room -->
         <div id="p-chat" class="page">
-            <h4 id="chat-title">Chat</h4>
+            <h4 id="chat-title" style="margin-top:0">Room</h4>
             <div id="msg-list"></div>
-            <div id="chat-cd" style="color:red; font-size:10px; text-align:center; margin:5px 0"></div>
-            <div id="chat-reward-box" style="display:none; padding:10px; background:#e8f5e9; margin-bottom:5px">                <button id="chatClaimBtn" style="background:#4caf50; width:100%">CLAIM 0.015 PESO</button>
+            <div id="chat-reward-claim" style="display:none; text-align:center; padding:10px; background:#1b5e20; border-radius:8px; margin:10px 0">
+                <button onclick="claimChatReward()" style="background:#4caf50; width:100%">CLAIM 0.015 PESO</button>
             </div>
-            <div style="display:flex; gap:5px">
-                <input type="text" id="m-in" placeholder="Write..." style="flex:1; padding:10px; border-radius:5px; border:1px solid #ccc">
-                <button id="sendBtn" style="background:#222">➜</button>
+            <div style="display:flex; gap:5px; margin-top:10px">
+                <input type="text" id="m-in" placeholder="Wait 4 mins between messages..." style="flex:1; padding:12px; border-radius:8px; border:none; background:#333; color:white">
+                <button id="sendBtn" style="background:var(--gold); color:black; width:50px">➜</button>
             </div>
         </div>
 
         <!-- Withdrawal Page -->
         <div id="p-wd" class="page">
             <h4>🔔 GCash Withdrawal</h4>
-            <div style="background:#fff3cd; padding:10px; border-radius:10px; margin-bottom:10px">
-                <input type="number" id="wd-amt" placeholder="Amount (Min 0.02)" style="width:100%; padding:10px; margin-bottom:5px">
-                <input type="text" id="wd-gcash" placeholder="GCash Number" style="width:100%; padding:10px; margin-bottom:5px">
-                <button onclick="requestWd()" style="background:#27ae60; width:100%">SUBMIT REQUEST</button>
+            <div style="background:#333; padding:15px; border-radius:12px; margin-bottom:15px">
+                <input type="number" id="wd-amt" placeholder="Amount (Min 0.02)" style="width:100%; padding:10px; margin-bottom:10px; background:#444; border:none; color:white">
+                <input type="text" id="wd-gcash" placeholder="GCash Mobile Number" style="width:100%; padding:10px; margin-bottom:10px; background:#444; border:none; color:white">
+                <button onclick="submitWd()" style="background:#27ae60; width:100%; padding:15px">SUBMIT WITHDRAWAL</button>
             </div>
-            <h5>Withdrawal History</h5>
-            <div class="table-res">
-                <table>
-                    <thead><tr><th>Date</th><th>GCash</th><th>Amt</th><th>Status</th></tr></thead>
-                    <tbody id="wd-hist-body"></tbody>
-                </table>
-            </div>
+            <h5>Request History</h5>
+            <table class="card-table">
+                <thead><tr><th>Date</th><th>GCash</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody id="wd-history"></tbody>
+            </table>
         </div>
 
-        <!-- Leaderboard -->
+        <!-- Top Leaderboard -->
         <div id="p-lead" class="page">
-            <h4>🍺 TOP LEADERBOARD 🍺</h4>
-            <p style="font-size:10px; color:#666">Top 500 Withdrawals • Resets Weekly</p>
-            <div class="table-res">
-                <table>
-                    <thead><tr><th>Rank</th><th>Username</th><th>Total Paid</th></tr></thead>
-                    <tbody id="lead-body"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Gifts Page -->
-        <div id="p-gift" class="page">
-            <h4>🍍💎 Gift Section 💎🍍</h4>
-            <div class="gift-grid">
-                <div class="gift-card">
-                    <b>Gift #1</b>
-                    <button onclick="triggerGift(1)" style="background:#444; width:100%; margin:5px 0">AD</button>
-                    <button id="clm-g1" style="background:green; display:none; width:100%" onclick="claimGift(1)">CLAIM</button>
-                    <div id="cd-g1" style="font-size:9px; color:red"></div>
-                </div>
-                <div class="gift-card">
-                    <b>Gift #2</b>
-                    <button onclick="triggerGift(2)" style="background:#444; width:100%; margin:5px 0">AD</button>
-                    <button id="clm-g2" style="background:green; display:none; width:100%" onclick="claimGift(2)">CLAIM</button>
-                    <div id="cd-g2" style="font-size:9px; color:red"></div>
-                </div>
-                <div class="gift-card">
-                    <b>Gift #3</b>
-                    <button onclick="triggerGift(3)" style="background:#444; width:100%; margin:5px 0">AD</button>
-                    <button id="clm-g3" style="background:green; display:none; width:100%" onclick="claimGift(3)">CLAIM</button>
-                    <div id="cd-g3" style="font-size:9px; color:red"></div>
-                </div>
-            </div>
+            <h4>🏆 TOP EARNERS LEADERBOARD</h4>
+            <p style="font-size:10px; color:#aaa">Syncs Real-time • Weekly Reset</p>
+            <table class="card-table">
+                <thead><tr><th>Rank</th><th>User</th><th>Total Earned</th></tr></thead>
+                <tbody id="lead-body"></tbody>
+            </table>
         </div>
 
         <!-- Owner Dashboard -->
         <div id="p-board" class="page">
             <h4>🎖 OWNER DASHBOARD</h4>
-            <div id="owner-auth">
-                <input type="password" id="owner-pw" placeholder="Access Password" style="width:100%; padding:12px; border-radius:8px">
-                <button onclick="loginOwner()" style="background:#000; width:100%; margin-top:10px">UNLOCK</button>
+            <div id="admin-gate">
+                <input type="password" id="admin-pass" placeholder="Propetas12" style="width:100%; padding:12px; border-radius:8px; background:#333; border:none; color:white">
+                <button onclick="accessAdmin()" style="background:#000; width:100%; margin-top:10px">LOGIN</button>
             </div>
-            <div id="owner-content" style="display:none">
-                <div style="background:#222; color:gold; padding:15px; border-radius:10px; text-align:center; margin-bottom:10px">
-                    Total Approved: <span id="admin-total-paid">0.00</span> Peso
+            <div id="admin-panel" style="display:none">
+                <div style="background:var(--gold); color:#000; padding:15px; border-radius:10px; text-align:center; margin-bottom:10px; font-weight:bold">
+                    TOTAL PAID: <span id="admin-total-paid">0.00</span> Peso
                 </div>
-                <div class="table-res">
-                    <table>
-                        <thead><tr><th>User</th><th>GCash</th><th>Amt</th><th>Action</th></tr></thead>
-                        <tbody id="admin-wd-body"></tbody>
-                    </table>
-                </div>
+                <table class="card-table">
+                    <thead><tr><th>User</th><th>GCash</th><th>Amt</th><th>Action</th></tr></thead>
+                    <tbody id="admin-wd-list"></tbody>
+                </table>
             </div>
-        </div>
-        
-        <!-- Referral Page -->
-        <div id="p-refer" class="page">
-            <h4>🍺 8% Referral Sync</h4>
-            <div style="background:#eee; padding:10px; border-radius:10px; text-align:center">
-                Code: <b id="ref-my-code">...</b>
-            </div>
-            <input type="text" id="ref-input" placeholder="Referrer's Code" style="width:100%; padding:10px; margin-top:10px">
-            <button onclick="setReferrer()" style="background:purple; width:100%; margin-top:5px">SYNC CODE</button>
-            <hr>
-            <p>Claimable Bonus: <b id="ref-bonus-val">0.000</b></p>
-            <button onclick="claimRef()" style="background:green; width:100%">CLAIM TO BALANCE</button>
         </div>
     </div>
 
     <footer>
-        <p>PAPERHOUSE INC &copy; 2024</p>
-        <p id="clk"></p>
+        <p>PAPERHOUSE INC WORLD CONCEPTS</p>
+        <p id="timer"></p>
         <p>otico.isai2@gmail.com</p>
     </footer>
 
     <script type="module" src="app.js"></script>
     <script>
-        const themes = ['#ff7675','#55efc4','#74b9ff','#fab1a0','#a29bfe','#ffffff'];
-        function changeTheme() {
-            const r = Math.floor(Math.random() * themes.length);
-            document.getElementById('bg').style.backgroundColor = themes[r];
+        function changeBG() {
+            const colors = ['#1a1a1a', '#2c3e50', '#000000', '#16a085', '#273c75'];
+            document.getElementById('mainBody').style.background = colors[Math.floor(Math.random()*colors.length)];
         }
-        setInterval(() => { document.getElementById('clk').innerText = new Date().toLocaleString(); }, 1000);
+        setInterval(() => { document.getElementById('timer').innerText = new Date().toLocaleString(); }, 1000);
     </script>
 </body>
 </html>
