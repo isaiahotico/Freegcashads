@@ -32,22 +32,24 @@ input{width:100%;padding:8px;margin:6px 0;border-radius:8px;border:none}
   <h3>Withdraw (GCash)</h3>
   <input id="gcash" placeholder="GCash Number">
   <input id="amount" type="number" placeholder="Amount">
-  <button class="ok" onclick="requestWithdraw()">Request</button>
+  <button class="ok" onclick="requestWithdraw()">Request Withdrawal</button>
 </div>
 
 <div class="card">
-  <h3>Withdrawal History</h3>
+  <h3>Your Withdrawal History</h3>
   <table>
     <thead>
-      <tr><th>Amount</th><th>Status</th></tr>
+      <tr>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Date</th>
+      </tr>
     </thead>
     <tbody id="history"></tbody>
   </table>
-  <button onclick="prevPage()">Prev</button>
-  <button onclick="nextPage()">Next</button>
 </div>
 
-<!-- ADMIN -->
+<!-- OWNER DASHBOARD -->
 <div id="admin" style="display:none;position:fixed;inset:0;background:#000c;padding:16px;overflow:auto">
   <div class="card">
     <input id="adminPass" type="password" placeholder="Owner Password">
@@ -55,17 +57,21 @@ input{width:100%;padding:8px;margin:6px 0;border-radius:8px;border:none}
   </div>
 
   <div class="card" id="adminPanel" style="display:none">
-    <h3>Analytics</h3>
-    <div id="stats"></div>
+    <h3>Owner Dashboard</h3>
 
-    <h3>Pending</h3>
-    <table><tbody id="pending"></tbody></table>
-
-    <h3>Approved</h3>
-    <table><tbody id="approved"></tbody></table>
-
-    <h3>Rejected</h3>
-    <table><tbody id="rejected"></tbody></table>
+    <table>
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>GCash</th>
+          <th>Amount</th>
+          <th>Status</th>
+          <th>Date / Time</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="adminList"></tbody>
+    </table>
 
     <button class="no" onclick="closeAdmin()">Close</button>
   </div>
