@@ -17,16 +17,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* Telegram User */
-let user = "guest";
+/* Telegram Username (REAL + IMMEDIATE) */
+let username = "guest";
 if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
-  user = Telegram.WebApp.initDataUnsafe.user.username ||
-         Telegram.WebApp.initDataUnsafe.user.first_name;
+  const u = Telegram.WebApp.initDataUnsafe.user;
+  username = u.username || `${u.first_name}_${u.id}`;
 }
-tgUser.innerText = "Telegram: @" + user;
+tgUser.innerText = "Telegram: @" + username;
 
-/* Balance (LIVE) */
-const balanceRef = ref(db, "balances/" + user);
+/* Balance */
+const balanceRef = ref(db, "balances/" + username);
 runTransaction(balanceRef, b => b ?? 500000);
 onValue(balanceRef, s => {
   balance.innerText = "₱" + (s.val() || 0);
@@ -36,37 +36,29 @@ onValue(balanceRef, s => {
 window.requestWithdraw = () => {
   const amt = Number(amount.value);
   if (!amt || !gcash.value) return alert("Complete fields");
+
   push(ref(db, "withdrawals"), {
-    user,
-    amount: amt,
+    user: username,
     gcash: gcash.value,
+    amount: amt,
     status: "PENDING",
     time: Date.now()
   });
 };
 
-/* Pagination */
-let page = 0, size = 5;
-window.nextPage = () => page++;
-window.prevPage = () => page = Math.max(0, page - 1);
-
-/* ✅ USER HISTORY — LIVE SYNC FIX */
+/* USER HISTORY — LIVE STATUS */
 onValue(ref(db, "withdrawals"), snap => {
-  const rows = [];
+  history.innerHTML = "";
   snap.forEach(c => {
     const d = c.val();
-    if (d.user === user) rows.push(d);
-  });
-
-  rows.sort((a,b)=>b.time-a.time);
-  history.innerHTML = "";
-
-  rows.slice(page*size,(page+1)*size).forEach(d => {
-    history.innerHTML += `
-      <tr>
-        <td>₱${d.amount}</td>
-        <td>${d.status}</td>
-      </tr>`;
+    if (d.user === username) {
+      history.innerHTML += `
+        <tr>
+          <td>₱${d.amount}</td>
+          <td>${d.status}</td>
+          <td>${new Date(d.time).toLocaleString()}</td>
+        </tr>`;
+    }
   });
 });
 
@@ -78,44 +70,32 @@ window.loginAdmin = () => {
   else alert("Wrong password");
 };
 
-/* Admin Dashboard LIVE */
+/* OWNER LIVE DASHBOARD */
 onValue(ref(db, "withdrawals"), snap => {
-  pending.innerHTML = approved.innerHTML = rejected.innerHTML = "";
-  let p=0,a=0,r=0;
-
+  adminList.innerHTML = "";
   snap.forEach(c => {
     const d = c.val();
-    if (d.status === "PENDING") {
-      p++;
-      pending.innerHTML += `
-        <tr>
-          <td>${d.user}</td>
-          <td>₱${d.amount}</td>
-          <td>
-            <button onclick="approve('${c.key}','${d.user}',${d.amount})">
-              Approve
-            </button>
-          </td>
-        </tr>`;
-    }
-    if (d.status === "APPROVED") {
-      a++;
-      approved.innerHTML += `<tr><td>${d.user}</td><td>₱${d.amount}</td></tr>`;
-    }
-    if (d.status === "REJECTED") {
-      r++;
-      rejected.innerHTML += `<tr><td>${d.user}</td><td>₱${d.amount}</td></tr>`;
-    }
+    adminList.innerHTML += `
+      <tr>
+        <td>@${d.user}</td>
+        <td>${d.gcash}</td>
+        <td>₱${d.amount}</td>
+        <td>${d.status}</td>
+        <td>${new Date(d.time).toLocaleString()}</td>
+        <td>
+          ${d.status === "PENDING"
+            ? `<button onclick="approve('${c.key}','${d.user}',${d.amount})">Approve</button>`
+            : "-"}
+        </td>
+      </tr>`;
   });
-
-  stats.innerText = `Pending: ${p} | Approved: ${a} | Rejected: ${r}`;
 });
 
-/* ✅ APPROVE + ATOMIC BALANCE DEDUCTION */
-window.approve = (id, u, amt) => {
+/* APPROVE + BALANCE DEDUCTION (ATOMIC) */
+window.approve = (id, user, amt) => {
   update(ref(db, "withdrawals/" + id), { status: "APPROVED" });
 
-  runTransaction(ref(db, "balances/" + u), bal => {
+  runTransaction(ref(db, "balances/" + user), bal => {
     if (bal === null) return bal;
     return bal - amt;
   });
