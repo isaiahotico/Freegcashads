@@ -1,129 +1,143 @@
-ChatGPT | Midjourney:
+UnlimAI (GPT | Claude | MidJourney):
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎖🤑PAPERHOUSE INC ADS🤑🎖</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- Monetag SDK (Place this within the head or body as per Monetag's recommendation) -->
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; overflow-x: hidden; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .reward-btn { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); transition: transform 0.2s; }
-        .reward-btn:active { transform: scale(0.95); }
-        .tab-content { display: none; padding-bottom: 80px; }
-        .active-tab { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .nav-bar { position: fixed; bottom: 0; width: 100%; height: 70px; display: flex; justify-content: space-around; align-items: center; background: rgba(15, 23, 42, 0.9); border-top: 1px solid rgba(255,255,255,0.1); z-index: 50; }
-        .nav-item { color: #94a3b8; font-size: 1.2rem; cursor: pointer; }
-        .nav-item.active { color: #fbbf24; }
-    </style>
 </head>
 <body>
-
-    <!-- Header -->
-    <header class="p-6 flex justify-between items-center border-b border-white/10">
-        <div>
-            <h1 class="text-xs font-bold text-yellow-500 tracking-widest uppercase">Paperhouse Inc</h1>
-            <p id="user-balance" class="text-2xl font-black">₱ 0.000</p>
+    <header>
+        <h1>🎖🤑PAPERHOUSE INC ADS🤑🎖</h1>
+        <div id="user-info">
+            <p>Welcome, <span id="user-display-name">Guest</span>!</p>
+            <p>Balance: <span id="user-balance">0.00</span> Peso</p>
+            <button id="logout-btn">Logout</button>
         </div>
-        <button onclick="openAdmin()" class="text-white/20"><i class="fas fa-shield-halved"></i></button>
     </header>
 
-    <!-- Main Screens -->
-    <main class="p-4">
-        
-        <!-- Home Screen -->
-        <div id="home" class="tab-content active-tab">
-            <div class="glass rounded-3xl p-8 text-center mb-6 mt-4">
-                <i class="fas fa-coins text-5xl text-yellow-500 mb-4"></i>
-                <h2 class="text-xl font-bold mb-2">Ready to Earn?</h2>
-                <p class="text-gray-400 text-sm mb-6">Watch ads to earn up to ₱0.01 per view.</p>
+    <main>
+        <section id="auth-section">
+            <h2>Login/Register</h2>
+            <input type="email" id="login-email" placeholder="Email">
+            <input type="password" id="login-password" placeholder="Password">
+            <button id="login-btn">Login</button>
+            <button id="register-btn">Register</button>
+            <p id="auto-referral-message" style="color: green; font-weight: bold; margin-top: 10px; display: none;"></p>
+        </section>
 
-                <button onclick="watchAd()" class="reward-btn w-full py-4 rounded-2xl text-slate-900 font-bold text-lg shadow-lg shadow-yellow-500/20">
-                    <i class="fas fa-play-circle mr-2"></i> WATCH AD
-                </button>
-            </div>
+        <section id="app-content" style="display: none;">
+            <h2>Your Rewards</h2>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div class="glass p-4 rounded-2xl">
-                    <p class="text-gray-400 text-xs">Total Ads</p>
-                    <p id="total-ads" class="text-xl font-bold">0</p>
+            <div class="ads-section">
+                <h3>Watch Ads for Rewards</h3>
+
+                <div class="ad-container">
+                    <h4>Ad Type 1: Quick Reward</h4>
+                    <p>Reward: 0.01 Peso</p>
+                    <p>Cooldown: Every 5 minutes</p>
+                    <button id="watch-ad-1" class="watch-ad-btn">Watch Ad</button>
+                    <p class="cooldown-timer" id="cooldown-1">Ready</p>
                 </div>
-                <div class="glass p-4 rounded-2xl">
-                    <p class="text-gray-400 text-xs">Referrals</p>
-                    <p id="ref-count" class="text-xl font-bold">0</p>
+
+                <div class="ad-container">
+                    <h4>Ad Type 2: Featured Ad</h4>
+                    <p>Reward: 0.02 Peso</p>
+                    <p>Cooldown: Every 10 minutes</p>
+                    <button id="watch-ad-2" class="watch-ad-btn">Watch Ad</button>
+                    <p class="cooldown-timer" id="cooldown-2">Ready</p>
+                </div>
+
+                <div class="ad-container">
+
+                    <h4>Ad Type 3: Special Offer</h4>
+                    <p>Reward: 0.03 Peso</p>
+                    <p>Cooldown: Every 15 minutes</p>
+                    <button id="watch-ad-3" class="watch-ad-btn">Watch Ad</button>
+                    <p class="cooldown-timer" id="cooldown-3">Ready</p>
                 </div>
             </div>
-        </div>
 
-        <!-- Chat Screen -->
-        <div id="chat" class="tab-content">
-            <div class="glass rounded-2xl flex flex-col h-[70vh]">
-                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
-                <div class="p-4 flex gap-2 border-t border-white/10">
-                    <input id="chat-input" type="text" placeholder="Type a message..." class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 flex-1 focus:outline-none">
-                    <button onclick="sendMessage()" class="bg-yellow-500 text-black px-4 rounded-xl font-bold"><i class="fas fa-paper-plane"></i></button>
+            <div class="features-section">
+                <h3>Features</h3>
+                <div class="feature-card">
+                    <h4>Chat Room</h4>
+                    <p>Connect with other users.</p>
+                    <button id="go-to-chat">Open Chat</button>
+                </div>
+
+                <div class="feature-card">
+                    <h4>Leaderboard</h4>
+                    <p>See who's earning the most.</p>
+                    <button id="go-to-leaderboard">View Leaderboard</button>
+                </div>
+
+                <div class="feature-card">
+                    <h4>Referral System</h4>
+                    <p>Earn 10% of your friends' earnings!</p>
+                    <div class="referral-info">
+                        <p>Your Referral Code: <span id="referral-code">N/A</span></p>
+                        <input type="text" id="referral-input" placeholder="Enter friend's code">
+                        <button id="apply-referral">Apply Code</button>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <h4>Profile</h4>
+                    <p>View and update your information.</p>
+                    <button id="go-to-profile">View Profile</button>
+                </div>
+
+                <div class="feature-card withdrawal-card">
+                    <h4>Withdrawal</h4>
+                    <p>Minimum withdrawal: 1 Peso</p>
+                    <input type="number" id="withdraw-amount" placeholder="Amount (>= 1)">
+                    <p>GCash Number:</p>
+                    <input type="text" id="gcash-number" placeholder="Your GCash Number">
+                    <button id="withdraw-btn">Withdraw</button>
+                    <p id="withdraw-status"></p>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Leaderboard -->
-        <div id="leaderboard" class="tab-content">
-            <h2 class="text-xl font-bold mb-4">Top Earners</h2>
-            <div id="leaderboard-list" class="space-y-2"></div>
-        </div>
+        <section id="chat-room" style="display: none;">
+            <h2>Chat Room</h2>
+            <div id="chat-messages"></div>
+            <input type="text" id="chat-input" placeholder="Type your message...">
+            <button id="send-chat-btn">Send</button>
+            <button id="back-to-app">Back to App</button>
+        </section>
 
-        <!-- Profile / Withdrawal -->
-        <div id="profile" class="tab-content">
-            <div class="glass p-6 rounded-3xl mb-4">
-                <h2 class="font-bold mb-4">Withdraw to GCash</h2>
-                <input id="gcash-num" type="number" placeholder="GCash Number (09...)" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 mb-3">
-                <button onclick="requestWithdraw()" class="w-full bg-green-500 py-3 rounded-xl font-bold">Withdraw (Min ₱0.02)</button>
+        <section id="leaderboard" style="display: none;">
+            <h2>Leaderboard</h2>
+            <ol id="leaderboard-list"></ol>
+            <button id="back-to-app-leaderboard">Back to App</button>
+        </section>
+
+        <section id="profile" style="display: none;">
+            <h2>User Profile</h2>
+            <p>Name: <span id="profile-name"></span></p>
+            <p>Email: <span id="profile-email"></span></p>
+            <p>Referral Code: <span id="profile-referral-code"></span></p>
+            <button id="edit-profile-btn">Edit Profile</button>
+            <div id="edit-profile-form" style="display: none;">
+                <input type="text" id="edit-name" placeholder="New Name">
+                <button id="save-profile-btn">Save</button>
             </div>
-            
-            <div class="glass p-6 rounded-3xl">
-                <p class="text-sm text-gray-400 mb-1">Your Referral Code (Name):</p>
-                <p id="my-ref-code" class="text-lg font-bold text-yellow-500">Loading...</p>
-                <p class="text-xs text-gray-500 mt-2 italic">*Earn 10% of what your friends earn!</p>
-            </div>
-        </div>
-
-        <!-- Admin Dashboard (Overlay) -->
-        <div id="admin-panel" class="fixed inset-0 bg-slate-900 z-[100] hidden overflow-y-auto p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Admin Panel</h2>
-                <button onclick="closeAdmin()" class="text-2xl">&times;</button>
-            </div>
-            <div id="admin-stats" class="grid grid-cols-2 gap-4 mb-6"></div>
-            <h3 class="font-bold mb-2">Pending Withdrawals</h3>
-            <div id="withdrawal-requests" class="space-y-2"></div>
-        </div>
-
+            <button id="back-to-app-profile">Back to App</button>
+        </section>
     </main>
 
-    <!-- Navigation -->
-    <nav class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('home', this)"><i class="fas fa-home"></i></div>
-        <div class="nav-item" onclick="switchTab('chat', this)"><i class="fas fa-comment-dots"></i></div>
-        <div class="nav-item" onclick="switchTab('leaderboard', this)"><i class="fas fa-trophy"></i></div>
-        <div class="nav-item" onclick="switchTab('profile
+    <footer>
+        <p>&copy; 2026 PAPERHOUSE INC ADS. All rights reserved.</p>
+    </footer>
 
-', this)"><i class="fas fa-user"></i></div>
-    </nav>
-
-    <!-- Firebase SDKs -->
-    <script type="module" src="app.js"></script>
-    <script>
-        function switchTab(tabId, el) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active-tab');
-            el.classList.add('active');
-        }
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
