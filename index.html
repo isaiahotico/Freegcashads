@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>FreeGcashads</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
-    header{background:#020617;padding:14px;display:flex;justify-content:space-between}
-    .card{background:#020617;margin:14px;padding:14px;border-radius:12px}
-    button{padding:8px 14px;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
-    .ok{background:#22c55e}
-    .no{background:#ef4444;color:#fff}
-    table{width:100%;border-collapse:collapse}
-    th,td{border-bottom:1px solid #334155;padding:6px;font-size:13px}
-    input{width:100%;padding:8px;margin:6px 0;border-radius:8px;border:none}
-  </style>
+<meta charset="UTF-8">
+<title>FreeGcashads</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
+header{background:#020617;padding:14px;display:flex;justify-content:space-between}
+.card{background:#020617;margin:14px;padding:14px;border-radius:12px}
+button{padding:8px 14px;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
+.ok{background:#22c55e}
+.no{background:#ef4444;color:#fff}
+table{width:100%;border-collapse:collapse}
+th,td{border-bottom:1px solid #334155;padding:6px;font-size:13px}
+input{width:100%;padding:8px;margin:6px 0;border-radius:8px;border:none}
+</style>
 </head>
 <body>
 
@@ -38,14 +38,16 @@
 <div class="card">
   <h3>Withdrawal History</h3>
   <table>
-    <thead><tr><th>Amount</th><th>Status</th></tr></thead>
+    <thead>
+      <tr><th>Amount</th><th>Status</th></tr>
+    </thead>
     <tbody id="history"></tbody>
   </table>
   <button onclick="prevPage()">Prev</button>
   <button onclick="nextPage()">Next</button>
 </div>
 
-<!-- OWNER DASHBOARD -->
+<!-- ADMIN -->
 <div id="admin" style="display:none;position:fixed;inset:0;background:#000c;padding:16px;overflow:auto">
   <div class="card">
     <input id="adminPass" type="password" placeholder="Owner Password">
