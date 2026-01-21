@@ -1,22 +1,13 @@
-/* ================= TELEGRAM ================= */
-const tg = window.Telegram?.WebApp;
-tg?.ready();
-
-const tgUser = tg?.initDataUnsafe?.user;
-const username = tgUser
-  ? `@${tgUser.username || tgUser.first_name}`
-  : "Guest";
-
-document.getElementById("userBar").innerText = "👤 User: " + username;
-
-/* ================= FIREBASE ================= */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, query, where, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getDatabase, ref, push, onValue, update, get
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+/* Firebase Config */
 const firebaseConfig = {
   apiKey: "AIzaSyBwpa8mA83JAv2A2Dj0rh5VHwodyv5N3dg",
   authDomain: "freegcash-ads.firebaseapp.com",
+  databaseURL: "https://freegcash-ads-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "freegcash-ads",
   storageBucket: "freegcash-ads.firebasestorage.app",
   messagingSenderId: "608086825364",
@@ -24,114 +15,99 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-await signInAnonymously(auth);
+const db = getDatabase(app);
 
-/* ================= TIME ================= */
-setInterval(()=>{
-  document.getElementById("time").innerText=new Date().toLocaleString();
-},1000);
+/* Telegram User */
+let user = "guest";
+if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+  user = Telegram.WebApp.initDataUnsafe.user.username ||
+         Telegram.WebApp.initDataUnsafe.user.first_name;
+}
+tgUser.innerText = "Telegram: @" + user;
 
-/* ================= COLORS ================= */
-const colors=["pink","green","blue","red","violet","yellow","yellowgreen","orange","white","cyan","brown"];
-document.getElementById("bg").onclick=()=>{
-  document.body.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
-};
-document.querySelectorAll("button").forEach(b=>{
-  b.onclick=()=>b.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
+/* Balance */
+const balanceRef = ref(db, "balances/" + user);
+get(balanceRef).then(s => {
+  if (!s.exists()) update(ref(db, "balances"), { [user]: 500000 });
+});
+onValue(balanceRef, s => {
+  balance.innerText = "₱" + (s.val() || 0);
 });
 
-/* ================= BALANCE ================= */
-let balance=0;
-function addBalance(v){
-  balance+=v;
-  document.getElementById("balance").innerText="💰 ₱"+balance.toFixed(3);
-}
-
-/* ================= CHAT ================= */
-let lastSend=0;
-let currentLevel="";
-
-function openChat(level){
-  currentLevel=level;
-  document.getElementById("view").innerHTML=`
-    <h3>${level.toUpperCase()} CHAT</h3>
-    <div id="msgs"></div>
-    <textarea id="msg" rows="3"></textarea>
-    <button onclick="sendMsg()">SEND</button>
-  `;
-  loadMessages();
-}
-
-function loadMessages(){
-  const q=query(
-    collection(db,"messages"),
-    where("level","==",currentLevel),
-    orderBy("createdAt","desc"),
-    limit(50)
-  );
-  onSnapshot(q,s=>{
-    msgs.innerHTML="";
-    s.forEach(d=>{
-      const m=d.data();
-      msgs.innerHTML+=`<p><b>${m.username}</b>: ${m.text}</p>`;
-    });
+/* Withdraw */
+window.requestWithdraw = () => {
+  const amt = Number(amount.value);
+  if (!amt || !gcash.value) return alert("Complete fields");
+  push(ref(db, "withdrawals"), {
+    user,
+    amount: amt,
+    gcash: gcash.value,
+    status: "PENDING",
+    time: Date.now()
   });
-}
+};
 
-async function sendMsg(){
-  if(Date.now()-lastSend<180000) return alert("Cooldown active");
-  const text=msg.value;
-  if(!text) return;
+/* Pagination */
+let page = 0, size = 5;
+window.nextPage = () => page++;
+window.prevPage = () => page = Math.max(0, page - 1);
 
-  lastSend=Date.now();
-
-  if(currentLevel==="elementary"){
-    await show_10276123();
-    await show_10337795();
-    await show_10337853();
-    addBalance(0.015);
-  }else{
-    await show_10276123();
-    await show_10337795();
-    await show_10337853();
-    addBalance(0.015);
-  }
-
-  await addDoc(collection(db,"messages"),{
-    username,
-    text,
-    level:currentLevel,
-    createdAt:serverTimestamp()
+/* User History */
+onValue(ref(db, "withdrawals"), snap => {
+  let list = [];
+  snap.forEach(c => {
+    if (c.val().user === user) list.push(c.val());
   });
+  list.sort((a, b) => b.time - a.time);
+  history.innerHTML = "";
+  list.slice(page * size, (page + 1) * size).forEach(d => {
+    history.innerHTML += `<tr><td>₱${d.amount}</td><td>${d.status}</td></tr>`;
+  });
+});
 
-  msg.value="";
-}
+/* Admin */
+window.openAdmin = () => admin.style.display = "block";
+window.closeAdmin = () => admin.style.display = "none";
+window.loginAdmin = () => {
+  if (adminPass.value === "Propetas12") adminPanel.style.display = "block";
+  else alert("Wrong password");
+};
 
-/* ================= WITHDRAW ================= */
-function openWithdraw(){
-  view.innerHTML=`
-    <h3>GCash Withdraw</h3>
-    <input id="gcash" placeholder="GCash Number">
-    <input id="amount" placeholder="Amount">
-    <button onclick="withdraw()">REQUEST</button>
-  `;
-}
+/* Admin Dashboard */
+onValue(ref(db, "withdrawals"), snap => {
+  pending.innerHTML = approved.innerHTML = rejected.innerHTML = "";
+  let p = 0, a = 0, r = 0;
 
-async function withdraw(){
-  const amt=parseFloat(amount.value);
-  if(balance<amt) return alert("Low balance");
-
-  await addDoc(collection(db,"withdrawals"),{
-    username,
-    gcash:gcash.value,
-    amount:amt,
-    status:"pending",
-    createdAt:serverTimestamp()
+  snap.forEach(c => {
+    const d = c.val();
+    if (d.status === "PENDING") {
+      p++;
+      pending.innerHTML += `
+        <tr>
+          <td>${d.user}</td>
+          <td>₱${d.amount}</td>
+          <td>
+            <button onclick="approve('${c.key}',${d.amount},'${d.user}')">Approve</button>
+          </td>
+        </tr>`;
+    }
+    if (d.status === "APPROVED") {
+      a++;
+      approved.innerHTML += `<tr><td>${d.user}</td><td>₱${d.amount}</td></tr>`;
+    }
+    if (d.status === "REJECTED") {
+      r++;
+      rejected.innerHTML += `<tr><td>${d.user}</td><td>₱${d.amount}</td></tr>`;
+    }
   });
 
-  balance-=amt;
-  addBalance(0);
-  alert("Withdrawal requested");
-}
+  stats.innerText = `Pending: ${p} | Approved: ${a} | Rejected: ${r}`;
+});
+
+/* Approve + Deduct Balance */
+window.approve = (id, amt, u) => {
+  update(ref(db, "withdrawals/" + id), { status: "APPROVED" });
+  get(ref(db, "balances/" + u)).then(s => {
+    update(ref(db, "balances/" + u), { ".value": (s.val() || 0) - amt });
+  });
+};
