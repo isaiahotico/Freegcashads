@@ -1,4 +1,3 @@
-ChatGPT | Midjourney:
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -91,64 +90,7 @@ ChatGPT | Midjourney:
                             <i class="fas fa-play-circle text-3xl text-white"></i>
                         </div>
                         <span class="font-bold text-lg text-yellow-400">WATCH 3 ADS</span>
-                        <span class="text-sm text-slate-400 mt-1">Earn ₱0.015 per click!</span>
-
-tton>
-                </div>
-                <div id="topics-list" class="space-y-3">
-                    <p class="text-center text-slate-500 py-10">No topics yet. Be the first!</p>
-                </div>
-            </section>
-
-            <!-- Single Topic View Section -->
-            <section id="sec-topic-view" class="hidden space-y-4">
-                <button onclick="app.navTo('topics-list')" class="text-yellow-500 text-sm mb-4"><i class="fas fa-arrow-left mr-2"></i>Back to Topics</button>
-                <h3 id="topic-view-title" class="font-bold text-xl mb-2"></h3>
-                <p id="topic-view-creator" class="text-xs text-slate-400"></p>
-                <div class="glass p-5 rounded-2xl text-sm" id="topic-view-content"></div>
-                
-                <h4 class="font-bold text-md mt-6">Comments</h4>
-                <div id="topic-comments" class="space-y-3 p-2 h-64 overflow-y-auto border-t border-slate-700 pt-4"></div>
-                
-                <div class="flex gap-2 mt-4">
-                    <input type="text" id="comment-input" placeholder="Add a comment..." class="flex-1 bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm">
-                    <button id="add-comment-btn" onclick="" class="bg-green-500 p-3 rounded-xl text-black"><i class="fas fa-comment"></i></button>
-                </div>
-            </section>
-
-            <!-- Chat Room Section -->
-            <section id="sec-chat" class="hidden flex flex-col h-[65vh]">
-                <div id="chat-box" class="flex-1 overflow-y-auto space-y-4 mb-4 pr-2"></div>
-                <div class="flex gap-2 p-2 glass rounded-2xl">
-                    <input type="text" id="chat-input" placeholder="Say something..." class="flex-1 bg-transparent p-2 focus:outline-none text-sm">
-                    <button onclick="app.sendMessage()" class="bg-yellow-500 text-black w-10 h-10 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </section>
-            
-            <!-- Help Section -->
-            <section id="sec-help" class="hidden space-y-4">
-                <h3 class="font-bold text-lg">Need Help? Follow Us!</h3>
-                <div class="glass p-5 rounded-2xl space-y-3">
-                    <a href="https://t.me/paperhouseinc" target="_blank" class="flex items-center gap-3 text-white hover:text-yellow-500 transition">
-                        <i class="fab fa-telegram-plane text-xl text-blue-400"></i>
-                        <span class="font-medium">Telegram Group</span>
-                        <i class="fas fa-external-link-alt ml-auto text-xs text-slate-500"></i>
-                    </a>
-                    <a href="https://t.me/PAPERHOUSE_INC" target="_blank" class="flex items-center gap-3 text-white hover:text-yellow-500 transition">
-                        <i class="fab fa-telegram-plane text-xl text-blue-400"></i>
-                        <span class="font-medium">Telegram Channel</span>
-                        <i class="fas fa-external-link-alt ml-auto text-xs text-slate-500"></i>
-                    </a>
-                    <a href="https://facebook.com/groups/1193693469083843/" target="_blank" class="flex items-center gap-3 text-white hover:text-yellow-500 transition">
-                        <i class="fab fa-facebook-f text-xl text-blue-600"></i>
-                        <span class="font-medium">Facebook Group</span>
-                        <i class="fas fa-external-link-alt ml-auto text-xs text-slate-500"></i>
-                    </a>
-                    <a href="https://www.facebook.com/profile.php?id=6158
-
-</div>
+                        <span class="text-sm text-slate-400 mt-1">Earn ₱0.015 per click!</span></div>
                 </div>
             </section>
 
@@ -214,8 +156,60 @@ tton>
             <section id="sec-topics-list" class="hidden space-y-4">
                 <div class="flex justify-between items-center">
                     <h3 class="font-bold text-lg">Community Board</h3>
-                    <button onclick="app.showCreateTopicModal()" class="bg-yellow-500 text-black px-4 py-2 rounded-lg font-bold text-sm">New Topic</bu
+                    <button onclick="app.showCreateTopicModal()" class="bg-yellow-500 text-black px-4 py-2 rounded-lg font-bold text-sm">New Topic</button>
+                </div>
+                <div id="topics-list" class="space-y-3">
+                    <p class="text-center text-slate-500 py-10">No topics yet. Be the first!</p>
+                </div>
+            </section>
 
+            <!-- Single Topic View Section -->
+            <section id="sec-topic-view" class="hidden space-y-4">
+                <button onclick="app.navTo('topics-list')" class="text-yellow-500 text-sm mb-4"><i class="fas fa-arrow-left mr-2"></i>Back to Topics</button>
+                <h3 id="topic-view-title" class="font-bold text-xl mb-2"></h3>
+                <p id="topic-view-creator" class="text-xs text-slate-400"></p>
+                <div class="glass p-5 rounded-2xl text-sm" id="topic-view-content"></div>
+                
+                <h4 class="font-bold text-md mt-6">Comments</h4>
+                <div id="topic-comments" class="space-y-3 p-2 h-64 overflow-y-auto border-t border-slate-700 pt-4"></div>
+                
+                <div class="flex gap-2 mt-4">
+                    <input type="text" id="comment-input" placeholder="Add a comment..." class="flex-1 bg-slate-800 p-3 rounded-xl border border-slate-700 text-sm">
+                    <button id="add-comment-btn" onclick="" class="bg-green-500 p-3 rounded-xl text-black"><i class="fas fa-comment"></i></button>
+                </div>
+            </section>
+
+            <!-- Chat Room Section -->
+            <section id="sec-chat" class="hidden flex flex-col h-[65vh]">
+                <div id="chat-box" class="flex-1 overflow-y-auto space-y-4 mb-4 pr-2"></div>
+                <div class="flex gap-2 p-2 glass rounded-2xl">
+                    <input type="text" id="chat-input" placeholder="Say something..." class="flex-1 bg-transparent p-2 focus:outline-none text-sm">
+                    <button onclick="app.sendMessage()" class="bg-yellow-500 text-black w-10 h-10 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </section>
+            
+            <!-- Help Section -->
+            <section id="sec-help" class="hidden space-y-4">
+                <h3 class="font-bold text-lg">Need Help? Follow Us!</h3>
+                <div class="glass p-5 rounded-2xl space-y-3">
+                    <a href="https://t.me/paperhouseinc" target="_blank" class="flex items-center gap-3 text-white hover:text-yellow-500 transition">
+                        <i class="fab fa-telegram-plane text-xl text-blue-400"></i>
+                        <span class="font-medium">Telegram Group</span>
+                        <i class="fas fa-external-link-alt ml-auto text-xs text-slate-500"></i>
+                    </a>
+                    <a href="https://t.me/PAPERHOUSE_INC" target="_blank" class="flex items-center gap-3 text-white hover:text-yellow-500 transition">
+                        <i class="fab fa-telegram-plane text-xl text-blue-400"></i>
+                        <span class="font-medium">Telegram Channel</span>
+                        <i class="fas fa-external-link-alt ml-auto text-xs text-slate-500"></i>
+                    </a>
+                    <a href="https://facebook.com/groups/1193693469083843/" target="_blank" class="flex items-center gap-3 text-white hover:text-yellow-500 transition">
+                        <i class="fab fa-facebook-f text-xl text-blue-600"></i>
+                        <span class="font-medium">Facebook Group</span>
+                        <i class="fas fa-external-link-alt ml-auto text-xs text-slate-500"></i>
+                    </a>
+                    <a href="https://www.facebook.com/profile.php?id=6158ChatGPT | Midjourney:
 6281245735" target="_blank" class="flex items-center gap-3 text-white hover:text-yellow-500 transition">
                         <i class="fab fa-facebook-f text-xl text-blue-600"></i>
                         <span class="font-medium">Facebook Page</span>
