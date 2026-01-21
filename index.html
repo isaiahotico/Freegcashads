@@ -4,58 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🔰💎📄PAPERHOUSE INC CHAT📄💎🔰</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <!-- Monetag SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
     <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --p: #6c5ce7; --s: #00cec9; --g: gold; }
-        body { margin: 0; font-family: 'Poppins', sans-serif; background: #f0f2f5; transition: 0.4s; overflow-x: hidden; }
-        .bricks { background-image: linear-gradient(335deg, #b00 23px, transparent 23px), linear-gradient(155deg, #d00 23px, transparent 23px); background-size: 58px 58px; background-color: #eee; }
+        :root { --glass: rgba(255, 255, 255, 0.9); --gold: #f1c40f; --deep: #2c3e50; }
+        body { margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; background: #e0e0e0; transition: 0.5s; }
+        .bricks { background-image: radial-gradient(#999 1px, transparent 1px); background-size: 20px 20px; background-color: #f0f0f0; }
         
-        header { background: #111; color: var(--g); padding: 15px; text-align: center; border-bottom: 3px solid var(--g); position: sticky; top: 0; z-index: 1000; }
-        .stat-bar { background: #222; color: #00ffcc; display: flex; justify-content: space-between; padding: 10px 20px; font-size: 13px; font-weight: bold; border-bottom: 1px solid #444; }
+        header { background: #111; color: var(--gold); padding: 15px; text-align: center; border-bottom: 4px solid var(--gold); position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .top-bar { background: #222; color: #00ffcc; display: flex; justify-content: space-between; padding: 10px 20px; font-weight: bold; font-size: 14px; border-bottom: 1px solid #444; }
 
-        .nav-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 10px; }
-        button { border: none; padding: 12px 2px; border-radius: 10px; font-weight: 600; cursor: pointer; color: white; font-size: 10px; transition: 0.2s; box-shadow: 0 4px 8px rgba(0,0,0,0.2); text-transform: uppercase; }
-        button:active { transform: scale(0.95); }
+        .nav-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; background: rgba(0,0,0,0.05); }
+        button { border: none; padding: 12px 2px; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; font-size: 10px; transition: 0.3s; text-transform: uppercase; box-shadow: 0 4px 0 rgba(0,0,0,0.2); }
+        button:active { transform: translateY(3px); box-shadow: none; }
 
-        .container { padding: 15px; max-width: 500px; margin: auto; }
-        .page { display: none; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); animation: fadeIn 0.3s ease; margin-bottom: 20px; }
+        .container { padding: 15px; max-width: 550px; margin: auto; }
+        .page { display: none; background: var(--glass); border-radius: 20px; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); animation: slideUp 0.4s ease; margin-bottom: 25px; border: 1px solid #fff; }
         .active-page { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Gift Slots */
-        .gift-box { background: #fffcf0; border: 2px dashed #f1c40f; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: center; position: relative; }        .claim-btn { background: #27ae60; color: white; display: none; width: 100%; margin-top: 10px; padding: 10px; border-radius: 8px; font-weight: bold; border: none; }
+        /* Bonus Slots */
+        .bonus-card { background: #fff; border: 2px solid #ddd; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: center; }        .claim-area { background: #d4edda; color: #155724; padding: 10px; border-radius: 10px; display: none; margin-top: 10px; border: 1px solid #c3e6cb; }
 
-        /* Chat System */
-        #msg-list { height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px; background: #fafafa; border-radius: 15px; margin-bottom: 10px; }
-        .msg { padding: 8px 15px; border-radius: 15px; max-width: 80%; font-size: 13px; }
-        .msg-me { align-self: flex-end; background: var(--p); color: white; }
-        .msg-other { align-self: flex-start; background: #e1e1e1; color: #333; }
+        /* Tables */
+        .table-container { overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; background: white; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; color: #333; }
+        .status-pending { color: orange; font-weight: bold; }
+        .status-approved { color: green; font-weight: bold; }
+        .status-denied { color: red; font-weight: bold; }
 
-        #reward-box { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
-        .floating-emoji { position: absolute; font-size: 30px; animation: floatUp 1.5s forwards; }
-        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-250px) scale(2); opacity: 0; } }
+        /* Admin Controls */
+        .admin-btn-group { display: flex; gap: 5px; }
+        .btn-approve { background: #27ae60; padding: 5px; font-size: 9px; }
+        .btn-deny { background: #e74c3c; padding: 5px; font-size: 9px; }
 
-        footer { background: #111; color: #666; padding: 20px; text-align: center; font-size: 11px; margin-top: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #eee; }
+        #anim-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10000; }
+        .reward-icon { position: absolute; font-size: 40px; animation: rewardFly 1.5s forwards; }
+        @keyframes rewardFly { 0% { transform: scale(0) rotate(0); opacity: 1; top: 50%; left: 50%; } 100% { transform: scale(2) rotate(360deg); opacity: 0; top: 10%; left: 50%; } }
+
+        footer { background: #111; color: #666; padding: 25px; text-align: center; font-size: 12px; }
+        .yt-link { color: red; font-weight: bold; text-decoration: underline; cursor: pointer; }
     </style>
 </head>
-<body id="bdy">
+<body id="masterBody">
 
-    <header onclick="toggleTheme()">
+    <header onclick="randomTheme()">
         <h3>🔰💎📄PAPERHOUSE INC CHAT📄💎🔰</h3>
     </header>
 
-    <div class="stat-bar">
-        <span id="st-user">👤 @Guest</span>
-        <span id="st-bal">💰 0.000 Peso</span>
+    <div class="top-bar">
+        <span id="top-user">👤 @Loading...</span>
+        <span id="top-bal">💰 0.000 Peso</span>
     </div>
 
     <div class="container">
@@ -63,119 +69,138 @@
             <button onclick="nav('elem')" style="background:#3498db">📘 ELEM</button>
             <button onclick="nav('high')" style="background:#2ecc71">📗 HIGH</button>
             <button onclick="nav('college')" style="background:#e67e22">📙 COLLEGE</button>
-            <button onclick="nav('gift')" style="background:linear-gradient(to right, #ff9f43, #ff6b6b)">🍍💎 Gift 💎🍍</button>
-            <button onclick="nav('bonus')" style="background:#f1c40f; color:#000">💎 BONUS ADS</button>
-            <button onclick="nav('refer')" style="background:#fd79a8">🍺 REFER</button>
-            <button onclick="nav('board')" style="background:#000; color:gold; border:1px solid gold">🎖 OWNER</button>            <button onclick="nav('lead')" style="background:#9b59b6">🏆 TOP</button>
-            <button onclick="nav('wd')" style="background:#d63031">🔔 WITHDRAW</button>
+            <button onclick="nav('bonus')" style="background:linear-gradient(45deg, #f1c40f, #d35400)">💎 BONUS ADS</button>
+            <button onclick="nav('gift')" style="background:#e91e63">🍍 GIFT</button>            <button onclick="nav('refer')" style="background:#9b59b6">🍺 REFER</button>
+            <button onclick="nav('board')" style="background:#000; color:gold; border:1px solid gold">🎖 OWNER</button>
+            <button onclick="nav('lead')" style="background:#2c3e50">🏆 TOP</button>
+            <button onclick="nav('wd')" style="background:#c0392b">🔔 WITHDRAW</button>
         </div>
 
-        <!-- Gift Page -->
-        <div id="p-gift" class="page">
-            <h4 style="text-align:center; color:#e67e22">🍍💎 PAPER HOUSE GIFT 💎🍍</h4>
-            <p style="font-size:11px; text-align:center">Earn 0.01 Peso every 3 hours by watching a gift ad!</p>
+        <!-- Bonus Ads Page -->
+        <div id="p-bonus" class="page">
+            <h4 style="text-align:center">💎 PREMIUM BONUS ADS 💎</h4>
+            <div id="bonus-container">
+                <!-- Bonus Slot #1 -->
+                <div class="bonus-card">
+                    <b>BONUS #1</b><br><small>3 Ads Sequence • 0.015 Peso</small><br>
+                    <button onclick="playBonus(1)" style="background:#333; width:90%; margin-top:10px">WATCH ADS</button>
+                    <div id="bonus-claim-1" class="claim-area">
+                        <button onclick="claimBonus(1)" style="background:#27ae60; width:100%">CLAIM 0.015 PESO</button>
+                    </div>
+                    <div id="bonus-cd-1" style="font-size:10px; color:red; margin-top:5px"></div>
+                </div>
+                <!-- Bonus Slot #2 -->
+                <div class="bonus-card">
+                    <b>BONUS #2</b><br><small>3 Ads Sequence • 0.015 Peso</small><br>
+                    <button onclick="playBonus(2)" style="background:#333; width:90%; margin-top:10px">WATCH ADS</button>
+                    <div id="bonus-claim-2" class="claim-area">
+                        <button onclick="claimBonus(2)" style="background:#27ae60; width:100%">CLAIM 0.015 PESO</button>
+                    </div>
+                    <div id="bonus-cd-2" style="font-size:10px; color:red; margin-top:5px"></div>
+                </div>
+                <!-- Bonus Slot #3 -->
+                <div class="bonus-card">
+                    <b>BONUS #3</b><br><small>3 Ads Sequence • 0.015 Peso</small><br>
+                    <button onclick="playBonus(3)" style="background:#333; width:90%; margin-top:10px">WATCH ADS</button>
+                    <div id="bonus-claim-3" class="claim-area">
+                        <button onclick="claimBonus(3)" style="background:#27ae60; width:100%">CLAIM 0.015 PESO</button>
+                    </div>
+                    <div id="bonus-cd-3" style="font-size:10px; color:red; margin-top:5px"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Withdrawal Page -->
+        <div id="p-wd" class="page">
+            <h4>🔔 Withdrawal System</h4>
+            <p style="font-size:12px">Min: <b>0.02 Peso</b> | Deduct from total balance.</p>
             
-            <div class="gift-box" id="gb1">
-                <b>🍍💎 Gift #1 💎🍍</b><br>
-                <button onclick="watchGift(1)" style="background:#444; width:80%; margin-top:10px">Open Gift Ad</button>
-                <button id="clm-g1" class="claim-btn" onclick="claimGift(1)">CLAIM 0.01 PESO</button>
-                <div id="cd-g1" style="font-size:10px; color:red; margin-top:5px"></div>
+            <div id="wd-verify-box" style="text-align:center; padding:15px; background:#fff3cd; border-radius:12px; border:1px dashed #856404">
+                <p>1st Time? Verify Account Below:</p>
+                <div class="yt-link" onclick="startWdTimer()">SUBSCRIBE TO TKGAHLOVERS</div>
+                <div id="wd-timer-display" style="margin-top:5px; font-weight:bold"></div>
             </div>
 
-            <div class="gift-box" id="gb2">
-                <b>🍍💎 Gift #2 💎🍍</b><br>
-                <button onclick="watchGift(2)" style="background:#444; width:80%; margin-top:10px">Open Gift Ad</button>
-                <button id="clm-g2" class="claim-btn" onclick="claimGift(2)">CLAIM 0.01 PESO</button>
-                <div id="cd-g2" style="font-size:10px; color:red; margin-top:5px"></div>
+            <div id="wd-main-form" style="display:none">
+                <input type="number" id="wd-amount" placeholder="Amount (Min 0.02)" style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #ccc">
+                <input type="text" id="wd-gcash" placeholder="GCash Number" style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #ccc">
+                <button onclick="submitWithdraw()" style="background:#27ae60; width:100%; font-size:14px">SUBMIT WITHDRAWAL</button>
             </div>
 
-            <div class="gift-box" id="gb3">
-                <b>🍍💎 Gift #3 💎🍍</b><br>
-                <button onclick="watchGift(3)" style="background:#444; width:80%; margin-top:10px">Open Gift Ad</button>
-                <button id="clm-g3" class="claim-btn" onclick="claimGift(3)">CLAIM 0.01 PESO</button>
-                <div id="cd-g3" style="font-size:10px; color:red; margin-top:5px"></div>
+            <h5 style="margin-top:20px">Withdrawal History (Last 25)</h5>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Date</th><th>GCash</th><th>Amt</th><th>Status</th></tr></thead>
+                    <tbody id="wd-history-body"></tbody>
+                </table>
             </div>
         </div>
 
-        <!-- Previous Pages (Chat, Bonus, Withdraw, etc - Simplified for space but logic preserved in app.js) -->
-        <div id="p-chat" class="page">
+        <!-- Owner Dashboard -->
+        <div id="p-board" class="page">
+            <h4>🎖 Owner Dashboard</h4>
+            <div id="owner-login">
+                <input type="password" id="owner-pass" placeholder="Enter Propetas12" style="width:100%; padding:10px; border-radius:8px">
+                <button onclick="tryLoginOwner()" style="background:#000; width:100%; margin-top:10px">ACCESS DASHBOARD</button>
+            </div>
+            <div id="owner-panel" style="display:none">
+                <div style="background:#333; color:gold; padding:10px; border-radius:10px; text-align:center; margin-bottom:10px">
+                    Total Approved: <span id="total-paid-display">0.00</span> Peso
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>User</th><th>GCash</th><th>Amt</th><th>Actions</th></tr></thead>
+                        <tbody id="owner-requests-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other pages (Chat, Referral, Lead - Logic in app.js) --><div id="p-chat" class="page">
             <h4 id="chat-title">Chat</h4>
-            <div id="msg-list"></div>
-            <div id="chat-claim-area" style="display:none; padding:10px; background:#fff3cd; border-radius:10px; margin-bottom:10px">
+            <div id="msg-list" style="height:300px; overflow-y:auto; background:#eee; padding:10px; border-radius:10px; margin-bottom:10px; font-size:13px"></div>
+            <div id="chat-claim-box" style="display:none; text-align:center; margin-bottom:10px">
                 <button id="chatClaimBtn" style="background:gold; color:black; width:100%">CLAIM 0.015 PESO</button>
             </div>
             <div style="display:flex; gap:5px">
-                <input type="text" id="m-in" placeholder="Message..." style="flex:1; padding:10px; border-radius:10px; border:1px solid #ddd">
-                <button id="sendBtn" style="background:#333">➜</button>
+                <input type="text" id="m-input" placeholder="Message..." style="flex:1; padding:10px; border-radius:10px; border:1px solid #ccc">
+                <button id="sendBtn" style="background:#222">➜</button>
             </div>
         </div>
-
-        <div id="p-bonus" class="page">
-            <h4>💎 BONUS ADS (20m Cooldown)</h4>
-            <div id="bonus-slots"></div>
-        </div>
-
+        
         <div id="p-refer" class="page">
             <h4>🍺 Referrals (8% Bonus)</h4>
-            <p>Your Code: <b id="ref-code">...</b></p>
-            <input type="text" id="ref-in" placeholder="Referrer Username" style="width:100%; padding:10px; margin:10px 0">
-            <button onclick="setRef()" style="background:purple; width:100%">ACTIVATE</button>
-            <p>Claimable: <b id="bonus-amt">0.000</b></p>
-            <button onclick="claimBonus()" style="background:green; width:100%">CLAIM TO BALANCE</button>
-        </div>
-
-        <div id="p-wd" class="page">
-            <h4>🔔 Withdrawal</h4>
-            <div id="wd-verify" style="text-align:center; background:#eee; padding:15px; border-radius:15px">
-                <a href="https://www.youtube.com/@TKGAHLOVERS" target="_blank" onclick="startV()" style="color:red; font-weight:bold">SUBSCRIBE TKGAHLOVERS</a>
-                <div id="v-timer"></div>
-            </div>
-            <div id="wd-form" style="display:none">
-                <input type="number" id="wa" placeholder="Amount (Min 0.02)" style="width:100%; padding:10px; margin:5px 0">
-                <input type="text" id="wg" placeholder="GCash" style="width:100%; padding:10px; margin:5px 0">
-                <button onclick="subWd()" style="background:green; width:100%">SUBMIT</button>
-            </div>
-            <table id="wd-hist" style="margin-top:15px"></table>
-        </div>
-
-        <div id="p-board" class="page">
-            <h4>🎖 Owner</h4>
-            <div id="admin-lock">
-                <input type="password" id="apw" placeholder="Password" style="width:100%; padding:10px">
-                <button onclick="loginAdmin()" style="background:black; width:100%; margin-top:5px">LOGIN</button>
-            </div>
-            <div id="admin-view" style="display:none">
-                <p>Total Paid: <b id="total-p">0.00</b></p>
-                <table id="admin-table"></table>
-            </div>
+            <p>Your Code: <b id="my-ref-code">...</b></p>
+            <input type="text" id="ref-apply" placeholder="Enter Referral Code" style="width:100%; padding:10px; margin-bottom:10px">
+            <button onclick="applyReferral()" style="background:purple; width:100%">ACTIVATE</button>
+            <p>Bonus Balance: <span id="ref-bonus-display">0.000</span></p>
+            <button onclick="claimRefBonus()" style="background:green; width:100%">CLAIM TO BALANCE</button>
         </div>
 
         <div id="p-lead" class="page">
-            <h4>🏆 Top Earners</h4>
-            <table id="lead-body"></table>
+            <h4>🏆 Leaderboard</h4>
+            <table id="lead-table"><thead><tr><th>#</th><th>User</th><th>Balance</th></tr></thead><tbody id="lead-body"></tbody></table>
         </div>
     </div>
 
-    <div id="reward-box"></div>
+    <div id="anim-layer"></div>
 
     <footer>
-        <p>PAPERHOUSE INC</p>
-        <p id="clk"></p>
+        <p>PAPERHOUSE INC &copy; 2024</p>
+        <p id="footer-time"></p>
         <p>otico.isai2@gmail.com</p>
     </footer>
 
     <script type="module" src="app.js"></script>
     <script>
-        const c = ['#ff7675','#55efc4','#74b9ff','#a29bfe','#ffeaa7','#00cec9','#ffffff','#fab1a0','#81ecec'];
-        function toggleTheme() {const b = document.getElementById('bdy');
-            const r = Math.floor(Math.random() * (c.length + 1));
-            if(r === c.length) { b.className = 'bricks'; b.style.backgroundColor = ''; }
-            else { b.className = ''; b.style.backgroundColor = c[r]; }
+        const themes = ['#ff7675','#55efc4','#74b9ff','#fab1a0','#a29bfe','#ffeaa7','#ffffff'];
+        function randomTheme() {
+            const b = document.getElementById('masterBody');
+            const r = Math.floor(Math.random() * (themes.length + 1));
+            if(r === themes.length) { b.className = 'bricks'; b.style.backgroundColor = ''; }
+            else { b.className = ''; b.style.backgroundColor = themes[r]; }
         }
-        document.querySelectorAll('button').forEach(b => {
-            b.addEventListener('click', () => { b.style.backgroundColor = c[Math.floor(Math.random()*c.length)]; });
-        });
-        setInterval(() => { document.getElementById('clk').innerText = new Date().toLocaleString(); }, 1000);
+        setInterval(() => { document.getElementById('footer-time').innerText = new Date().toLocaleString(); }, 1000);
     </script>
 </body>
 </html>
