@@ -1,83 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>FreeGcashads</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
-header{background:#020617;padding:14px;display:flex;justify-content:space-between}
-.card{background:#020617;margin:14px;padding:14px;border-radius:12px}
-button{padding:8px 14px;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
-.ok{background:#22c55e}
-.no{background:#ef4444;color:#fff}
-table{width:100%;border-collapse:collapse}
-th,td{border-bottom:1px solid #334155;padding:6px;font-size:13px}
-input{width:100%;padding:8px;margin:6px 0;border-radius:8px;border:none}
-</style>
-</head>
-<body>
+        <button onclick="showPage('main-menu')" class="mb-4 text-sm text-yellow-500 underline">← Back</button>
+        <h2 class="text-xl mb-2">Referral System</h2>
+        <div class="bg-gray-800 p-4 rounded mb-4 text-center">
+            <p>Your Code: <span id="my-ref-code" class="text-yellow-400 font-mono">...</span></p>
+        </div>
+        <div class="bg-gray-800 p-4 rounded mb-4">
+            <input id="input-ref-code" type="text" placeholder="Enter referral code" class="w-full p-2 rounded bg-gray-700 mb-2">
+            <button onclick="activateReferral()" class="w-full bg-orange-500 p-2 rounded font-bold">Activate Code</button>
+        </div>
+        <div class="bg-gray-800 p-4 rounded">
+            <p>Claimable Bonus: <span id="claimable-bonus" class="text-green-400">0.00</span> PHP</p>
+            <button onclick="claimBonus()" class="w-full mt-2 bg-green-600 p-2 rounded font-bold">Claim 8% Bonus</button>
+        </div>
+    </div>
 
-<header>
-  <div id="tgUser">Telegram: loading...</div>
-  <button onclick="openAdmin()">Owner</button>
-</header>
+    <!-- Withdraw Page -->
+    <div id="withdraw-page" class="page p-4">
+        <button onclick="showPage('main-menu')" class="mb-4 text-sm text-yellow-500 underline">← Back</button>
+        <h2 class="text-xl mb-2">Withdraw GCash</h2>
+        <div class="bg-gray-800 p-4 rounded">
+            <input id="wd-amount" type="number" placeholder="Amount" class="w-full p-2 rounded bg-gray-700 mb-2">
+            <input id="wd-number" type="text" placeholder="GCash Number" class="w-full p-2 rounded bg-gray-700 mb-2">
+            <button onclick="requestWithdrawal()" class="w-full bg-green-500 p-2 rounded font-bold">Submit Request</button>
+        </div>
+        <div class="mt-4">
+            <h3 class="text-sm font-bold mb-2">Withdrawal History</h3>
+            <div id="wd-history" class="text-xs bg-gray-800 p-2 rounded h-32 overflow-y-auto"></div>
+        </div>
+    </div>
 
-<div class="card">
-  <h3>Balance</h3>
-  <h1 id="balance">₱0</h1>
-</div>
+    <!-- Leaderboard Page -->
+    <div id="leaderboard-page" class="page p-4">
+        <button onclick="showPage('main-menu')" class="mb-4 text-sm text-yellow-500 underline">← Back</button>
+        <h2 class="text-xl mb-2 text-center text-purple-400">TOP 500 EARNERS</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs bg-gray-800 rounded">
+                <thead>
+                    <tr class="bg-gray-700">
+                        <th class="p-2">Rank</th>
+                        <th class="p-2">User</th>
+                        <th class="p-2">Earnings</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-table"></tbody>
+            </table>
+        </div>
+    </div>
 
-<div class="card">
-  <h3>Withdraw (GCash)</h3>
-  <input id="gcash" placeholder="GCash Number">
-  <input id="amount" type="number" placeholder="Amount">
-  <button class="ok" onclick="requestWithdraw()">Request Withdrawal</button>
-</div>
+    <!-- Owner Login -->
+    <div id="admin-login" class="page p-4">
+        <button onclick="showPage('main-menu')" class="mb-4 text-sm text-yellow-500 underline">← Back</button>
+        <h2 class="text-xl mb-4">Admin Access</h2>
+        <input id="admin-pw" type="password" placeholder="Enter Password" class="w-full p-2 rounded bg-gray-700 mb-4">
+        <button onclick="checkAdmin()" class="w-full bg-red-600 p-2 rounded font-bold">Enter Dashboard</button>
+    </div>
 
-<div class="card">
-  <h3>Your Withdrawal History</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Amount</th>
-        <th>Status</th>
-        <th>Date</th>
-      </tr>
-    </thead>
-    <tbody id="history"></tbody>
-  </table>
-</div>
+    <!-- Owner Dashboard -->
+    <div id="owner-dashboard" class="page p-4">
+        <button onclick="showPage('main-menu')" class="mb-4 text-sm text-yellow-500 underline">← Back</button>
+        <h2 class="text-xl mb-2">Pending Withdrawals</h2>
+        <div id="admin-wd-list" class="space-y-2"></div>
+    </div>
 
-<!-- OWNER DASHBOARD -->
-<div id="admin" style="display:none;position:fixed;inset:0;background:#000c;padding:16px;overflow:auto">
-  <div class="card">
-    <input id="adminPass" type="password" placeholder="Owner Password">
-    <button onclick="loginAdmin()">Login</button>
-  </div>
-
-  <div class="card" id="adminPanel" style="display:none">
-    <h3>Owner Dashboard</h3>
-    <div id="stats"></div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>User</th>
-          <th>GCash</th>
-          <th>Amount</th>
-          <th>Status</th>
-          <th>Date / Time</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="adminList"></tbody>
-    </table>
-
-    <button class="no" onclick="closeAdmin()">Close</button>
-  </div>
-</div>
-
-<script type="module" src="app.js"></script>
+    <!-- Firebase SDKs -->
+    <script type="module" src="app.js"></script>
 </body>
 </html>
