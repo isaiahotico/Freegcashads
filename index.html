@@ -1,143 +1,104 @@
-UnlimAI (GPT | Claude | MidJourney):
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎖🤑PAPERHOUSE INC ADS🤑🎖</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <!-- Monetag SDK (Place this within the head or body as per Monetag's recommendation) -->
+    <meta name="description" content="Watch ads, earn rewards, and cash out via GCash fast!">
+    <meta name="keywords" content="Monetag, GCash, Rewards, Ads, Earn Money, Telegram, Paperhouse Inc">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50%25' y='50%25' font-size='80' text-anchor='middle' dominant-baseline='central'%3E%F0%9F%8F%85%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Monetag SDK - Placed in head for early loading -->
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
 </head>
 <body>
-    <header>
-        <h1>🎖🤑PAPERHOUSE INC ADS🤑🎖</h1>
-        <div id="user-info">
-            <p>Welcome, <span id="user-display-name">Guest</span>!</p>
-            <p>Balance: <span id="user-balance">0.00</span> Peso</p>
-            <button id="logout-btn">Logout</button>
-        </div>
-    </header>
-
-    <main>
-        <section id="auth-section">
-            <h2>Login/Register</h2>
-            <input type="email" id="login-email" placeholder="Email">
-            <input type="password" id="login-password" placeholder="Password">
-            <button id="login-btn">Login</button>
-            <button id="register-btn">Register</button>
-            <p id="auto-referral-message" style="color: green; font-weight: bold; margin-top: 10px; display: none;"></p>
-        </section>
-
-        <section id="app-content" style="display: none;">
-            <h2>Your Rewards</h2>
-
-            <div class="ads-section">
-                <h3>Watch Ads for Rewards</h3>
-
-                <div class="ad-container">
-                    <h4>Ad Type 1: Quick Reward</h4>
-                    <p>Reward: 0.01 Peso</p>
-                    <p>Cooldown: Every 5 minutes</p>
-                    <button id="watch-ad-1" class="watch-ad-btn">Watch Ad</button>
-                    <p class="cooldown-timer" id="cooldown-1">Ready</p>
-                </div>
-
-                <div class="ad-container">
-                    <h4>Ad Type 2: Featured Ad</h4>
-                    <p>Reward: 0.02 Peso</p>
-                    <p>Cooldown: Every 10 minutes</p>
-                    <button id="watch-ad-2" class="watch-ad-btn">Watch Ad</button>
-                    <p class="cooldown-timer" id="cooldown-2">Ready</p>
-                </div>
-
-                <div class="ad-container">
-
-                    <h4>Ad Type 3: Special Offer</h4>
-                    <p>Reward: 0.03 Peso</p>
-                    <p>Cooldown: Every 15 minutes</p>
-                    <button id="watch-ad-3" class="watch-ad-btn">Watch Ad</button>
-                    <p class="cooldown-timer" id="cooldown-3">Ready</p>
-                </div>
+    <div class="container">
+        <header>
+            <h1>🎖🤑PAPERHOUSE INC ADS🤑🎖</h1>
+            <p class="tagline">Your express lane to rewards!</p>
+            <div id="user-info">
+                <p>Welcome, <span id="user-id-display">Guest</span>!</p>
+                <p>Your Balance: <span id="user-balance">0.00</span> PHP</p>
+                <button id="auth-button" class="btn primary">Sign In / Register</button>
             </div>
+        </header>
 
-            <div class="features-section">
-                <h3>Features</h3>
-                <div class="feature-card">
-                    <h4>Chat Room</h4>
-                    <p>Connect with other users.</p>
-                    <button id="go-to-chat">Open Chat</button>
+        <main>
+            <section class="card ad-section">
+                <h2>Earn Rewards Now!</h2>
+                <div class="ad-buttons">
+                    <button id="watch-rewarded-interstitial" class="btn primary">Watch Reward Ad (0.50 PHP)</button>
+                    <button id="watch-rewarded-popup" class="btn secondary">Watch Bonus Ad (0.75 PHP)</button>
+                    <!-- In-App Interstitial will run automatically based on config -->
                 </div>
+                <p class="info-text">Watch ads to instantly boost your balance. New ads daily!</p>
+            </section>
 
-                <div class="feature-card">
-                    <h4>Leaderboard</h4>
-                    <p>See who's earning the most.</p>
-                    <button id="go-to-leaderboard">View Leaderboard</button>
+            <section class="card gcash-section">
+                <h2>GCash Cash Out</h2>
+                <div class="gcash-form">
+                    <label for="gcash-amount">Amount (PHP):</label>
+                    <input type="number" id="gcash-amount" placeholder="Min. 50 PHP" min="50">
+                    <label for="gcash-number">GCash Number:</label>
+                    <input type="tel" id="gcash-number" placeholder="e.g., 09xxxxxxxxx" pattern="09[0-9]{9}" required>
+                    <button id="request-gcash-cashout" class="btn success">Request Cash Out</button>
+
                 </div>
+                <p class="info-text">Fastest GCash withdrawals directly to your account. Processing may take up to 24 hours.</p>
+                <div id="gcash-status" class="status-message"></div>
+            </section>
 
-                <div class="feature-card">
-                    <h4>Referral System</h4>
-                    <p>Earn 10% of your friends' earnings!</p>
-                    <div class="referral-info">
-                        <p>Your Referral Code: <span id="referral-code">N/A</span></p>
-                        <input type="text" id="referral-input" placeholder="Enter friend's code">
-                        <button id="apply-referral">Apply Code</button>
-                    </div>
-                </div>
+            <section class="card telegram-section">
+                <h2>Join Our Telegram!</h2>
+                <p>Stay updated on new features, bonuses, and support.</p>
+                <a href="https://t.me/PaperhouseIncAdsOfficial" target="_blank" class="btn telegram">Join Our Telegram Channel</a>
+            </section>
 
-                <div class="feature-card">
-                    <h4>Profile</h4>
-                    <p>View and update your information.</p>
-                    <button id="go-to-profile">View Profile</button>
-                </div>
+            <section class="card history-section">
+                <h2>Recent Activity</h2>
+                <ul id="transaction-history">
+                    <!-- Transactions will be loaded here by app.js -->
+                    <li>No recent activity.</li>
+                </ul>
+                <p class="info-text">Your latest ad views and cash out requests.</p>
+            </section>
+        </main>
 
-                <div class="feature-card withdrawal-card">
-                    <h4>Withdrawal</h4>
-                    <p>Minimum withdrawal: 1 Peso</p>
-                    <input type="number" id="withdraw-amount" placeholder="Amount (>= 1)">
-                    <p>GCash Number:</p>
-                    <input type="text" id="gcash-number" placeholder="Your GCash Number">
-                    <button id="withdraw-btn">Withdraw</button>
-                    <p id="withdraw-status"></p>
-                </div>
-            </div>
-        </section>
+        <footer>
+            <p>&copy; 2026 PAPERHOUSE INC. All rights reserved.</p>
+            <p><a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+        </footer>
+    </div>
 
-        <section id="chat-room" style="display: none;">
-            <h2>Chat Room</h2>
-            <div id="chat-messages"></div>
-            <input type="text" id="chat-input" placeholder="Type your message...">
-            <button id="send-chat-btn">Send</button>
-            <button id="back-to-app">Back to App</button>
-        </section>
+    <!-- Firebase SDKs - defer loading for faster initial page render -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, onSnapshot, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDMGU5X7BBp-C6tIl34Uuu5N9MXAVFTN7c", // Corrected the typo if any, using the provided one
+            authDomain: "paper-house-inc.firebaseapp.com",
+            projectId: "paper-house-inc",
+            storageBucket: "paper-house-inc.firebasestorage.app",
+            messagingSenderId: "658389836376",
+            appId: "1:658389836376:web:2ab1e2743c593f4ca8e02d"
+        };
 
-        <section id="leaderboard" style="display: none;">
-            <h2>Leaderboard</h2>
-            <ol id="leaderboard-list"></ol>
-            <button id="back-to-app-leaderboard">Back to App</button>
-        </section>
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        <section id="profile" style="display: none;">
-            <h2>User Profile</h2>
-            <p>Name: <span id="profile-name"></span></p>
-            <p>Email: <span id="profile-email"></span></p>
-            <p>Referral Code: <span id="profile-referral-code"></span></p>
-            <button id="edit-profile-btn">Edit Profile</button>
-            <div id="edit-profile-form" style="display: none;">
-                <input type="text" id="edit-name" placeholder="New Name">
-                <button id="save-profile-btn">Save</button>
-            </div>
-            <button id="back-to-app-profile">Back to App</button>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2026 PAPERHOUSE INC ADS. All rights reserved.</p>
-    </footer>
-
-    <script src="app.js"></script>
+        // Export Firebase instances for app.js
+        window.firebaseApp = app;
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.firebaseSDKs = { getAuth, signInAnonymously, onAuthStateChanged, signOut, getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, onSnapshot, serverTimestamp, addDoc };
+    </script>
+    <script src="app.js" type="module"></script>
 </body>
 </html>
