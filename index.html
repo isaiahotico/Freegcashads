@@ -5,29 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🎖🤑PAPERHOUSE INC ADS🤑🎖</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Monetag SDK. Ensure this is loaded before app.js attempts to use show_10276123 -->
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #f39c12; --bg: #121212; --card: #1e1e1e; --text: #ffffff; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 70px; overflow-x: hidden; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 70px; overflow-x: hidden; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         .header { background: var(--card); padding: 15px; border-bottom: 2px solid var(--primary); text-align: center; }
         .user-info { display: flex; justify-content: space-between; padding: 10px 20px; background: #252525; font-size: 0.9rem; }
         .balance-box { text-align: center; padding: 20px; }
         .balance-box h1 { font-size: 2.5rem; margin: 5px 0; color: var(--primary); }
         
-        .btn { background: var(--primary); color: #000; border: none; padding: 15px; width: 90%; border-radius: 10px; font-weight: bold; margin: 10px auto; display: block; cursor: pointer; }
-        .btn:disabled { background: #555; cursor: not-allowed; }
+        .btn { background: var(--primary); color: #000; border: none; padding: 15px; width: 90%; max-width: 350px; border-radius: 10px; font-weight: bold; margin: 10px auto; display: block; cursor: pointer; }
+        .btn:disabled { background: #555; cursor: not-allowed; color: #ccc; }
         
         .tab-content { display: none; padding: 15px; }
         .active-tab { display: block; }
         
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; }
-        .nav-item { color: #888; text-decoration: none; font-size: 0.8rem; text-align: center; flex: 1; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; background: var(--card); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; box-shadow: 0 -2px 10px rgba(0,0,0,0.5); z-index: 1000; }
+        .nav-item { color: #888; text-decoration: none; font-size: 0.8rem; text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px 0; }
         .nav-item.active { color: var(--primary); }
-        
-        .list-item { background: var(--card); padding: 10px; margin-bottom: 5px; border-radius: 5px; display: flex; justify-content: space-between; }
-        input { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff; }
+        .nav-item i { margin-bottom: 3px; font-size: 1.2rem; }
+
+        .list-item { background: var(--card); padding: 10px; margin-bottom: 5px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+        input { width: calc(90% - 22px); padding: 10px; margin: 10px auto; display: block; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff; font-size: 1rem; }
         #admin-panel { background: #300; border: 1px solid red; padding: 10px; margin-top: 20px; border-radius: 10px; }
+        #admin-withdrawals .list-item { flex-direction: column; align-items: flex-start; }
+        #admin-withdrawals .list-item button { margin-top: 5px; padding: 8px 15px; background: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #admin-withdrawals .list-item button:active { transform: scale(0.98); }
+        #withdraw-history .list-item { font-size: 0.9em; }
+
+        .referral-info-box { background: #252525; padding: 15px; border-radius: 10px; margin-top: 20px; text-align: left; }
+        .referral-info-box p { margin: 5px 0; font-size: 0.9rem; }
+        .referral-info-box input { margin-top: 5px; width: calc(100% - 22px); }
     </style>
 </head>
 <body>
@@ -38,7 +48,6 @@
 
     <div class="user-info">
         <span id="display-username">Loading...</span>
-
         <span>Referrals: <span id="ref-count">0</span></span>
     </div>
 
@@ -59,9 +68,10 @@
         </button>
         <p id="cooldown-pop" style="text-align:center; font-size: 0.8rem; color: #aaa;"></p>
 
-        <div style="background: #252525; padding: 15px; border-radius: 10px; margin-top: 20px;">
-            <small>Referral Link (Earn 10%):</small>
-            <input type="text" id="ref-link" readonly onclick="this.select()">
+        <div class="referral-info-box">
+            <p><strong>Referral Link (Earn 10% of referred user's earnings):</strong></p>
+            <input type="text" id="ref-link" readonly onclick="this.select()" value="Loading...">
+            <p>Total Referral Earnings: ₱<span id="total-ref-earnings">0.0000</span></p>
         </div>
     </div>
 
@@ -74,12 +84,12 @@
     <!-- WITHDRAW TAB -->
     <div id="withdraw" class="tab-content">
         <h3>💸 GCash Withdrawal</h3>
-        <p>Minimum: ₱50.00</p>
+        <p>Minimum: ₱0.02</p>
         <input type="number" id="withdraw-amount" placeholder="Amount in Peso">
         <input type="text" id="gcash-num" placeholder="GCash Number (09*********)">
         <button class="btn" onclick="requestWithdrawal()">Submit Request</button>
-        <hr>
-        <h4>Your Requests</h4>
+        <hr style="border-color:#333;">
+        <h4>Your Withdrawal History</h4>
         <div id="withdraw-history"></div>
     </div>
 
@@ -96,11 +106,13 @@
         </div>
     </div>
 
-    <nav class="nav-bar">
-        <a href="javascript:void(0)" class="nav-item active" onclick="showTab('home')"><i class="fas fa-home"></i><br>Home</a>
-        <a href="javascript:void(0)" class="nav-item" onclick="showTab('leaderboard')"><i class="fas fa-trophy"></i><br>Rank</a>
-        <a href="javascript:void(0)" class="nav-item" onclick="showTab('withdraw')"><i class="fas fa-wallet"></i><br>Wallet</a>
-        <a href="javascript:void(0)" class="nav-item" onclick="showTab('admin')"><i class="fas fa-user-shield"></i><br>Admin</a>
+    <nav c
+
+lass="nav-bar">
+        <a href="javascript:void(0)" class="nav-item active" data-tab="home"><i class="fas fa-home"></i>Home</a>
+        <a href="javascript:void(0)" class="nav-item" data-tab="leaderboard"><i class="fas fa-trophy"></i>Rank</a>
+        <a href="javascript:void(0)" class="nav-item" data-tab="withdraw"><i class="fas fa-wallet"></i>Wallet</a>
+        <a href="javascript:void(0)" class="nav-item" data-tab="admin"><i class="fas fa-user-shield"></i>Admin</a>
     </nav>
 
     <script type="module" src="app.js"></script>
