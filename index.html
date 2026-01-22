@@ -1,93 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PaperHouse Pro</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Monetag SDKs -->
-    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
-    
-    <style>
-        body { -webkit-user-select: none; font-family: 'Inter', sans-serif; }
-        .page { display: none; }
-        .active-page { display: block; }
-        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
-        .nav-item.active { color: #2563eb; border-top: 2px solid #2563eb; }
-    </style>
+  <meta charset="UTF-8" />
+  <title>PaperHouse Ads</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- AdsGram SDK -->
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+
+  <!-- App -->
+  <script type="module" src="app.js"></script>
+
+  <style>
+    body {
+      background: #0f172a;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    .card {
+      background: #020617;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .reward {
+      background: #22c55e;
+      color: #000;
+    }
+    .inter {
+      background: #38bdf8;
+      color: #000;
+    }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-900 pb-24">
 
-    <div class="p-4 space-y-4">
-        <!-- TAB: HOME -->
-        <div id="earn" class="page active-page space-y-4">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 text-center">
-                <p class="text-slate-500 text-sm font-medium" id="user-greeting">Welcome</p>
-                <h1 class="text-4xl font-black text-green-600 mt-1" id="balance">₱ 0.000</h1>
-            </div>
+<body>
 
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="app.playAd(10337853)" class="bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition">🎁 Task 1</button>
-                <button onclick="app.playAd(10337795)" class="bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition">🎁 Task 2</button>
-                <button onclick="app.playAd(10276123)" class="bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition">🎁 Task 3</button>
-                <button onclick="app.playAd(10337853)" class="bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition">🎁 Task 4</button>
-                <button onclick="app.playAd(10337795)" class="bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition">🎁 Task 5</button>
+  <div class="card">
+    <h2>📄💎 PaperHouse Ads</h2>
+    <p>👤 User: <b><span id="tgUsername">Loading...</span></b></p>
+    <p>💰 Balance: <b><span id="balance">0</span></b> coins</p>
+  </div>
 
-                <button onclick="app.playAd(10276123)" class="bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition">🎁 Task 6</button>
-            </div>
-        </div>
+  <div class="card">
+    <button class="reward" onclick="watchReward('task-21469')">
+      🎥 Watch Reward Ad 1 (+1)
+    </button>
 
-        <!-- TAB: CHAT -->
-        <div id="chat" class="page space-y-4">
-            <div id="chat-box" class="h-[60vh] overflow-y-auto bg-white rounded-2xl p-4 border border-slate-100 flex flex-col gap-2"></div>
-            <div class="flex gap-2">
-                <input id="chat-input" type="text" placeholder="Watch 3 ads to send..." class="flex-1 p-4 rounded-xl border border-slate-200 focus:outline-blue-500">
-                <button onclick="app.sendMessage()" class="bg-blue-600 text-white px-6 rounded-xl font-bold">SEND</button>
-            </div>
-        </div>
+    <button class="reward" onclick="watchReward('task-21424')">
+      🎥 Watch Reward Ad 2 (+1)
+    </button>
 
-        <!-- TAB: WALLET -->
-        <div id="wallet" class="page space-y-4">
-            <div class="bg-white p-6 rounded-2xl border border-slate-100 space-y-3">
-                <h3 class="font-bold">Withdraw to GCash</h3>
-                <input id="wd-amt" type="number" placeholder="Amount (min 0.02)" class="w-full p-3 bg-slate-50 rounded-lg border border-slate-200">
-                <input id="wd-gcash" type="text" placeholder="GCash Number" class="w-full p-3 bg-slate-50 rounded-lg border border-slate-200">
-                <button onclick="app.requestWithdraw()" class="w-full bg-green-600 text-white p-3 rounded-lg font-bold">Submit Request</button>
-            </div>
-            <div class="bg-white rounded-2xl overflow-hidden border border-slate-100">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-50"><tr><th class="p-3">Date</th><th class="p-3">Amount</th><th class="p-3">Status</th></tr></thead>
-                    <tbody id="wd-history"></tbody>
-                </table>
-            </div>
-        </div>
+    <button class="inter" onclick="watchInterstitial('int-21471')">
+      📺 Watch Interstitial Ad 1
+    </button>
 
-        <!-- TAB: ADMIN -->
-        <div id="admin" class="page space-y-4">
-            <div id="admin-login" class="bg-white p-6 rounded-2xl border border-slate-100 text-center space-y-4">
-                <h3 class="font-bold">Owner Dashboard</h3>
-                <input id="admin-pass" type="password" placeholder="Dashboard Password" class="w-full p-3 bg-slate-50 rounded-lg border border-slate-200">
-                <button onclick="app.unlockAdmin()" class="w-full bg-slate-900 text-white p-3 rounded-lg font-bold">Login</button>
-            </div>
-            <div id="admin-panel" class="hidden space-y-4">
-                <h3 class="font-bold text-lg">Pending Approvals</h3>
-                <div id="admin-withdrawal-list" class="space-y-3"></div>
-            </div>
-        </div>
-    </div>
+    <button class="inter" onclick="watchInterstitial('int-21422')">
+      📺 Watch Interstitial Ad 2
+    </button>
+  </div>
 
-    <!-- Navigation -->
-    <nav class="fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around py-3">
-        <button onclick="app.nav('earn')" class="nav-item flex flex-col items-center active"><span class="text-xs font-bold">EARN</span></button>
-        <button onclick="app.nav('chat')" class="nav-item flex flex-col items-center"><span class="text-xs font-bold">CHAT</span></button>
-        <button onclick="app.nav('wallet')" class="nav-item flex flex-col items-center"><span class="text-xs font-bold">WALLET</span></button>
-        <button onclick="app.nav('admin')" class="nav-item flex flex-col items-center"><span class="text-xs font-bold">ADMIN</span></button>
-    </nav>
-
-    <script type="module" src="app.js"></script>
 </body>
 </html>
