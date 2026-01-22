@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🎖🤑PAPERHOUSE INC ADS🤑🎖</title>
+    
+    <!-- CSS & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     
-    <!-- Monetag SDKs -->
+    <!-- Telegram SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Monetag SDKs (all zones for multiple ads) -->
     <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
     <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
@@ -18,11 +23,19 @@
         body { background: #020617; color: #e2e8f0; font-family: 'Inter', sans-serif; }
         .font-sync { font-family: 'Syncopate', sans-serif; }
         .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .neon-border { border: 1px solid #22c55e; box-shadow: 0 0 10px rgba(34, 197, 94, 0.2); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .chat-msg { animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        /* Style for active tab button */
+        .bottom-nav button.active {
+            opacity: 1 !important;
+            color: #22c55e; /* Green for active icon/text */
+            text-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+        }
+        .bottom-nav button.active span {
+            color: #22c55e;
+        }
     </style>
 </head>
 <body class="pb-20">
@@ -31,22 +44,21 @@
     <nav class="sticky top-0 z-50 glass px-4 py-3 flex justify-between items-center border-b border-white/5">
         <h1 class="font-sync text-[10px] text-green-500 tracking-widest">PAPERHOUSE INC</h1>
         <div class="text-right">
-            <p class="text-[10px] text-gray-500">VAULT</p>
-            <p class="text-sm font-bold text-green-400 font-sync">₱ <span id="balance">0.000</span></p>
+            <p class="text-[10px] text-gray-500">BALANCE</p>
+            <p class="text-sm font-bold text-green-400 font-sync">₱ <span id="balance-tiny">0.000</span></p>
         </div>
     </nav>
 
     <!-- Content Sections -->
     <main class="p-4">
-        
+
         <!-- HOME TAB -->
         <section id="home" class="tab-content active">
             <div class="glass rounded-3xl p-6 mb-6 text-center">
-                <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Total Revenue</p>
-                <h2 id="balance-large" class="text-4xl font-bold mb-4">₱0.000</h2>
+                <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Total Balance</p>
+                <h2 id="balance-large" class="text-4xl font-bold mb-4 text-green-400">₱0.000</h2>
                 <div class="flex gap-2 justify-center">
-
-                    <button onclick="watchAdsSequence('bonus')" class="bg-green-600 hover:bg-green-500 px-6 py-2 rounded-full text-xs font-bold uppercase transition">Claim Daily Bonus</button>
+                    <button onclick="showPrioritizedAd(0.005, 'Daily Bonus Claimed')" class="bg-green-600 hover:bg-green-500 px-6 py-2 rounded-full text-xs font-bold uppercase transition">Claim Daily Bonus</button>
                 </div>
             </div>
 
@@ -75,9 +87,9 @@
                     <!-- Messages here -->
                 </div>
                 <div class="p-3 border-t border-white/10 bg-black/20">
-                    <div id="cooldown-timer" class="text-[10px] text-yellow-500 mb-1 hidden text-center uppercase">Message Cooldown Active</div>
+                    <div id="cooldown-timer" class="text-[10px] text-yellow-500 mb-1 hidden text-center uppercase"></div>
                     <div class="flex gap-2">
-                        <input type="text" id="chat-input" placeholder="Type a message..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 text-sm outline-none focus:border-green-500">
+                        <input type="text" id="chat-input" placeholder="Type a message..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-green-500">
                         <button id="send-btn" class="bg-green-600 p-3 rounded-xl font-bold">SEND</button>
                     </div>
                     <p class="text-[9px] text-gray-500 mt-2 text-center">Sending a message triggers 3 ads & rewards ₱0.015</p>
@@ -86,9 +98,9 @@
         </section>
 
         <!-- WITHDRAW TAB -->
-        <section id="vault" class="tab-content">
+        <section id="balance-tab" class="tab-content">
             <div class="glass rounded-3xl p-6 mb-6">
-                <h2 class="text-xl font-bold mb-4">Withdraw to GCash</h2>
+                <h2 class="text-xl font-bold mb-4 text-green-400">Withdraw to GCash</h2>
                 <p class="text-xs text-gray-400 mb-6 font-sync">MINIMUM PAYOUT: ₱0.012</p>
                 
                 <div class="space-y-4">
@@ -104,16 +116,15 @@
         <!-- ADMIN TAB (Hidden) -->
         <section id="admin" class="tab-content">
             <div class="glass rounded-2xl p-4 overflow-x-auto">
-                <h2 class="text-center font-sync text-sm mb-4">OWNER CONTROL PANEL</h2>
-                <table class="w-full text-[10px]">
+
+<h2 class="text-center font-sync text-sm mb-4 text-yellow-500">OWNER CONTROL PANEL</h2>
+                <table class="w-full text-[10px] min-w-[300px]">
                     <thead class="bg-white/10">
                         <tr>
-                            <th class="p-2">USER</th>
-                            <th class="p-2">GCASH</th>
-                            <th class="p-2">AMT</th>
-                            <th class="p-2 text-right">ACTION</th
-
->
+                            <th class="p-2 text-left">USER</th>
+                            <th class="p-2 text-left">GCASH</th>
+                            <th class="p-2 text-left">AMT</th>
+                            <th class="p-2 text-right">ACTION</th>
                         </tr>
                     </thead>
                     <tbody id="admin-payouts-table">
@@ -127,20 +138,20 @@
     </main>
 
     <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 glass h-16 flex justify-around items-center border-t border-white/10 z-50">
-        <button onclick="switchTab('home')" class="flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition">
+    <nav class="fixed bottom-0 left-0 right-0 glass h-16 flex justify-around items-center border-t border-white/10 z-50 bottom-nav">
+        <button id="nav-home" onclick="switchTab('home', this)" class="flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition active">
             <span class="text-xl">🏠</span>
             <span class="text-[9px] font-bold">HOME</span>
         </button>
-        <button onclick="switchTab('chat')" class="flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition">
+        <button id="nav-chat" onclick="switchTab('chat', this)" class="flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition">
             <span class="text-xl">💬</span>
             <span class="text-[9px] font-bold">CHAT</span>
         </button>
-        <button onclick="switchTab('vault')" class="flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition">
+        <button id="nav-balance" onclick="switchTab('balance-tab', this)" class="flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition">
             <span class="text-xl">🏦</span>
-            <span class="text-[9px] font-bold">VAULT</span>
+            <span class="text-[9px] font-bold">BALANCE</span>
         </button>
-        <button onclick="adminLogin()" class="flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition">
+        <button id="nav-admin" onclick="adminLogin()" class="flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition">
             <span class="text-xl">🛠</span>
             <span class="text-[9px] font-bold">ADMIN</span>
         </button>
