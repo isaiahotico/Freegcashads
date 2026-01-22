@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AdsGram Rewards</title>
+    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://adsgram.ai/sdk.js"></script>
+    <!-- AdsGram SDK -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -13,22 +15,39 @@
             color: var(--tg-theme-text-color, #000000);
             text-align: center;
             padding: 20px;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
         }
         .balance-card {
             background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            width: 100%;
+            box-sizing: border-box;
         }
         #balance {
             font-size: 24px;
             font-weight: bold;
-            color: #28a745;
+            color: var(--tg-theme-accent-text-color, #007aff); /* Use accent for balance */
+        }
+        .user-info {
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #999999);
+            margin-bottom: 10px;
         }
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
+            width: 100%;
         }
         button {
             background-color: var(--tg-theme-button-color, #2481cc);
@@ -39,29 +58,41 @@
             font-weight: bold;
             cursor: pointer;
             font-size: 14px;
+            transition: opacity 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        button:active { opacity: 0.8; }
-        .status { margin-top: 15px; font-size: 12px; color: gray; }
+        button:active {
+            opacity: 0.8;
+        }
+        .status {
+            margin-top: 15px;
+            font-size: 13px;
+            color: var(--tg-theme-hint-color, #999999);
+            min-height: 20px; /* Prevent layout shifts */
+        }
     </style>
 </head>
 <body>
 
-    <div class="balance-card">
-        <div>Your Balance</div>
-        <div id="balance">₱ 0.00</div>
-    </div>
+    <div class="container">
+        <div class="balance-card">
+            <div id="username">Hello, Guest!</div>
+            <div>Your Balance</div>
+            <div id="balance">₱ 0.00</div>
+        </div>
 
-    <h3>Watch Ads to Earn</h3>
-    <div class="grid">
-        <button onclick="showAd('task-21469')">🎁 Reward 1</button>
-        <button onclick="showAd('task-21424')">🎁 Reward 2</button>
-        <button onclick="showAd('21470')">🎁 Reward 3</button>
-        <button onclick="showAd('int-21471')">🎁 Reward 4</button>
-        <button onclick="showAd('21423')">🎁 Reward 5</button>
-        <button onclick="showAd('int-21422')">🎁 Reward 6</button>
-    </div>
+        <h3>Watch Ads to Earn</h3>
+        <div class="grid">
+            <button onclick="showRewardAd('task-21469')">🎁 Reward 1</button>
+            <button onclick="showRewardAd('task-21424')">🎁 Reward 2</button>
+            <button onclick="showRewardAd('21470')">🎁 Reward 3</button>
+            <button onclick="showRewardAd('int-21471')">🎁 Reward 4</button>
+            <button onclick="showRewardAd('21423')">🎁 Reward 5</button>
+            <button onclick="showRewardAd('int-21422')">🎁 Reward 6</button>
+        </div>
 
-    <div id="status" class="status">Ready to earn</div>
+        <div id="status" class="status">Ready to earn</div>
+    </div>
 
     <!-- Firebase SDKs -->
     <script type="module" src="app.js"></script>
