@@ -3,41 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🎖🤑PAPERHOUSE INC ADS🤑🎖</title>
+    <title>PAPERHOUSE INC ADS</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Monetag SDK. Ensure this is loaded before app.js attempts to use show_10276123 -->
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #f39c12; --bg: #121212; --card: #1e1e1e; --text: #ffffff; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 70px; overflow-x: hidden; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
-        .header { background: var(--card); padding: 15px; border-bottom: 2px solid var(--primary); text-align: center; }
-        .user-info { display: flex; justify-content: space-between; padding: 10px 20px; background: #252525; font-size: 0.9rem; }
-        .balance-box { text-align: center; padding: 20px; }
-        .balance-box h1 { font-size: 2.5rem; margin: 5px 0; color: var(--primary); }
+        :root { --primary: #f39c12; --bg: #121212; --card: #1e1e1e; --text: #fff; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 80px; }
+        .header { background: var(--card); padding: 15px; border-bottom: 2px solid var(--primary); text-align: center; position: sticky; top: 0; z-index: 100; }
+        .balance-box { text-align: center; padding: 20px; background: linear-gradient(145deg, #1e1e1e, #252525); margin: 10px; border-radius: 15px; border: 1px solid #333; }
+        .balance-box h1 { font-size: 2.8rem; margin: 5px 0; color: var(--primary); }
         
-        .btn { background: var(--primary); color: #000; border: none; padding: 15px; width: 90%; max-width: 350px; border-radius: 10px; font-weight: bold; margin: 10px auto; display: block; cursor: pointer; }
-        .btn:disabled { background: #555; cursor: not-allowed; color: #ccc; }
-        
-        .tab-content { display: none; padding: 15px; }
+        .btn { background: var(--primary); color: #000; border: none; padding: 15px; width: 90%; border-radius: 12px; font-weight: bold; margin: 10px auto; display: block; cursor: pointer; font-size: 1rem; }
+        .btn:disabled { background: #444; color: #888; }
+
+        .tab-content { display: none; padding: 15px; animation: fadeIn 0.3s; }
         .active-tab { display: block; }
-        
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; background: var(--card); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; box-shadow: 0 -2px 10px rgba(0,0,0,0.5); z-index: 1000; }
-        .nav-item { color: #888; text-decoration: none; font-size: 0.8rem; text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px 0; }
-        .nav-item.active { color: var(--primary); }
-        .nav-item i { margin-bottom: 3px; font-size: 1.2rem; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .list-item { background: var(--card); padding: 10px; margin-bottom: 5px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
-        input { width: calc(90% - 22px); padding: 10px; margin: 10px auto; display: block; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff; font-size: 1rem; }
-        #admin-panel { background: #300; border: 1px solid red; padding: 10px; margin-top: 20px; border-radius: 10px; }
-        #admin-withdrawals .list-item { flex-direction: column; align-items: flex-start; }
-        #admin-withdrawals .list-item button { margin-top: 5px; padding: 8px 15px; background: #2ecc71; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        #admin-withdrawals .list-item button:active { transform: scale(0.98); }
-        #withdraw-history .list-item { font-size: 0.9em; }
+        /* Chat System Styles */
+        #chat-container { height: 60vh; display: flex; flex-direction: column; }
+        #chat-messages { flex-grow: 1; overflow-y: auto; background: #000; border-radius: 10px; padding: 10px; margin-bottom: 10px; border: 1px solid #333; }
+        .msg { margin-bottom: 10px; padding: 8px; border-radius: 8px; background: #252525; word-wrap: break-word; }
+        .msg b { color: var(--primary); font-size: 0.8rem; display: block; }
+        .chat-input-area { display: flex; gap: 5px; }
+        .chat-input-area input { flex-grow: 1; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: #fff; }
 
-        .referral-info-box { background: #252525; padding: 15px; border-radius: 10px; margin-top: 20px; text-align: left; }
-        .referral-info-box p { margin: 5px 0; font-size: 0.9rem; }
-        .referral-info-box input { margin-top: 5px; width: calc(100% - 22px); }
+        /* Nav Bar */
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; }
+
+        .nav-item { color: #888; text-decoration: none; font-size: 0.7rem; text-align: center; transition: 0.3s; }
+        .nav-item.active { color: var(--primary); transform: translateY(-5px); }
+        .nav-item i { font-size: 1.4rem; display: block; margin-bottom: 2px; }
+
+        /* Others */
+        .list-item { background: var(--card); padding: 12px; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #222; }
+        input[type="number"], input[type="text"], input[type="password"] { width: 90%; padding: 12px; margin: 8px auto; display: block; border-radius: 8px; border: 1px solid #444; background: #222; color: #fff; }
     </style>
 </head>
 <body>
@@ -46,73 +47,69 @@
         <strong>🎖🤑PAPERHOUSE INC ADS🤑🎖</strong>
     </div>
 
-    <div class="user-info">
-        <span id="display-username">Loading...</span>
-        <span>Referrals: <span id="ref-count">0</span></span>
-    </div>
-
-    <!-- HOME TAB -->
+    <!-- HOME -->
     <div id="home" class="tab-content active-tab">
         <div class="balance-box">
-            <p>Current Balance</p>
-            <h1>₱<span id="balance">0.0000</span></h1>
+            <p style="margin:0; font-size: 0.8rem; color: #aaa;">Current Balance</p>
+            <h1>₱<span id="balance">0.000</span></h1>
+            <small>@<span id="display-username">...</span></small>
         </div>
 
-        <button id="btn-ads" class="btn" onclick="startAdSequence('reward')">
-            <i class="fas fa-play"></i> Watch 3 Ads (₱0.015)
-        </button>
-        <p id="cooldown-ads" style="text-align:center; font-size: 0.8rem; color: #aaa;"></p>
+        <button id="btn-ads" class="btn" onclick="runAdFlow('reward')">📺 WATCH 3 ADS (₱0.015)</button>
+        <button id="btn-pop" class="btn" onclick="runAdFlow('pop')">🎁 3 POPUP ADS (₱0.015)</button>
+        <p id="cooldown-timer" style="text-align:center; color: var(--primary); font-weight: bold;"></p>
 
-        <button id="btn-pop" class="btn" onclick="startAdSequence('pop')">
-            <i class="fas fa-window-restore"></i> Watch 3 Popups (₱0.015)
-        </button>
-        <p id="cooldown-pop" style="text-align:center; font-size: 0.8rem; color: #aaa;"></p>
-
-        <div class="referral-info-box">
-            <p><strong>Referral Link (Earn 10% of referred user's earnings):</strong></p>
-            <input type="text" id="ref-link" readonly onclick="this.select()" value="Loading...">
-            <p>Total Referral Earnings: ₱<span id="total-ref-earnings">0.0000</span></p>
+        <div style="padding: 15px; background: #1a1a1a; border-radius: 10px; margin-top: 10px;">
+            <small>Referral Link (10% Bonus):</small>
+            <input type="text" id="ref-link" readonly onclick="this.select()">
         </div>
     </div>
 
-    <!-- LEADERBOARD TAB -->
+    <!-- CHAT -->
+    <div id="chat" class="tab-content">
+        <h3>💬 Global Chat</h3>
+        <div id="chat-container">
+            <div id="chat-messages"></div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Type a message...">
+                <button onclick="sendMessage()" style="padding:10px; background: var(--primary); border:none; border-radius:8px;"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEADERBOARD -->
     <div id="leaderboard" class="tab-content">
         <h3>🏆 Top Earners</h3>
-        <div id="leaderboard-list">Loading...</div>
+        <div id="leaderboard-list"></div>
     </div>
 
-    <!-- WITHDRAW TAB -->
+    <!-- WITHDRAW -->
     <div id="withdraw" class="tab-content">
-        <h3>💸 GCash Withdrawal</h3>
-        <p>Minimum: ₱0.02</p>
-        <input type="number" id="withdraw-amount" placeholder="Amount in Peso">
-        <input type="text" id="gcash-num" placeholder="GCash Number (09*********)">
-        <button class="btn" onclick="requestWithdrawal()">Submit Request</button>
-        <hr style="border-color:#333;">
-        <h4>Your Withdrawal History</h4>
-        <div id="withdraw-history"></div>
+        <h3>💸 Withdraw Peso</h3>
+        <p>Min Withdrawal: ₱0.02</p>
+        <input type="number" id="w-amount" placeholder="Amount (₱)">
+        <input type="text" id="w-gcash" placeholder="GCash Number">
+        <button class="btn" onclick="submitWithdraw()">Withdraw via GCash</button>
     </div>
 
-    <!-- ADMIN TAB -->
+    <!-- ADMIN -->
     <div id="admin" class="tab-content">
-        <h3>Admin Dashboard</h3>
         <div id="admin-login">
-            <input type="password" id="admin-pass" placeholder="Enter Admin Password">
-            <button class="btn" onclick="checkAdmin()">Login</button>
+            <input type="password" id="admin-pass" placeholder="Admin Password">
+            <button class="btn" onclick="loginAdmin()">Login</button>
         </div>
-        <div id="admin-content" style="display:none;">
-            <h4>Pending Withdrawals</h4>
-            <div id="admin-withdrawals"></div>
+        <div id="admin-panel" style="display:none;">
+            <h3>Pending Requests</h3>
+            <div id="admin-requests"></div>
         </div>
     </div>
 
-    <nav c
-
-lass="nav-bar">
-        <a href="javascript:void(0)" class="nav-item active" data-tab="home"><i class="fas fa-home"></i>Home</a>
-        <a href="javascript:void(0)" class="nav-item" data-tab="leaderboard"><i class="fas fa-trophy"></i>Rank</a>
-        <a href="javascript:void(0)" class="nav-item" data-tab="withdraw"><i class="fas fa-wallet"></i>Wallet</a>
-        <a href="javascript:void(0)" class="nav-item" data-tab="admin"><i class="fas fa-user-shield"></i>Admin</a>
+    <nav class="nav-bar">
+        <a href="#" class="nav-item active" onclick="showTab('home')"><i class="fas fa-home"></i>Home</a>
+        <a href="#" class="nav-item" onclick="showTab('chat')"><i class="fas fa-comments"></i>Chat</a>
+        <a href="#" class="nav-item" onclick="showTab('leaderboard')"><i class="fas fa-trophy"></i>Rank</a>
+        <a href="#" class="nav-item" onclick="showTab('withdraw')"><i class="fas fa-wallet"></i>Wallet</a>
+        <a href="#" class="nav-item" onclick="showTab('admin')"><i class="fas fa-lock"></i>Admin</a>
     </nav>
 
     <script type="module" src="app.js"></script>
