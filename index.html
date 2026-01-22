@@ -15,7 +15,7 @@
 
     <style>
         :root { --p-blue: #3498db; --p-green: #2ecc71; --p-dark: #2c3e50; --p-gold: #f1c40f; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; transition: 0.3s; padding-bottom: 120px; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; transition: 0.3s; padding-bottom: 100px; }
         .bricks-bg { background-image: radial-gradient(circle at 2px 2px, #aaa 1px, transparent 0); background-size: 20px 20px; }
         
         /* Fixed Header */
@@ -33,7 +33,7 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* Chat UI */
-        .chat-box { height: 50vh; overflow-y: auto; background: #fff; border-radius: 12px; padding: 10px; display: flex; flex-direction: column-reverse; border: 1px solid #eee; }
+        .chat-box { height: 60vh; overflow-y: auto; background: #fff; border-radius: 12px; padding: 10px; display: flex; flex-direction: column-reverse; border: 1px solid #eee; }
 
         .msg { margin: 6px 0; padding: 10px; border-radius: 10px; background: #f1f3f5; font-size: 0.85rem; border-left: 4px solid var(--p-blue); }
         .msg b { color: var(--p-blue); display: block; font-size: 0.75rem; }
@@ -43,6 +43,7 @@
         .btn-main { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin: 5px 0; transition: 0.2s; }
         .btn-blue { background: var(--p-blue); color: white; }
         .btn-gold { background: var(--p-gold); color: #000; }
+        .btn-disabled { opacity: 0.6; cursor: not-allowed; }
         
         /* Tables */
         table { width: 100%; border-collapse: collapse; font-size: 0.8rem; background: white; }
@@ -50,10 +51,10 @@
         th { background: #f8f9fa; color: #333; }
 
         /* Message Bar */
-        .msg-bar { position: fixed; bottom: 50px; width: 100%; background: white; padding: 10px; display: flex; gap: 8px; box-sizing: border-box; border-top: 1px solid #eee; }
+        .msg-bar { position: fixed; bottom: 50px; width: 100%; background: white; padding: 10px; display: flex; gap: 8px; box-sizing: border-box; border-top: 1px solid #eee; z-index: 100; }
         .msg-bar input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
 
-        footer { background: var(--p-dark); color: #7f8c8d; text-align: center; padding: 10px; position: fixed; bottom: 0; width: 100%; font-size: 0.6rem; height: 30px; }
+        footer { background: var(--p-dark); color: #7f8c8d; text-align: center; padding: 10px; position: fixed; bottom: 0; width: 100%; font-size: 0.6rem; height: 30px; z-index: 100; }
     </style>
 </head>
 <body>
@@ -64,29 +65,21 @@
 </div>
 
 <div class="nav-container">
-    <div class="nav-item active" onclick="showPage('chat')">💬 CHAT</div>
+    <div class="nav-item active" onclick="showPage('chat')">📙 CHAT📘</div>
     <div class="nav-item" onclick="showPage('bonus')">💎 BONUS ADS</div>
     <div class="nav-item" onclick="showPage('gift')">🍍 GIFT</div>
     <div class="nav-item" onclick="showPage('referral')">👥 REFER</div>
-    <div class="nav-item" onclick="showPage('withdraw')">🔔 CASH</div>
+    <div class="nav-item" onclick="showPage('withdraw')">🔔 WITHDRAW</div>
     <div class="nav-item" onclick="showPage('online')">🌐 ONLINE</div>
     <div class="nav-item" onclick="showPage('top')">🏆 LEADERBOARD</div>
     <div class="nav-item" onclick="showPage('help')">🗝 HELP</div>
     <div class="nav-item" onclick="openOwner()">🎖 ADMIN</div>
 </div>
 
-<!-- CHAT SECTION -->
+<!-- CHAT SECTION (Unified) -->
 <div id="chat" class="page active">
-    <div style="display: flex; gap: 5px; margin-bottom: 10px;">
-        <button class="btn-main btn-blue" style="font-size:0.7rem" onclick="setRoom('elem_chat')">📘 ELEM</button>
-        <button class="btn-main btn-blue" style="font-size:0.7rem" onclick="setRoom('high_chat')">📗 HIGH</button>
-        <button class="btn-main btn-blue" style="font-size:0.7rem" onclick="setRoom('coll_chat')">📙 COLL</button>
-    </div>
-    <h4 id="activeRoomName">📘 ELEMENTARY CHAT</h4>
+    <h4>📙 GLOBAL CHAT📘</h4>
     <div id="chatDisplay" class="chat-box"></div>
-    <div id="chatClaimArea" style="display:none; margin-top:10px;">
-        <button class="btn-main btn-gold animate__animated animate__pulse animate__infinite" onclick="finishChatAction()">🎁 CLAIM ₱0.015 & SEND MESSAGE</button>
-    </div>
 </div>
 
 <!-- BONUS ADS SECTION -->
@@ -103,61 +96,88 @@
 <!-- GIFT SECTION -->
 <div id="gift" class="page">
     <div class="card" style="text-align:center;">
-        <h2>🍍 PAPER HOUSE Gift 💎</h2
-
-
+        <h2>🍍 PAPER HOUSE Gift 💎</h2>
         <p>Unlock your mystery gift box every 2 hours!</p>
         <button id="giftBtn" class="btn-main btn-gold" onclick="claimGift()">OPEN GIFT BOX</button>
-        <div id="giftCd"></div>
+        <div id="giftCd" class="cooldown-text"></div>
     </div>
 </div>
 
 <!-- WITHDRAWAL SECTION -->
 <div id="withdraw" class="page">
     <div class="card">
-        <h3>Withdrawal (Min ₱0.02)</h3>
-        <input type="number" id="wdGcash" placeholder="GCash Number (11 digits)"><br><br>
-        <input type="number" id="wdAmount" placeholder="Amount (₱)">
-        <button class="btn-main btn-blue" onclick="submitWithdraw()">SUBMIT REQUEST</button>
+        <h3>🔔 WITHDRAWAL (Min ₱0.02)</h3>
+        <input type="number" id="wdGcash" placeholder="GCash Number (11 digits)" required><br><br>
+        <input type="number" id="wdAmount" placeholder="Amount (₱)" required>
+        <button class="btn-main bt
+
+n-blue" onclick="submitWithdraw()">SUBMIT REQUEST</button>
     </div>
-    <h4>Your History</h4>
-    <table>
-        <thead><tr><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
-        <tbody id="wdHistory"></tbody>
-    </table>
+    <h4>Your Withdrawal History</h4>
+    <div class="card">
+        <table>
+            <thead><tr><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody id="wdHistory"></tbody>
+        </table>
+    </div>
 </div>
 
 <!-- HELP SECTION -->
 <div id="help" class="page">
     <div class="card">
         <h3>🗝 Help Section</h3>
-        <p><a href="https://t.me/paperhouseinc" target="_blank">✈ Telegram Group</a></p>
-        <p><a href="https://t.me/PAPERHOUSE_INC" target="_blank">📢 Telegram Channel</a></p>
-        <p><a href="https://facebook.com/groups/1193693469083843/" target="_blank">👥 Facebook Group</a></p>
-        <p><a href="https://www.facebook.com/profile.php?id=61586281245735" target="_blank">📄 Facebook Page</a></p>
+        <p><a href="https://t.me/paperhouseinc" class="help-link" target="_blank">✈ Telegram Group</a></p>
+        <p><a href="https://t.me/PAPERHOUSE_INC" class="help-link" target="_blank">📢 Telegram Channel</a></p>
+        <p><a href="https://facebook.com/groups/1193693469083843/" class="help-link" target="_blank">👥 Facebook Group</a></p>
+        <p><a href="https://www.facebook.com/profile.php?id=61586281245735" class="help-link" target="_blank">📄 Facebook Page</a></p>
     </div>
 </div>
 
-<!-- OTHER PAGES (Containers) -->
+<!-- REFERRAL SECTION -->
 <div id="referral" class="page">
     <div class="card">
-        <h3>Refer Friends (Earn 8%)</h3>
-        <p>Your Code: <b id="myCode"></b></p>
+        <h3>👥 Refer Friends (Earn 8% Bonus)</h3>
+        <p>Your Referral Code: <b id="myCode"></b></p>
         <input type="text" id="refInput" placeholder="Enter Referrer Username">
         <button class="btn-main btn-blue" onclick="setReferrer()">ACTIVATE BONUS</button>
     </div>
     <div class="card" style="background:var(--p-dark); color:white;">
-        <p>Referral Bonus: ₱<span id="refBonus">0.000</span></p>
+        <p>Claimable Referral Bonus: ₱<span id="refBonus">0.000</span></p>
         <button class="btn-main btn-gold" onclick="claimRefToBalance()">CLAIM TO WALLET</button>
     </div>
 </div>
 
-<div id="online" class="page"><h3>👥 Online Users (<span id="onlineCount">0</span>)</h3><table><tbody id="onlineList"></tbody></table></div>
-<div id="top" class="page"><h3>🏆 Leaderboard (Top 500)</h3><table><tbody id="lbList"></tbody></table></div>
-<div id="admin" class="page"><h3>🎖 OWNER DASHBOARD</h3><p>Total Paid: ₱<span id="adminTotal">0.00</span></p><div id="adminWdList"></div></div>
+<!-- ONLINE USERS SECTION -->
+<div id="online" class="page">
+    <h3>👥 Online Users (<span id="onlineCount">0</span>)</h3>
+    <div class="card">
+        <table>
+            <thead><tr><th>User</th><th>Status</th></tr></thead>
+            <tbody id="onlineList"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- LEADERBOARD SECTION -->
+<div id="top" class="page">
+    <h3>🏆 Leaderboard (Top 500)</h3>
+    <div class="card">
+        <table>
+            <thead><tr><th>Rank</th><th>User</th><th>Total Earned</th></tr></thead>
+            <tbody id="lbList"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ADMIN DASHBOARD SECTION -->
+<div id="admin" class="page">
+    <h3>🎖 OWNER DASHBOARD</h3>
+    <p>Total Withdrawn: ₱<span id="adminTotal">0.00</span></p>
+    <div id="adminWdList"></div>
+</div>
 
 <div class="msg-bar" id="inputBar">
-    <input type="text" id="msgInput" placeholder="Type message...">
+    <input type="text" id="msgInput" placeholder="Type a message...">
     <button class="btn-main btn-blue" style="width:80px;" onclick="handleMsgSend()">SEND</button>
 </div>
 
