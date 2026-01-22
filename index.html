@@ -3,430 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎖🤑PAPERHOUSE INC ADS🤑🎖</title>
+    <title>PAPERHOUSE INC ADS</title>
+    <!-- Telegram SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Monetag SDK -->
+    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+    
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f7f6;
-            color: #333;
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 960px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        header {
-            text-align: center;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-
-        header h1 {
-            color: #007bff; /* A primary color */
-            margin-bottom: 10px;
-            font-size: 2em;
-        }
-
-        #user-info p {
-            margin: 5px 0;
-            font-size: 1.1em;
-        }
-
-        main {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-
-        section {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-
-        section h2 {
-            margin-top: 0;
-            color: #0056b3;
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-
-        button {
-            background-color: #28a745; /* Green for actions */
+            background-color: #1a1a1a;
             color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #218838;
-        }
-
-        input[type="text"],
-        input[type="password"],
-        textarea {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1em;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        #ad-section button {
-            display: block;
-            width: 100%;
-            padding: 15px;
-
-            font-size: 1.2em;
-            margin-top: 15px;
-        }
-
-        #referral-section p {
-            font-weight: bold;
-            color: #dc3545; /* Red for emphasis */
-        }
-
-        #leaderboard-list,
-        #chat-box {
-            list-style: none;
-            padding: 0;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            padding: 10px;
-            background-color: #fff;
-            margin-bottom: 15px;
-            border-radius: 5px;
-        }
-
-        #leaderboard-list li,
-        .message {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 5px;
-            border-bottom: 1px dotted #eee;
-        }
-
-        #leaderboard-list li:last-child,
-        .message:last-child {
-            border-bottom: none;
-        }
-
-        .message {
-            flex-direction: column;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-
-        .message strong {
-            color: #007bff;
-        }
-
-        .message .timestamp {
-            font-size: 0.8em;
-            color: #888;
-            margin-top: 3px;
-        }
-
-        #message-section { /* Renamed from chat-section */
-            grid-column: 1 / -1; /* Span full width */
-        }
-
-        #message-section input[type="text"] {
-            width: calc(100% - 70px); /* Adjust for button width */
-            display: inline-block;
-            vertical-align: top;
-        }
-
-        #message-section button {
-            width: 60px;
-            display: inline-block;
-            vertical-align: top;
-        }
-
-        #withdraw-section label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        #withdraw-section button {
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        #withdraw-status {
-            margin-top: 15px;
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        footer {
             text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            font-size: 0.9em;
-            color: #888;
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto; /* 15% from the top and centered */
-            padding: 30px;
-            border: 1px solid #888;
-            width: 80%; /* Could be more or less, depending on screen size */
-            max-width: 400px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            position: relative;
-        }
-
-        .modal-content h2 {
-            margin-top: 0;
-            color: #0056b3;
-        }
-
-        .modal-content input[type="password"],
-        .modal-content button {
-            width: calc(100% - 20px);
-            margin-top: 10px;
-        }
-
-        .modal-content button {
-            background-color: #007bff;
-        }
-        .modal-content button:hover {
-            background-color: #0056b3;
-        }
-
-        .close-button {
-            color: #aaa;
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close-button:hover,
-        .close-button:focus {
-            color: #333;text-decoration: none;
-        }
-
-        #admin-login-error {
-            color: #dc3545;
-            margin-top: 10px;
-            font-size: 0.9em;
-        }
-
-        /* Admin Dashboard Styles */
-        #admin-dashboard {
-            margin-top: 40px;
-            padding: 30px;
-            background-color: #eef2f7;
-            border-radius: 10px;
-        }
-
-        #admin-dashboard h2,
-        #admin-dashboard h3 {
-            text-align: center;
-            color: #0056b3;
-        }
-
-        #admin-dashboard ul {
-            list-style: none;
-            padding: 0;
-            max-height: 300px;
-            overflow-y: auto;
-            background-color: #fff;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        #admin-dashboard li {
-            padding: 10px;
-            border-bottom: 1px solid #f0f0f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap; /* Allow wrapping for long content */
-        }
-        #admin-dashboard li span {
-            margin-right: 10px;
-        }
-
-        #admin-dashboard li:last-child {
-            border-bottom: none;
-        }
-
-        #logout-admin-btn {
-            display: block;
-            margin: 20px auto;
-            background-color: #6c757d;
-        }
-
-        #logout-admin-btn:hover {
-            background-color: #5a6268;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        #initial-setup-modal {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1001;
-        }
-        #initial-setup-modal .modal-content {
             margin: 0;
-            max-width: 500px;
+            padding: 20px;
         }
+        .container {
+            max-width: 400 -px;
+            margin: auto;
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        h1 { color: #f39c12; font-size: 1.5rem; }
+        .balance-card {
+            background: #3d3d3d;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        #balance { font-size: 2rem; font-weight: bold; color: #2ecc71; }
+        button {
+            background: #f39c12;
+            border: none;
+            padding: 15px 25px;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        button:active { transform: scale(0.98); }
+        .footer { font-size: 0.8rem; color: #888; margin-top: 20px; }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <header>
-            <h1>🎖🤑PAPERHOUSE INC ADS🤑🎖</h1>
-            <div id="user-info">
-                <p>Welcome, <span id="display-name">User</span>!</p>
-                <p>Balance: <span id="balance">0.00</span> Peso</p>
-            </div>
-        </header>
-
-        <main>
-            <section id="ad-section">
-                <h2>Watch Ads & Earn!</h2>
-                <button id="watch-ad-btn">Watch Ad</button>
-                <p>Minimum withdraw: 0.02 Peso</p>
-                <p>Max reward per ad: 0.01 Peso</p>
-            </section>
-
-            <section id="referral-section">
-                <h2>Referral System</h2>
-                <p>Your Referral Code: <span id="referral-code"></span></p>
-                <p>Share this code to earn 10% of your friends' earnings!</p>
-            </section>
-
-            <section id="leaderboard-section">
-                <h2>Leaderboard</h2>
-                <ul id="leaderboard-list">
-                    <!-- Leaderboard entries will be loaded here -->
-                </ul>
-            </section>
-
-            <section id="message-section"> <!-- Renamed from chat-section -->
-                <h2>Chat Room</h2>
-                <div id="chat-box">
-                    <!-- Chat messages will be loaded here -->
-                </div>
-                <input type="text" id="chat-message" placeholder="Type your message...">
-                <button id="send-message-btn">Send</button>
-            </section>
-
-            <section id="withdraw-section">
-                <h2>Withdraw</h2>
-                <label for="gcash-number">GCash Number:</label>
-                <input type="text" id="gcash-number" placeholder="Enter your GCash number">
-                <button id="withdraw-btn">Withdraw</button>
-                <p id="withdraw-status"></p>
-            </section>
-        </main>
-
-        <footer>
-            <p>&copy; 2026 PAPERHOUSE INC. All rights reserved.</p>
-        </footer>
-    </div>
-
-    <!-- Admin Login Modal -->
-    <div id="admin-login-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h2>Admin Login</h2>
-            <input type="password" id="admin-password" placeholder="Enter Password">
-            <button id="login-admin-btn">Login</button>
-            <p id="admin-login-error"></p>
+        <h1>🎖🤑PAPERHOUSE INC ADS🤑🎖</h1>
+        
+        <div class="balance-card">
+            <p>Your Total Earnings</p>
+            <div id="balance">0.00</div>
+            <p>Points</p>
         </div>
+
+        <button onclick="showRewarded()">📺 Watch Rewarded Ad (+10 pts)</button>
+        <button onclick="showPopup()">🎁 Lucky Popup (+5 pts)</button>
+
+        <p class="footer">Ads powered by Monetag</p>
     </div>
 
-    <!-- Admin Dashboard -->
-    <div id="admin-dashboard" class="hidden">
-        <h2>Admin Dashboard</h2>
-        <button id="logout-admin-btn">Logout Admin</button>
-        <h3>User Management</h3>
-        <ul id="user-list">
-            <!-- User list will be loaded here -->
-        </ul>
-        <h3>Broadcast Message</h3>
-        <textarea id="broadcast-message" placeholder="Enter message to broadcast to all users..."></textarea>
-        <button id="send-broadcast-btn">Send Broadcast</button>
-    </div>
-
-    <!-- Initial User Setup Modal -->
-    <div id="initial-setup-modal" class="modal hidden">
-        <div class="modal-content">
-            <h2>Welcome to PAPERHOUSE INC ADS!</h2>
-            <p>Please enter your desired username and an optional referral code.</p>
-            <input type="text" id="setup-username" placeholder="Your Username (e.g., JohnDoe)">
-            <input type="text" id="setup-referral-code" placeholder="Referral Code (Optional)">
-            <button id="complete-setup-btn">Start Earning!</button>
-            <p id="setup-error"></p>
-        </div>
-    </div>
-
-    <!-- Monetag Ads Script -->
-    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
-
-    <!-- Firebase Configuration (v8) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-    <!-- Your App Script -->
-    <script src="app.js"></script>
+    <!-- Firebase App and Database SDKs -->
+    <script type="module" src="app.js"></script>
 </body>
 </html>
