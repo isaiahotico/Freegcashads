@@ -1,102 +1,130 @@
-ChatGPT | Midjourney:
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PaperHouse Global</title>
+    <title>AdsGram Global Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://adsgram.ai/sdk.js"></script>
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <!-- Monetag SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
     <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
     
     <style>
-        :root { --primary: #2481cc; --bg: #ffffff; --text: #000000; --sec-bg: #f0f0f0; }
-        body { font-family: sans-serif; background: var(--tg-theme-bg-color, var(--bg)); color: var(--tg-theme-text-color, var(--text)); margin: 0; padding-bottom: 70px; }
-        .page { display: none; padding: 20px; animation: fadeIn 0.3s; }
+        :root { --tg-theme-bg: #fff; --primary: #2481cc; --success: #28a745; --danger: #dc3545; }
+        body { font-family: -apple-system, sans-serif; background: var(--tg-theme-bg-color, #f4f4f7); color: var(--tg-theme-text-color, #000); margin: 0; padding-bottom: 80px; }
+        .container { padding: 15px; }
+        .page { display: none; animation: slideUp 0.3s ease; }
         .active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         /* Navigation */
-        nav { position: fixed; bottom: 0; width: 100%; background: var(--tg-theme-secondary-bg-color, var(--sec-bg)); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ccc; z-index: 100; }
-        nav div { font-size: 12px; cursor: pointer; text-align: center; opacity: 0.6; }
-        nav div.active-nav { opacity: 1; color: var(--primary); font-weight: bold; }
+        nav { position: fixed; bottom: 0; width: 100%; background: var(--tg-theme-secondary-bg-color, #fff); display: flex; border-top: 1px solid #ddd; z-index: 1000; }
+        nav div { flex: 1; text-align: center; padding: 12px 0; font-size: 11px; cursor: pointer; opacity: 0.6; transition: 0.2s; }
+        nav div.active-nav { opacity: 1; color: var(--primary); font-weight: bold; border-top: 2px solid var(--primary); }
 
-        /* UI Cards */
-        .card { background: var(--tg-theme-secondary-bg-color, var(--sec-bg)); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        .balance { font-size: 28px; font-weight: 800; color: #28a745; }
-        .btn { background: var(--tg-theme-button-color, var(--primary)); color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 5px; }
-        .btn:disabled { background: #ccc; }
+        /* Card Styles */
+        .card { background: var(--tg-theme-secondary-bg-color, #fff); border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .balance-text { font-size: 32px; font-weight: 800; color: var(--success); }
+        
+        /* Table Styles */
+        .table-container { overflow-x: auto; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #eee; }
+        .status-pending { color: orange; font-weight: bold; }
+        .status-approved { color: green; font-weight: bold; }
+        .pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
 
-        /* Chat System */
-        #chat-box { height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; background: rgba(0,0,0,0.05); }
-        .msg { padding: 8px 12px; border-radius: 12px; max-width: 80%; font-size: 14px; }
-        .msg.me { align-self: flex-end; background: var(--primary); color: white; }
+        /* Buttons */
 
-        .msg.others { align-self: flex-start; background: #e9e9eb; color: black; }
-        .msg-info { font-size: 10px; display: block; margin-bottom: 2px; opacity: 0.7; }
+        .btn { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; }
+        .btn-small { padding: 5px 10px; width: auto; font-size: 10px; border-radius: 5px; margin: 2px; }
+        .btn-danger { background: var(--danger); }
 
-        /* Admin Dashboard */
-        .withdraw-item { border-bottom: 1px solid #ddd; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
+        /* Chat */
+        #chat-area { height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; padding: 10px; background: rgba(0,0,0,0.03); border-radius: 10px; }
+        .bubble { padding: 8px 12px; border-radius: 15px; max-width: 80%; word-wrap: break-word; }
+        .bubble.me { align-self: flex-end; background: var(--primary); color: #fff; }
+        .bubble.them { align-self: flex-start; background: #e9e9eb; color: #000; }
     </style>
 </head>
 <body>
 
-    <!-- Tab 1: Home/Earn -->
-    <div id="home" class="page active">
+<div class="container">
+    <!-- HOME PAGE -->
+    <div id="page-home" class="page active">
         <div class="card">
-            <div id="user-display">Loading User...</div>
-            <div class="balance" id="balance">₱ 0.00</div>
+            <div id="username-display" style="font-weight: bold;">Loading...</div>
+            <div class="balance-text" id="balance-display">₱ 0.000</div>
         </div>
-        <h3>Earning Center</h3>
+        <h3>Daily Rewards</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button class="btn" onclick="playAdsgram('task-21469')">AD 1</button>
-            <button class="btn" onclick="playAdsgram('task-21424')">AD 2</button>
-            <button class="btn" onclick="playAdsgram('21470')">AD 3</button>
-            <button class="btn" onclick="playAdsgram('int-21471')">AD 4</button>
-            <button class="btn" onclick="playAdsgram('21423')">AD 5</button>
-            <button class="btn" onclick="playAdsgram('int-21422')">AD 6</button>
+            <button class="btn" onclick="triggerAd('task-21469')">Task 1</button>
+            <button class="btn" onclick="triggerAd('task-21424')">Task 2</button>
+            <button class="btn" onclick="triggerAd('21470')">Task 3</button>
+            <button class="btn" onclick="triggerAd('int-21471')">Task 4</button>
+            <button class="btn" onclick="triggerAd('21423')">Task 5</button>
+            <button class="btn" onclick="triggerAd('int-21422')">Task 6</button>
         </div>
     </div>
 
-    <!-- Tab 2: Live Chat -->
-    <div id="chat" class="page">
-        <h3>📙 GLOBAL CHAT 📘</h3>
-        <div id="chat-box"></div>
-        <div id="cooldown-timer" style="color: red; font-size: 12px;"></div>
-        <input type="text" id="chat-input" placeholder="Type a message..." style="width: 70%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
-        <button class="btn" id="send-btn" onclick="sendChatMessage()" style="width: 25%;">SEND</button>
-        <p style="font-size: 10px;">*Sending requires 3 ads + earns ₱0.015</p>
+    <!-- CHAT PAGE -->
+    <div id="page-chat" class="page">
+        <h3>📙 Global Chat 📘</h3>
+        <div id="chat-area"></div>
+        <div style="display: flex; gap: 5px;">
+            <input type="text" id="msg-input" placeholder="Type a message..." style="flex:1; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+            <button class="btn" style="width: 80px;" onclick="sendChatMsg()">Send</button>
+        </div>
+        <p style="font-size: 10px; color: gray;">*Costs 3 Ads. Earns ₱0.015. 3min Cooldown.</p>
     </div>
 
-    <!-- Tab 3: Wallet -->
-    <div id="wallet" class="page">
-        <h3>Withdraw (GCash)</h3>
+    <!-- WALLET PAGE -->
+    <div id="page-wallet" class="page">
+        <h3>Withdrawal (GCash)</h3>
         <div class="card">
-            <p>Min Withdrawal: ₱ 0.02</p>
-            <input type="number" id="withdraw-amount" placeholder="Amount (₱)" style="width: 100%; padding: 10px; margin-bottom: 10px;">
-            <input type="text" id="gcash-num" placeholder="GCash Number" style="width: 100%; padding: 10px;">
-            <button class="btn" onclick="requestWithdrawal()">Submit Request</button>
+            <input type="number" id="wd-amount" placeholder="Amount (min 0.02)" step="0.01" style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box;">
+            <input type="text" id="wd-gcash" placeholder="GCash Number" style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box;">
+            <button class="btn" onclick="submitWithdrawal()">Request Withdrawal</button>
         </div>
-        <h4>History</h4>
-        <div id="withdraw-history"></div>
+        <h4>Your History</h4>
+        <div class="table-container">
+            <table id="user-wd-table">
+                <thead><tr><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody id="user-wd-body"></tbody>
+            </table>
+        </div>
+        <div class="pagination">
+            <button class="btn btn-small" onclick="paginateUserWD('prev')">Prev</button>
+            <button class="btn btn-small" onclick="paginateUserWD('next')">Next</button>
+        </div>
     </div>
 
-    <!-- Tab 4: Owner Dashboard -->
-    <div id="admin" class="page">
+    <!-- ADMIN PAGE -->
+    <div id="page-admin" class="page">
         <h3>Owner Dashboard</h3>
-        <div id="pending-withdrawals"></div>
+        <div class="table-container">
+            <table>
+                <thead><tr><th>User</th><th>Amount</th><th>GCash</th><th>Action</th></tr></thead>
+                <tbody id="admin-wd-body"></tbody>
+
+</table>
+        </div>
+        <div class="pagination">
+            <button class="btn btn-small" onclick="paginateAdmin('prev')">Prev</button>
+            <button class="btn btn-small" onclick="paginateAdmin('next')">Next</button>
+        </div>
     </div>
+</div>
 
-    <nav>
-        <div onclick="showPage('home')" id="nav-home" class="active-nav">🏠 Home</div>
-        <div onclick="showPage('chat')" id="nav-chat">💬 Chat</div>
-        <div onclick="showPage('wallet')" id="nav-wallet">💰 Wallet</div>
-        <div onclick="showPage('admin')" id="nav-admin" style="display:none;">👑 Admin</div>
-    </nav>
+<nav>
+    <div onclick="navTo('home')" id="nav-home" class="active-nav">🏠 Home</div>
+    <div onclick="navTo('chat')" id="nav-chat">💬 Chat</div>
+    <div onclick="navTo('wallet')" id="nav-wallet">💰 Wallet</div>
+    <div onclick="navTo('admin')" id="nav-admin" style="display: none;">👑 Owner</div>
+</nav>
 
-    <script type="module" src="app.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
