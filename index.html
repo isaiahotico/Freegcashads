@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>PaperHouse Ads</title>
+  <title>PaperHouse Withdrawals</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Telegram WebApp SDK -->
+  <!-- Telegram -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- AdsGram SDK -->
+  <!-- AdsGram -->
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
   <!-- App -->
@@ -16,63 +16,102 @@
 
   <style>
     body {
+      font-family: Arial, sans-serif;
       background: #0f172a;
       color: #fff;
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      text-align: center;
+      padding: 16px;
     }
+    h2 { text-align: center; }
     .card {
       background: #020617;
-      border-radius: 14px;
-      padding: 16px;
+      padding: 14px;
+      border-radius: 12px;
       margin-bottom: 16px;
     }
-    button {
+    input, button {
       width: 100%;
-      padding: 14px;
-      margin-top: 10px;
+      padding: 12px;
+      margin-top: 8px;
+      border-radius: 8px;
       border: none;
-      border-radius: 10px;
-      font-size: 15px;
-      cursor: pointer;
+      font-size: 14px;
     }
-    .reward {
+    button {
       background: #22c55e;
       color: #000;
+      cursor: pointer;
     }
-    .inter {
-      background: #38bdf8;
-      color: #000;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 10px;
     }
+    th, td {
+      border: 1px solid #334155;
+      padding: 6px;
+      text-align: center;
+    }
+    th {
+      background: #1e293b;
+    }
+    .pending { color: orange; }
+    .approved { color: #22c55e; }
+    .rejected { color: red; }
   </style>
 </head>
 
 <body>
 
-  <div class="card">
-    <h2>📄💎 PaperHouse Ads</h2>
-    <p>👤 User: <b><span id="tgUsername">Loading...</span></b></p>
-    <p>💰 Balance: <b><span id="balance">0</span></b> coins</p>
-  </div>
+<h2>📄💎 PaperHouse</h2>
 
-  <div class="card">
-    <button class="reward" onclick="watchReward('task-21469')">
-      🎥 Watch Reward Ad 1 (+1)
-    </button>
+<div class="card">
+  <p>👤 <b><span id="username">Loading...</span></b></p>
+  <p>💰 Balance: <b><span id="balance">0</span></b></p>
 
-    <button class="reward" onclick="watchReward('task-21424')">
-      🎥 Watch Reward Ad 2 (+1)
-    </button>
+  <input id="gcashName" placeholder="GCash Full Name">
+  <input id="gcashNumber" placeholder="GCash Number">
+  <input id="withdrawAmount" placeholder="Amount" type="number">
 
-    <button class="inter" onclick="watchInterstitial('int-21471')">
-      📺 Watch Interstitial Ad 1
-    </button>
+  <button onclick="requestWithdraw()">💸 Request Withdrawal</button>
+</div>
 
-    <button class="inter" onclick="watchInterstitial('int-21422')">
-      📺 Watch Interstitial Ad 2
-    </button>
-  </div>
+<div class="card">
+  <h3>📜 Withdrawal History</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>GCash</th>
+        <th>Amount</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="withdrawTable"></tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h3>🔐 Owner Dashboard</h3>
+  <input id="adminPass" placeholder="Enter admin password">
+  <button onclick="openAdmin()">Access Dashboard</button>
+</div>
+
+<div class="card" id="adminPanel" style="display:none;">
+  <h3>🛠️ Admin Withdrawals</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>GCash</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="adminWithdrawTable"></tbody>
+  </table>
+</div>
 
 </body>
 </html>
