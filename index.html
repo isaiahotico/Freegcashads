@@ -4,101 +4,324 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎖🤑PAPERHOUSE INC ADS🤑🎖</title>
-    <meta name="description" content="Watch ads, earn rewards, and cash out via GCash fast!">
-    <meta name="keywords" content="Monetag, GCash, Rewards, Ads, Earn Money, Telegram, Paperhouse Inc">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50%25' y='50%25' font-size='80' text-anchor='middle' dominant-baseline='central'%3E%F0%9F%8F%85%3C/text%3E%3C/svg%3E">
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- Monetag SDK - Placed in head for early loading -->
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <!-- Monetag SDK -->
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover:not(:disabled) {
+            background-color: #218838;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .error {
+            color: #dc3545;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .success {
+            color: #28a745;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #007bff;
+            cursor: pointer;
+
+            text-decoration: underline;
+        }
+        .tab-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        .tab-button.active {
+            background-color: #fff;
+            border-color: #ddd;
+            border-bottom: 1px solid #fff;
+        }
+        .tab-content {
+            border: 1px solid #ddd;
+            border-top: none;
+            padding: 20px;
+            border-radius: 0 0 5px 5px;
+        }
+        .ad-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .ad-item h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #007bff;
+        }
+        .ad-item p {
+            margin: 5px 0;
+        }
+        .ad-item button {
+            margin-top: 10px;
+            background-color: #007bff;
+        }
+        .ad-item button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+        #chat-window {
+            height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+            background-color: #e9ecef;
+        }
+        .chat-message {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .chat-message strong {
+            color: #3498db;
+        }
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+        #profileReferralCode {
+            font-weight: bold;
+            color: #e67e22;
+        }
+        .admin-dashboard-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .admin-user-item, .admin-withdrawal-item {
+            border: 1px solid #eee;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #fdfdfd;
+        }
+        .admin-withdrawal-item.pending { background-color: #fff3cd; }
+        .admin-withdrawal-item.approved { background-color: #d4edda; }
+        .admin-withdrawal-item.rejected { background-color: #f8d7da; }
+        .admin-withdrawal-item button {
+            width: auto;
+            margin-right: 10px;
+            padding: 8px 15px;
+        }
+        .admin-withdrawal-item button.approve { background-color: #28a745; }
+        .admin-withdrawal-item button.reject { background-color: #dc3545; }
+        .logout-btn {
+            background-color: #dc3545;
+            margin-top: 20px;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🎖🤑PAPERHOUSE INC ADS🤑🎖</h1>
-            <p class="tagline">Your express lane to rewards!</p>
-            <div id="user-info">
-                <p>Welcome, <span id="user-id-display">Guest</span>!</p>
-                <p>Your Balance: <span id="user-balance">0.00</span> PHP</p>
-                <button id="auth-button" class="btn primary">Sign In / Register</button>
+    <div class="container" id="auth-container">
+        <h1>🎖🤑PAPERHOUSE INC ADS🤑🎖</h1>
+        <div id="auth-forms">
+            <h2>Login</h2>
+            <input type="text" id="loginUsername" placeholder="Username" required>
+            <input type="text" id="loginGcashNumber" placeholder="GCash Number" required>
+            <button id="loginButton">Login</button>
+            <p class="error" id="loginError"></p>
+            <a class="link" id="showRegister">Don't have an account? Register here.</a>
+
+            <div id="register-section" style="displ
+
+ay:none;">
+                <h2>Register</h2>
+                <input type="text" id="registerUsername" placeholder="Username" required>
+                <input type="text" id="registerGcashNumber" placeholder="GCash Number (09xxxxxxxxx)" pattern="09\d{9}" required>
+                <input type="text" id="referralCode" placeholder="Referral Code (Optional)">
+                <button id="registerButton">Register</button>
+                <p class="error" id="registerError"></p>
+                <a class="link" id="showLogin">Already have an account? Login here.</a>
             </div>
-        </header>
+        </div>
 
-        <main>
-            <section class="card ad-section">
-                <h2>Earn Rewards Now!</h2>
-                <div class="ad-buttons">
-                    <button id="watch-rewarded-interstitial" class="btn primary">Watch Reward Ad (0.50 PHP)</button>
-                    <button id="watch-rewarded-popup" class="btn secondary">Watch Bonus Ad (0.75 PHP)</button>
-                    <!-- In-App Interstitial will run automatically based on config -->
-                </div>
-                <p class="info-text">Watch ads to instantly boost your balance. New ads daily!</p>
-            </section>
-
-            <section class="card gcash-section">
-                <h2>GCash Cash Out</h2>
-                <div class="gcash-form">
-                    <label for="gcash-amount">Amount (PHP):</label>
-                    <input type="number" id="gcash-amount" placeholder="Min. 50 PHP" min="50">
-                    <label for="gcash-number">GCash Number:</label>
-                    <input type="tel" id="gcash-number" placeholder="e.g., 09xxxxxxxxx" pattern="09[0-9]{9}" required>
-                    <button id="request-gcash-cashout" class="btn success">Request Cash Out</button>
-
-                </div>
-                <p class="info-text">Fastest GCash withdrawals directly to your account. Processing may take up to 24 hours.</p>
-                <div id="gcash-status" class="status-message"></div>
-            </section>
-
-            <section class="card telegram-section">
-                <h2>Join Our Telegram!</h2>
-                <p>Stay updated on new features, bonuses, and support.</p>
-                <a href="https://t.me/PaperhouseIncAdsOfficial" target="_blank" class="btn telegram">Join Our Telegram Channel</a>
-            </section>
-
-            <section class="card history-section">
-                <h2>Recent Activity</h2>
-                <ul id="transaction-history">
-                    <!-- Transactions will be loaded here by app.js -->
-                    <li>No recent activity.</li>
-                </ul>
-                <p class="info-text">Your latest ad views and cash out requests.</p>
-            </section>
-        </main>
-
-        <footer>
-            <p>&copy; 2026 PAPERHOUSE INC. All rights reserved.</p>
-            <p><a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
-        </footer>
+        <div id="admin-login-section" style="margin-top: 20px;">
+            <h2>Admin Login</h2>
+            <input type="password" id="adminPassword" placeholder="Admin Password" required>
+            <button id="adminLoginButton">Admin Login</button>
+            <p class="error" id="adminLoginError"></p>
+        </div>
     </div>
 
-    <!-- Firebase SDKs - defer loading for faster initial page render -->
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, onSnapshot, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-        
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDMGU5X7BBp-C6tIl34Uuu5N9MXAVFTN7c", // Corrected the typo if any, using the provided one
-            authDomain: "paper-house-inc.firebaseapp.com",
-            projectId: "paper-house-inc",
-            storageBucket: "paper-house-inc.firebasestorage.app",
-            messagingSenderId: "658389836376",
-            appId: "1:658389836376:web:2ab1e2743c593f4ca8e02d"
-        };
+    <div class="container" id="app-container" style="display:none;">
+        <h1>🎖🤑PAPERHOUSE INC ADS🤑🎖</h1>
+        <p class="success" id="app-message"></p>
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        <div class="tab-buttons">
+            <button class="tab-button active" data-tab="ads">Ads</button>
+            <button class="tab-button" data-tab="profile">Profile</button>
+            <button class="tab-button" data-tab="chat">Chat</button>
+            <button class="tab-button" data-tab="leaderboard">Leaderboard</button>
+            <button class="tab-button" data-tab="withdraw">Withdraw</button>
+            <button class="tab-button" data-tab="admin" style="display: none;">Admin</button>
+        </div>
 
-        // Export Firebase instances for app.js
-        window.firebaseApp = app;
-        window.firebaseAuth = auth;
-        window.firebaseDb = db;
-        window.firebaseSDKs = { getAuth, signInAnonymously, onAuthStateChanged, signOut, getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, onSnapshot, serverTimestamp, addDoc };
-    </script>
-    <script src="app.js" type="module"></script>
+        <div id="ads-tab" class="tab-content">
+            <h2>Watch Ads & Earn!</h2>
+            <div class="ad-item">
+                <h3>Ad 1 (High Reward)</h3>
+                <p>Earn: <span id="ad1Reward">0.02</span> Peso</p>
+                <p>Cooldown: <span id="ad1CooldownTime">5:00</span></p>
+                <button id="watchAd1Button">Watch Ad 1</button>
+                <p class="error" id="ad1Error"></p>
+            </div>
+            <div class="ad-item">
+                <h3>Ad 2 (Medium Reward)</h3>
+                <p>Earn: <span id="ad2Reward">0.015</span> Peso</p>
+                <p>Cooldown: <span id="ad2CooldownTime">10:00</span></p>
+                <button id="watchAd2Button">Watch Ad 2</button>
+                <p class="error" id="ad2Error"></p>
+            </div>
+            <div class="ad-item">
+                <h3>Ad 3 (Low Reward)</h3>
+                <p>Earn: <span id="ad3Reward">0.01</span> Peso</p>
+                <p>Cooldown: <span id="ad3CooldownTime">15:00</span></p>
+                <button id="watchAd3Button">Watch Ad 3</button>
+                <p class="error" id="ad3Error"></p>
+            </div>
+        </div>
+
+        <div id="profile-tab" class="tab-content" style="display:none;">
+            <h2>My Profile</h2>
+            <p><strong>Username:</strong> <span id="profileUsername"></span></p>
+            <p><strong>GCash Number:</strong> <span id="profileGcashNumber"></span></p>
+            <p><strong>Current Balance:</strong> ₱<span id="profileBalance">0.00</span></p>
+            <p><strong>Your Referral Code:</strong> <span id="profileReferralCode"></span> <button onclick="copyToClipboard('profileReferralCode')">Copy</button></p>
+            <p><strong>Referrals:</strong> <span id="profileReferralCount">0</span></p>
+        </div>
+
+        <div id="chat-tab" class="tab-content" style="display:none;">
+            <h2>Global Chat Room</h2>
+            <div id="chat-window"></div>
+            <input type="text" id="chatInput" placeholder="Type your message..." maxlength="200">
+            <button id="sen
+
+dChatMessage">Send</button>
+        </div>
+
+        <div id="leaderboard-tab" class="tab-content" style="display:none;">
+            <h2>Top Earners Leaderboard</h2>
+            <div id="leaderboard-list">
+                <p>Loading leaderboard...</p>
+            </div>
+        </div>
+
+        <div id="withdraw-tab" class="tab-content" style="display:none;">
+            <h2>Withdraw GCash</h2>
+            <p>Your Current Balance: ₱<span id="withdrawBalance">0.00</span></p>
+            <p>Minimum Withdrawal: ₱1.00</p>
+            <input type="number" id="withdrawAmount" placeholder="Amount (e.g., 1.00)" min="1" step="0.01">
+            <input type="text" id="gcashNumberWithdraw" placeholder="GCash Number (e.g., 09xxxxxxxxx)">
+            <button id="requestWithdrawButton">Request Withdrawal</button>
+            <p class="error" id="withdrawError"></p>
+            <p class="success" id="withdrawSuccess"></p>
+
+            <h3>Your Withdrawal History</h3>
+            <div id="withdrawalHistory">
+                <p>No history yet.</p>
+            </div>
+        </div>
+
+        <div id="admin-tab" class="tab-content" style="display:none;">
+            <h2>Admin Dashboard</h2>
+            <div class="admin-dashboard-section">
+                <h3>Pending Withdrawals</h3>
+                <div id="adminPendingWithdrawals">
+                    <p>No pending withdrawals.</p>
+                </div>
+            </div>
+            <div class="admin-dashboard-section">
+                <h3>All Users</h3>
+                <div id="adminAllUsers">
+                    <p>Loading users...</p>
+                </div>
+            </div>
+        </div>
+
+        <button id="logoutButton" class="logout-btn">Logout</button>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
