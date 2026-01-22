@@ -1,134 +1,93 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Adsgram Global Pro</title>
+    <title>PaperHouse Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
     <!-- Monetag SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
     <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
     
     <style>
-        :root { --tg-bg: #fff; --primary: #2481cc; --success: #28a745; --danger: #dc3545; }
-        body { font-family: -apple-system, sans-serif; background: var(--tg-theme-bg-color, #f0f2f5); color: var(--tg-theme-text-color, #000); margin: 0; padding-bottom: 80px; transition: 0.3s; }
-        .container { padding: 15px; }
-        .page { display: none; animation: fadeIn 0.3s ease-in-out; }
-        .active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Navigation */
-        nav { position: fixed; bottom: 0; width: 100%; background: var(--tg-theme-secondary-bg-color, #fff); display: flex; border-top: 1px solid #ddd; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-        nav div { flex: 1; text-align: center; padding: 15px 0; font-size: 11px; cursor: pointer; opacity: 0.5; }
-        nav div.active-nav { opacity: 1; color: var(--primary); font-weight: bold; border-top: 3px solid var(--primary); }
-
-        /* UI Components */
-        .card { background: var(--tg-theme-secondary-bg-color, #fff); border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); text-align: center; }
-        .balance { font-size: 36px; font-weight: 900; color: var(--success); margin: 10px 0; }
-        .btn { background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn:active { transform: scale(0.98); opacity: 0.9; }
-
-        /* Table & Lists */
-        .table-wrap { background: #fff; border-radius: 12px; overflow: hidden; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; }
-
-        th { background: #f8f9fa; padding: 12px; text-align: left; color: #666; }
-        td { padding: 12px; border-top: 1px solid #eee; }
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .pending { background: #fff3cd; color: #856404; }
-        .approved { background: #d4edda; color: #155724; }
-        .rejected { background: #f8d7da; color: #721c24; }
-
-        /* Chat */
-        #chat-window { height: 300px; overflow-y: auto; background: rgba(0,0,0,0.02); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; border: 1px solid #eee; }
-        .msg { padding: 10px 14px; border-radius: 18px; max-width: 80%; font-size: 14px; line-height: 1.4; position: relative; }
-        .msg.me { align-self: flex-end; background: var(--primary); color: #fff; border-bottom-right-radius: 4px; }
-        .msg.them { align-self: flex-start; background: #fff; color: #333; border-bottom-left-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-
-        /* Admin Gate */
-        #admin-lock { text-align: center; padding: 50px 20px; }
-        .pass-input { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #ddd; font-size: 18px; text-align: center; margin-bottom: 15px; box-sizing: border-box; }
+        body { -webkit-user-select: none; font-family: 'Inter', sans-serif; }
+        .page { display: none; }
+        .active-page { display: block; }
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
+        .nav-item.active { color: #2563eb; border-top: 2px solid #2563eb; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-900 pb-24">
 
-<div class="container">
-    <!-- PAGE: EARN -->
-    <div id="p-earn" class="page active">
-        <div class="card">
-            <div id="u-name" style="opacity: 0.7;">Welcome back</div>
-            <div class="balance" id="u-balance">₱ 0.000</div>
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <button class="btn" onclick="showAd('task-21469')">Gift 1</button>
-            <button class="btn" onclick="showAd('task-21424')">Gift 2</button>
-            <button class="btn" onclick="showAd('21470')">Gift 3</button>
-            <button class="btn" onclick="showAd('int-21471')">Gift 4</button>
-            <button class="btn" onclick="showAd('21423')">Gift 5</button>
-            <button class="btn" onclick="showAd('int-21422')">Gift 6</button>
-        </div>
-    </div>
+    <div class="p-4 space-y-4">
+        <!-- TAB: HOME -->
+        <div id="earn" class="page active-page space-y-4">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 text-center">
+                <p class="text-slate-500 text-sm font-medium" id="user-greeting">Welcome</p>
+                <h1 class="text-4xl font-black text-green-600 mt-1" id="balance">₱ 0.000</h1>
+            </div>
 
-    <!-- PAGE: CHAT -->
-    <div id="p-chat" class="page">
-        <div id="chat-window"></div>
-        <div style="display: flex; gap: 8px;">
-            <input type="text" id="chat-in" placeholder="Say something..." style="flex:1; padding: 14px; border-radius: 12px; border: 1px solid #ddd;">
-            <button class="btn" style="width: 80px;" onclick="postChat()">Send</button>
-        </div>
-        <div style="font-size: 11px; margin-top: 8px; color: #666; text-align: center;">
-            Watch 3 Ads to send + Earn ₱0.015 (3min Cooldown)
-        </div>
-    </div>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="app.playAd(10337853)" class="bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition">🎁 Task 1</button>
+                <button onclick="app.playAd(10337795)" class="bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition">🎁 Task 2</button>
+                <button onclick="app.playAd(10276123)" class="bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition">🎁 Task 3</button>
+                <button onclick="app.playAd(10337853)" class="bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition">🎁 Task 4</button>
+                <button onclick="app.playAd(10337795)" class="bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition">🎁 Task 5</button>
 
-    <!-- PAGE: WALLET -->
-    <div id="p-wallet" class="page">
-        <div class="card">
-            <h3>GCash Withdrawal</h3>
-            <input type="number" id="wd-amt" placeholder="Amount (Min 0.02)" class="pass-input" style="font-size: 16px;">
-            <input type="text" id="wd-phone" placeholder="GCash Number" class="pass-input" style="font-size: 16px;">
-            <button class="btn" onclick="reqWithdraw()">Withdraw Now</button>
-        </div>
-        <h4>History</h4>
-        <div class="table-wrap">
-            <table id="wd-history">
-                <thead><tr><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
-                <tbody id="wd-history-body"></tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- PAGE: ADMIN -->
-    <div id="p-admin" class="page">
-        <div id="admin-login">
-            <div id="admin-lock" class="card">
-                <h3>Admin Dashboard</h3
-                <input type="password" id="admin-pass" placeholder="Enter Password" class="pass-input">
-                <button class="btn" onclick="checkPass()">Unlock Dashboard</button>
+                <button onclick="app.playAd(10276123)" class="bg-blue-600 text-white p-4 rounded-2xl font-bold shadow-lg shadow-blue-100 active:scale-95 transition">🎁 Task 6</button>
             </div>
         </div>
-        <div id="admin-content" style="display: none;">
-            <h3>Pending Requests</h3>
-            <div class="table-wrap">
-                <table>
-                    <thead><tr><th>User</th><th>Amount</th><th>GCash</th><th>Actions</th></tr></thead>
-                    <tbody id="admin-table-body"></tbody>
+
+        <!-- TAB: CHAT -->
+        <div id="chat" class="page space-y-4">
+            <div id="chat-box" class="h-[60vh] overflow-y-auto bg-white rounded-2xl p-4 border border-slate-100 flex flex-col gap-2"></div>
+            <div class="flex gap-2">
+                <input id="chat-input" type="text" placeholder="Watch 3 ads to send..." class="flex-1 p-4 rounded-xl border border-slate-200 focus:outline-blue-500">
+                <button onclick="app.sendMessage()" class="bg-blue-600 text-white px-6 rounded-xl font-bold">SEND</button>
+            </div>
+        </div>
+
+        <!-- TAB: WALLET -->
+        <div id="wallet" class="page space-y-4">
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 space-y-3">
+                <h3 class="font-bold">Withdraw to GCash</h3>
+                <input id="wd-amt" type="number" placeholder="Amount (min 0.02)" class="w-full p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <input id="wd-gcash" type="text" placeholder="GCash Number" class="w-full p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <button onclick="app.requestWithdraw()" class="w-full bg-green-600 text-white p-3 rounded-lg font-bold">Submit Request</button>
+            </div>
+            <div class="bg-white rounded-2xl overflow-hidden border border-slate-100">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50"><tr><th class="p-3">Date</th><th class="p-3">Amount</th><th class="p-3">Status</th></tr></thead>
+                    <tbody id="wd-history"></tbody>
                 </table>
             </div>
         </div>
+
+        <!-- TAB: ADMIN -->
+        <div id="admin" class="page space-y-4">
+            <div id="admin-login" class="bg-white p-6 rounded-2xl border border-slate-100 text-center space-y-4">
+                <h3 class="font-bold">Owner Dashboard</h3>
+                <input id="admin-pass" type="password" placeholder="Dashboard Password" class="w-full p-3 bg-slate-50 rounded-lg border border-slate-200">
+                <button onclick="app.unlockAdmin()" class="w-full bg-slate-900 text-white p-3 rounded-lg font-bold">Login</button>
+            </div>
+            <div id="admin-panel" class="hidden space-y-4">
+                <h3 class="font-bold text-lg">Pending Approvals</h3>
+                <div id="admin-withdrawal-list" class="space-y-3"></div>
+            </div>
+        </div>
     </div>
-</div>
 
-<nav>
-    <div onclick="toPage('earn')" id="n-earn" class="active-nav">🏠 Earn</div>
-    <div onclick="toPage('chat')" id="n-chat">💬 Chat</div>
-    <div onclick="toPage('wallet')" id="n-wallet">💰 Wallet</div>
-    <div onclick="toPage('admin')" id="n-admin">🔑 Admin</div>
-</nav>
+    <!-- Navigation -->
+    <nav class="fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around py-3">
+        <button onclick="app.nav('earn')" class="nav-item flex flex-col items-center active"><span class="text-xs font-bold">EARN</span></button>
+        <button onclick="app.nav('chat')" class="nav-item flex flex-col items-center"><span class="text-xs font-bold">CHAT</span></button>
+        <button onclick="app.nav('wallet')" class="nav-item flex flex-col items-center"><span class="text-xs font-bold">WALLET</span></button>
+        <button onclick="app.nav('admin')" class="nav-item flex flex-col items-center"><span class="text-xs font-bold">ADMIN</span></button>
+    </nav>
 
-<script type="module" src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
