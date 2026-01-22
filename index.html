@@ -2,96 +2,150 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🎖🤑PAPERHOUSE INC ADS🤑🎖</title>
-    
-    <!-- CSS & Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    
-    <!-- Monetag SDK -->
-    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
-    
-    <!-- Telegram SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Monetag SDKs -->
+    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
 
     <style>
-        :root { --gold: #ffd700; --bg: #050505; }
-        body { background-color: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .font-orbitron { font-family: 'Orbitron', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .gold-glow { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-        .btn-main { background: linear-gradient(135deg, #10b981 0%, #059669 100%); transition: all 0.2s; }
-        .btn-main:active { transform: scale(0.96); }
-        .balance-card { background: linear-gradient(135deg, #111, #222); border-bottom: 3px solid var(--gold); }
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&display=swap');
+        body { background: #020617; color: #e2e8f0; font-family: 'Inter', sans-serif; }
+        .font-sync { font-family: 'Syncopate', sans-serif; }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .neon-border { border: 1px solid #22c55e; box-shadow: 0 0 10px rgba(34, 197, 94, 0.2); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .chat-msg { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="p-4 max-w-md mx-auto">
+<body class="pb-20">
 
-    <!-- TOP HEADER -->
-    <header class="flex justify-between items-center mb-6 mt-2">
-        <div>
-            <h1 class="font-orbitron text-sm font-bold gold-glow text-yellow-500 uppercase tracking-tighter">Paperhouse Inc</h1>
-            <p id="user-display" class="text-[10px] text-gray-400">Loading hunter...</p>
-        </div>
+    <!-- Top Navigation -->
+    <nav class="sticky top-0 z-50 glass px-4 py-3 flex justify-between items-center border-b border-white/5">
+        <h1 class="font-sync text-[10px] text-green-500 tracking-widest">PAPERHOUSE INC</h1>
         <div class="text-right">
-            <span class="text-[10px] uppercase text-gray-500 block">Vault Balance</span>
-            <div class="flex items-center gap-1 justify-end">
-                <span class="text-green-500 font-bold">₱</span>
-                <span id="balance-val" class="text-2xl font-bold font-orbitron">0.00</span>
+            <p class="text-[10px] text-gray-500">VAULT</p>
+            <p class="text-sm font-bold text-green-400 font-sync">₱ <span id="balance">0.000</span></p>
+        </div>
+    </nav>
+
+    <!-- Content Sections -->
+    <main class="p-4">
+        
+        <!-- HOME TAB -->
+        <section id="home" class="tab-content active">
+            <div class="glass rounded-3xl p-6 mb-6 text-center">
+                <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Total Revenue</p>
+                <h2 id="balance-large" class="text-4xl font-bold mb-4">₱0.000</h2>
+                <div class="flex gap-2 justify-center">
+
+                    <button onclick="watchAdsSequence('bonus')" class="bg-green-600 hover:bg-green-500 px-6 py-2 rounded-full text-xs font-bold uppercase transition">Claim Daily Bonus</button>
+                </div>
             </div>
-        </div>
-    </header>
 
-    <!-- STATS CARD -->
-    <div class="glass rounded-3xl p-5 mb-6 balance-card">
-        <div class="flex justify-between items-end mb-2">
-            <p class="text-xs text-gray-400">Daily Progress</p>
-            <p id="progress-percent" class="text-[10px] text-green-400">0%</p>
-
-        </div>
-        <div class="w-full bg-gray-900 h-1.5 rounded-full overflow-hidden">
-            <div id="progress-bar" class="bg-green-500 h-full w-0 transition-all duration-500"></div>
-        </div>
-        <p class="text-[9px] mt-3 text-gray-500 italic text-center">Reach ₱500.00 for instant GCash release</p>
-    </div>
-
-    <!-- AD ACTIONS -->
-    <div class="space-y-4">
-        <button id="btn-interstitial" class="w-full glass p-4 rounded-2xl flex items-center gap-4 hover:bg-white/5 transition">
-            <div class="bg-yellow-500/10 p-3 rounded-xl text-yellow-500">💎</div>
-            <div class="text-left flex-1">
-                <h3 class="font-bold text-sm uppercase">Premium Interstitial</h3>
-                <p class="text-[10px] text-gray-400">Unlock high-tier paper currency</p>
+            <h3 class="text-[10px] font-sync text-gray-500 mb-4 uppercase tracking-wider text-center">Live Global Payouts</h3>
+            <div class="glass rounded-2xl overflow-hidden text-[10px]">
+                <table class="w-full text-left">
+                    <thead class="bg-white/5">
+                        <tr>
+                            <th class="p-3">USER</th>
+                            <th class="p-3">GCASH</th>
+                            <th class="p-3 text-right">AMOUNT</th>
+                            <th class="p-3 text-right">STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="live-payouts-table">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
             </div>
-            <div class="text-green-500 font-bold text-xs">+₱0.50</div>
+        </section>
+
+        <!-- CHAT TAB -->
+        <section id="chat" class="tab-content">
+            <div class="glass rounded-2xl flex flex-col h-[70vh]">
+                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-3">
+                    <!-- Messages here -->
+                </div>
+                <div class="p-3 border-t border-white/10 bg-black/20">
+                    <div id="cooldown-timer" class="text-[10px] text-yellow-500 mb-1 hidden text-center uppercase">Message Cooldown Active</div>
+                    <div class="flex gap-2">
+                        <input type="text" id="chat-input" placeholder="Type a message..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 text-sm outline-none focus:border-green-500">
+                        <button id="send-btn" class="bg-green-600 p-3 rounded-xl font-bold">SEND</button>
+                    </div>
+                    <p class="text-[9px] text-gray-500 mt-2 text-center">Sending a message triggers 3 ads & rewards ₱0.015</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- WITHDRAW TAB -->
+        <section id="vault" class="tab-content">
+            <div class="glass rounded-3xl p-6 mb-6">
+                <h2 class="text-xl font-bold mb-4">Withdraw to GCash</h2>
+                <p class="text-xs text-gray-400 mb-6 font-sync">MINIMUM PAYOUT: ₱0.012</p>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[10px] uppercase text-gray-500 ml-2">GCash Number</label>
+                        <input type="number" id="gcash-num" placeholder="09xxxxxxxxx" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-green-500">
+                    </div>
+                    <button onclick="processWithdrawal()" class="w-full bg-green-600 py-4 rounded-2xl font-bold font-sync uppercase text-sm tracking-widest shadow-lg shadow-green-900/40">Request Payout</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ADMIN TAB (Hidden) -->
+        <section id="admin" class="tab-content">
+            <div class="glass rounded-2xl p-4 overflow-x-auto">
+                <h2 class="text-center font-sync text-sm mb-4">OWNER CONTROL PANEL</h2>
+                <table class="w-full text-[10px]">
+                    <thead class="bg-white/10">
+                        <tr>
+                            <th class="p-2">USER</th>
+                            <th class="p-2">GCASH</th>
+                            <th class="p-2">AMT</th>
+                            <th class="p-2 text-right">ACTION</th
+
+>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-payouts-table">
+                        <!-- Admin rows -->
+                    </tbody>
+                </table>
+                <div id="pagination" class="mt-4 flex justify-center gap-2"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 glass h-16 flex justify-around items-center border-t border-white/10 z-50">
+        <button onclick="switchTab('home')" class="flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition">
+            <span class="text-xl">🏠</span>
+            <span class="text-[9px] font-bold">HOME</span>
         </button>
-
-        <button id="btn-popup" class="w-full glass p-4 rounded-2xl flex items-center gap-4 hover:bg-white/5 transition">
-            <div class="bg-blue-500/10 p-3 rounded-xl text-blue-500">💰</div>
-            <div class="text-left flex-1">
-                <h3 class="font-bold text-sm uppercase">Quick Popup Ads</h3>
-                <p class="text-[10px] text-gray-400">Fast conversion reward</p>
-            </div>
-            <div class="text-green-500 font-bold text-xs">+₱0.20</div>
+        <button onclick="switchTab('chat')" class="flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition">
+            <span class="text-xl">💬</span>
+            <span class="text-[9px] font-bold">CHAT</span>
         </button>
-    </div>
+        <button onclick="switchTab('vault')" class="flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition">
+            <span class="text-xl">🏦</span>
+            <span class="text-[9px] font-bold">VAULT</span>
+        </button>
+        <button onclick="adminLogin()" class="flex flex-col items-center gap-1 opacity-50 hover:opacity-100 transition">
+            <span class="text-xl">🛠</span>
+            <span class="text-[9px] font-bold">ADMIN</span>
+        </button>
+    </nav>
 
-    <!-- WITHDRAWAL SECTION -->
-    <div class="mt-8 pt-6 border-t border-gray-800">
-        <h2 class="text-center font-orbitron text-xs text-gray-400 mb-4 tracking-widest uppercase">GCash Settlement</h2>
-        <div class="glass rounded-2xl p-4">
-            <input type="number" id="gcash-num" placeholder="09123456789" class="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 mb-3 text-center text-sm outline-none focus:border-green-500 transition">
-            <button id="btn-withdraw" class="w-full btn-main py-3 rounded-xl font-bold text-sm uppercase tracking-widest shadow-lg">Request Payout</button>
-        </div>
-    </div>
-
-    <footer class="mt-10 text-center">
-        <p class="text-[10px] text-gray-600 tracking-tighter uppercase font-orbitron">Zone ID: 10276123 | Paperhouse Inc Ads</p>
-    </footer>
-
-    <!-- App Logic -->
     <script type="module" src="app.js"></script>
 </body>
 </html>
