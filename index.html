@@ -2,72 +2,107 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAPERHOUSE INC ADS</title>
-    <!-- Telegram SDK -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎖🤑PAPERHOUSE INC ADS🤑🎖</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Monetag SDK -->
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a1a1a;
-            color: white;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 400 -px;
-            margin: auto;
-            background: #2d2d2d;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-        h1 { color: #f39c12; font-size: 1.5rem; }
-        .balance-card {
-            background: #3d3d3d;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-        #balance { font-size: 2rem; font-weight: bold; color: #2ecc71; }
-        button {
-            background: #f39c12;
-            border: none;
-            padding: 15px 25px;
-            color: white;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-        button:active { transform: scale(0.98); }
-        .footer { font-size: 0.8rem; color: #888; margin-top: 20px; }
+        :root { --primary: #f39c12; --bg: #121212; --card: #1e1e1e; --text: #ffffff; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 70px; overflow-x: hidden; }
+        .header { background: var(--card); padding: 15px; border-bottom: 2px solid var(--primary); text-align: center; }
+        .user-info { display: flex; justify-content: space-between; padding: 10px 20px; background: #252525; font-size: 0.9rem; }
+        .balance-box { text-align: center; padding: 20px; }
+        .balance-box h1 { font-size: 2.5rem; margin: 5px 0; color: var(--primary); }
+        
+        .btn { background: var(--primary); color: #000; border: none; padding: 15px; width: 90%; border-radius: 10px; font-weight: bold; margin: 10px auto; display: block; cursor: pointer; }
+        .btn:disabled { background: #555; cursor: not-allowed; }
+        
+        .tab-content { display: none; padding: 15px; }
+        .active-tab { display: block; }
+        
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; }
+        .nav-item { color: #888; text-decoration: none; font-size: 0.8rem; text-align: center; flex: 1; }
+        .nav-item.active { color: var(--primary); }
+        
+        .list-item { background: var(--card); padding: 10px; margin-bottom: 5px; border-radius: 5px; display: flex; justify-content: space-between; }
+        input { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #444; background: #222; color: #fff; }
+        #admin-panel { background: #300; border: 1px solid red; padding: 10px; margin-top: 20px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>🎖🤑PAPERHOUSE INC ADS🤑🎖</h1>
-        
-        <div class="balance-card">
-            <p>Your Total Earnings</p>
-            <div id="balance">0.00</div>
-            <p>Points</p>
-        </div>
-
-        <button onclick="showRewarded()">📺 Watch Rewarded Ad (+10 pts)</button>
-        <button onclick="showPopup()">🎁 Lucky Popup (+5 pts)</button>
-
-        <p class="footer">Ads powered by Monetag</p>
+    <div class="header">
+        <strong>🎖🤑PAPERHOUSE INC ADS🤑🎖</strong>
     </div>
 
-    <!-- Firebase App and Database SDKs -->
+    <div class="user-info">
+        <span id="display-username">Loading...</span>
+
+        <span>Referrals: <span id="ref-count">0</span></span>
+    </div>
+
+    <!-- HOME TAB -->
+    <div id="home" class="tab-content active-tab">
+        <div class="balance-box">
+            <p>Current Balance</p>
+            <h1>₱<span id="balance">0.0000</span></h1>
+        </div>
+
+        <button id="btn-ads" class="btn" onclick="startAdSequence('reward')">
+            <i class="fas fa-play"></i> Watch 3 Ads (₱0.015)
+        </button>
+        <p id="cooldown-ads" style="text-align:center; font-size: 0.8rem; color: #aaa;"></p>
+
+        <button id="btn-pop" class="btn" onclick="startAdSequence('pop')">
+            <i class="fas fa-window-restore"></i> Watch 3 Popups (₱0.015)
+        </button>
+        <p id="cooldown-pop" style="text-align:center; font-size: 0.8rem; color: #aaa;"></p>
+
+        <div style="background: #252525; padding: 15px; border-radius: 10px; margin-top: 20px;">
+            <small>Referral Link (Earn 10%):</small>
+            <input type="text" id="ref-link" readonly onclick="this.select()">
+        </div>
+    </div>
+
+    <!-- LEADERBOARD TAB -->
+    <div id="leaderboard" class="tab-content">
+        <h3>🏆 Top Earners</h3>
+        <div id="leaderboard-list">Loading...</div>
+    </div>
+
+    <!-- WITHDRAW TAB -->
+    <div id="withdraw" class="tab-content">
+        <h3>💸 GCash Withdrawal</h3>
+        <p>Minimum: ₱50.00</p>
+        <input type="number" id="withdraw-amount" placeholder="Amount in Peso">
+        <input type="text" id="gcash-num" placeholder="GCash Number (09*********)">
+        <button class="btn" onclick="requestWithdrawal()">Submit Request</button>
+        <hr>
+        <h4>Your Requests</h4>
+        <div id="withdraw-history"></div>
+    </div>
+
+    <!-- ADMIN TAB -->
+    <div id="admin" class="tab-content">
+        <h3>Admin Dashboard</h3>
+        <div id="admin-login">
+            <input type="password" id="admin-pass" placeholder="Enter Admin Password">
+            <button class="btn" onclick="checkAdmin()">Login</button>
+        </div>
+        <div id="admin-content" style="display:none;">
+            <h4>Pending Withdrawals</h4>
+            <div id="admin-withdrawals"></div>
+        </div>
+    </div>
+
+    <nav class="nav-bar">
+        <a href="javascript:void(0)" class="nav-item active" onclick="showTab('home')"><i class="fas fa-home"></i><br>Home</a>
+        <a href="javascript:void(0)" class="nav-item" onclick="showTab('leaderboard')"><i class="fas fa-trophy"></i><br>Rank</a>
+        <a href="javascript:void(0)" class="nav-item" onclick="showTab('withdraw')"><i class="fas fa-wallet"></i><br>Wallet</a>
+        <a href="javascript:void(0)" class="nav-item" onclick="showTab('admin')"><i class="fas fa-user-shield"></i><br>Admin</a>
+    </nav>
+
     <script type="module" src="app.js"></script>
 </body>
 </html>
