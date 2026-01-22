@@ -1,117 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>PaperHouse Withdrawals</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎖🤑PAPERHOUSE INC ADS🤑🎖</title>
+    
+    <!-- CSS & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Monetag SDK -->
+    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+    
+    <!-- Telegram SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Telegram -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <!-- AdsGram -->
-  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-
-  <!-- App -->
-  <script type="module" src="app.js"></script>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: #fff;
-      padding: 16px;
-    }
-    h2 { text-align: center; }
-    .card {
-      background: #020617;
-      padding: 14px;
-      border-radius: 12px;
-      margin-bottom: 16px;
-    }
-    input, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 8px;
-      border-radius: 8px;
-      border: none;
-      font-size: 14px;
-    }
-    button {
-      background: #22c55e;
-      color: #000;
-      cursor: pointer;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #334155;
-      padding: 6px;
-      text-align: center;
-    }
-    th {
-      background: #1e293b;
-    }
-    .pending { color: orange; }
-    .approved { color: #22c55e; }
-    .rejected { color: red; }
-  </style>
+    <style>
+        :root { --gold: #ffd700; --bg: #050505; }
+        body { background-color: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .gold-glow { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .btn-main { background: linear-gradient(135deg, #10b981 0%, #059669 100%); transition: all 0.2s; }
+        .btn-main:active { transform: scale(0.96); }
+        .balance-card { background: linear-gradient(135deg, #111, #222); border-bottom: 3px solid var(--gold); }
+    </style>
 </head>
+<body class="p-4 max-w-md mx-auto">
 
-<body>
+    <!-- TOP HEADER -->
+    <header class="flex justify-between items-center mb-6 mt-2">
+        <div>
+            <h1 class="font-orbitron text-sm font-bold gold-glow text-yellow-500 uppercase tracking-tighter">Paperhouse Inc</h1>
+            <p id="user-display" class="text-[10px] text-gray-400">Loading hunter...</p>
+        </div>
+        <div class="text-right">
+            <span class="text-[10px] uppercase text-gray-500 block">Vault Balance</span>
+            <div class="flex items-center gap-1 justify-end">
+                <span class="text-green-500 font-bold">₱</span>
+                <span id="balance-val" class="text-2xl font-bold font-orbitron">0.00</span>
+            </div>
+        </div>
+    </header>
 
-<h2>📄💎 PaperHouse</h2>
+    <!-- STATS CARD -->
+    <div class="glass rounded-3xl p-5 mb-6 balance-card">
+        <div class="flex justify-between items-end mb-2">
+            <p class="text-xs text-gray-400">Daily Progress</p>
+            <p id="progress-percent" class="text-[10px] text-green-400">0%</p>
 
-<div class="card">
-  <p>👤 <b><span id="username">Loading...</span></b></p>
-  <p>💰 Balance: <b><span id="balance">0</span></b></p>
+        </div>
+        <div class="w-full bg-gray-900 h-1.5 rounded-full overflow-hidden">
+            <div id="progress-bar" class="bg-green-500 h-full w-0 transition-all duration-500"></div>
+        </div>
+        <p class="text-[9px] mt-3 text-gray-500 italic text-center">Reach ₱500.00 for instant GCash release</p>
+    </div>
 
-  <input id="gcashName" placeholder="GCash Full Name">
-  <input id="gcashNumber" placeholder="GCash Number">
-  <input id="withdrawAmount" placeholder="Amount" type="number">
+    <!-- AD ACTIONS -->
+    <div class="space-y-4">
+        <button id="btn-interstitial" class="w-full glass p-4 rounded-2xl flex items-center gap-4 hover:bg-white/5 transition">
+            <div class="bg-yellow-500/10 p-3 rounded-xl text-yellow-500">💎</div>
+            <div class="text-left flex-1">
+                <h3 class="font-bold text-sm uppercase">Premium Interstitial</h3>
+                <p class="text-[10px] text-gray-400">Unlock high-tier paper currency</p>
+            </div>
+            <div class="text-green-500 font-bold text-xs">+₱0.50</div>
+        </button>
 
-  <button onclick="requestWithdraw()">💸 Request Withdrawal</button>
-</div>
+        <button id="btn-popup" class="w-full glass p-4 rounded-2xl flex items-center gap-4 hover:bg-white/5 transition">
+            <div class="bg-blue-500/10 p-3 rounded-xl text-blue-500">💰</div>
+            <div class="text-left flex-1">
+                <h3 class="font-bold text-sm uppercase">Quick Popup Ads</h3>
+                <p class="text-[10px] text-gray-400">Fast conversion reward</p>
+            </div>
+            <div class="text-green-500 font-bold text-xs">+₱0.20</div>
+        </button>
+    </div>
 
-<div class="card">
-  <h3>📜 Withdrawal History</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>GCash</th>
-        <th>Amount</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody id="withdrawTable"></tbody>
-  </table>
-</div>
+    <!-- WITHDRAWAL SECTION -->
+    <div class="mt-8 pt-6 border-t border-gray-800">
+        <h2 class="text-center font-orbitron text-xs text-gray-400 mb-4 tracking-widest uppercase">GCash Settlement</h2>
+        <div class="glass rounded-2xl p-4">
+            <input type="number" id="gcash-num" placeholder="09123456789" class="w-full bg-black/40 border border-gray-700 rounded-xl px-4 py-3 mb-3 text-center text-sm outline-none focus:border-green-500 transition">
+            <button id="btn-withdraw" class="w-full btn-main py-3 rounded-xl font-bold text-sm uppercase tracking-widest shadow-lg">Request Payout</button>
+        </div>
+    </div>
 
-<div class="card">
-  <h3>🔐 Owner Dashboard</h3>
-  <input id="adminPass" placeholder="Enter admin password">
-  <button onclick="openAdmin()">Access Dashboard</button>
-</div>
+    <footer class="mt-10 text-center">
+        <p class="text-[10px] text-gray-600 tracking-tighter uppercase font-orbitron">Zone ID: 10276123 | Paperhouse Inc Ads</p>
+    </footer>
 
-<div class="card" id="adminPanel" style="display:none;">
-  <h3>🛠️ Admin Withdrawals</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>User</th>
-        <th>GCash</th>
-        <th>Amount</th>
-        <th>Status</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody id="adminWithdrawTable"></tbody>
-  </table>
-</div>
-
+    <!-- App Logic -->
+    <script type="module" src="app.js"></script>
 </body>
 </html>
