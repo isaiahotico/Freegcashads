@@ -1,119 +1,141 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getFirestore, doc, getDoc, setDoc, updateDoc,
-  collection, addDoc, onSnapshot, query, orderBy
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getDatabase, ref, get, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/* ---------- FIREBASE ---------- */
+// --- CONFIGURATION ---
 const firebaseConfig = {
-  apiKey: "AIzaSyDMGU5X7BBp-C6tIl34Uuu5N9MXAVFTn7c",
-  authDomain: "paper-house-inc.firebaseapp.com",
-  projectId: "paper-house-inc",
-  storageBucket: "paper-house-inc.firebasestorage.app",
-  messagingSenderId: "658389836376",
-  appId: "1:658389836376:web:2ab1e2743c593f4ca8e02d"
+    apiKey: "AIzaSyDMGU5X7BBp-C6tIl34Uuu5N9MXAVFTn7c",
+    authDomain: "paper-house-inc.firebaseapp.com",
+    projectId: "paper-house-inc",
+    storageBucket: "paper-house-inc.firebasestorage.app",
+    messagingSenderId: "658389836376",
+    appId: "1:658389836376:web:2ab1e2743c593f4ca8e02d"
 };
 
+const MIN_WITHDRAWAL = 50.00;
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db = getDatabase(app);
+const tg = window.Telegram.WebApp;
 
-/* ---------- TELEGRAM ---------- */
-Telegram.WebApp.ready();
-Telegram.WebApp.expand();
-
-const tgUser = Telegram.WebApp.initDataUnsafe.user;
-const uid = tgUser.id.toString();
-const username = tgUser.username || tgUser.first_name;
-
-/* ---------- UI ---------- */
-document.getElementById("username").innerText = username;
-
-/* ---------- USER INIT ---------- */
-const userRef = doc(db, "users", uid);
-const userSnap = await getDoc(userRef);
-if (!userSnap.exists()) {
-  await setDoc(userRef, { balance: 0, username });
-}
-document.getElementById("balance").innerText =
-  (await getDoc(userRef)).data().balance;
-
-/* ---------- REQUEST WITHDRAW ---------- */
-window.requestWithdraw = async () => {
-  const name = gcashName.value;
-  const number = gcashNumber.value;
-  const amount = Number(withdrawAmount.value);
-
-  if (!name || !number || amount <= 0) {
-    alert("Fill all fields");
-    return;
-  }
-
-  await addDoc(collection(db, "withdrawals"), {
-    uid,
-    username,
-    name,
-    number,
-    amount,
-    status: "PENDING",
-    createdAt: Date.now()
-  });
-
-  alert("⏳ Withdrawal requested");
+// --- STATE ---
+let userData = {
+    uid: "guest",
+    name: "User",
+    balance: 0.00
 };
 
-/* ---------- USER WITHDRAW HISTORY (LIVE) ---------- */
-onSnapshot(
-  query(collection(db, "withdrawals"), orderBy("createdAt", "desc")),
-  snap => {
-    withdrawTable.innerHTML = "";
-    snap.forEach(docu => {
-      const d = docu.data();
-      if (d.uid !== uid) return;
+// --- INITIALIZATION ---
+tg.expand();
+tg.ready();
 
-      withdrawTable.innerHTML += `
-        <tr>
-          <td>${new Date(d.createdAt).toLocaleString()}</td>
-          <td>${d.number}</td>
-          <td>${d.amount}</td>
-          <td class="${d.status.toLowerCase()}">${d.status}</td>
-        </tr>
-      `;
+const initUser = () => {
+    const user = tg.initDataUnsafe?.user;
+    if (user) {
+        userData.uid = user.id.toString();
+        userData.name = user.first_name;
+    }
+    document.getElementById('user-display').innerText = `Agent: ${userData.name}`;
+
+    // Load/Create Data in Firebase
+    const userRef = ref(db, 'users/' + userData.uid);
+    onValue(userRef, (snapshot) => {
+        if (snapshot.exists()) {
+            userData.balance = snapshot.val().balance;
+            updateUI();
+        } else {
+            set(userRef, {
+                username: userData.name,
+                balance: 0.00,
+                createdAt: Date.now()
+            });
+        }
     });
-  }
-);
-
-/* ---------- ADMIN ---------- */
-window.openAdmin = () => {
-  if (adminPass.value !== "Propetas6") {
-    alert("Wrong password");
-    return;
-  }
-  adminPanel.style.display = "block";
 };
 
-/* ---------- ADMIN LIVE DASHBOARD ---------- */
-onSnapshot(
-  query(collection(db, "withdrawals"), orderBy("createdAt", "desc")),
-  snap => {
-    adminWithdrawTable.innerHTML = "";
-    snap.forEach(docu => {
-      const d = docu.data();
-      adminWithdrawTable.innerHTML += `
-        <tr>
-          <td>${d.username}</td>
-          <td>${d.number}</td>
-          <td>${d.amount}</td>
-          <td class="${d.status.toLowerCase()}">${d.status}</td>
-          <td>
-            <button onclick="updateStatus('${docu.id}','APPROVED')">✅</button>
-            <button onclick="updateStatus('${docu.id}','REJECTED')">❌</button>
-          </td>
-        </tr>
-      `;
+const updateUI = () => {
+    document.getElementById('balance-val').innerText = userData.balance.toFixed(2);
+    const progress = Math.min((userData.balance / 500) * 100, 100);
+    document.getElementById('progress-bar').style.width = progress + "%";
+    document.getElementById('progress-percent').innerText = Math.floor(progress) + "%";
+};
+
+// --- AD HANDLERS ---
+
+// Rewarded Interstitial
+window.watchInterstitial = () => {
+    show_10276123().then(() => {
+        addReward(0.50, "Premium Reward");
+    }).catch(e => {
+        Swal.fire('Error', 'Ad not available. Try again in 10s.', 'error');
     });
-  }
-);
-
-window.updateStatus = async (id, status) => {
-  await updateDoc(doc(db, "withdrawals", id), { status });
 };
+
+// Rewarded Popup
+window.watchPopup = () => {
+    show_10276123('pop').then(() => {
+        addReward(0.20, "Popup Reward");
+    });
+};
+
+// --- REWARD LOGIC ---
+const addReward = (amount, type) => {
+    const newBalance = parseFloat((userData.balance + amount).toFixed(2));
+    const userRef = ref(db, 'users/' + userData.uid);
+
+    update(userRef, { balance: newBalance }).then(() => {
+        Swal.fire({
+            title: `+₱${amount}`,
+            text: type,
+            icon: 'success',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    });
+};
+
+// --- WITHDRAWAL ---
+window.processWithdrawal = () => {
+    const gcash = document.getElementById('gcash-num').value;
+    
+    if (gcash.length < 11) {
+        return Swal.fire('Invalid Number', 'Please enter a valid GCash number.', 'warning');
+    }
+    
+    if (userData.balance < MIN_WITHDRAWAL) {
+        return Swal.fire('Low Balance', `Minimum payout is ₱${MIN_WITHDRAWAL}. Keep hunting!`, 'info');
+    }
+
+    const withdrawRef = ref(db, 'withdrawals/' + Date.now());
+    const payoutData = {
+        userId: userData.uid,
+        userName: userData.name,
+        gcash: gcash,
+        amount: userData.balance,
+        status: 'pending'
+    };
+
+    set(withdrawRef, payoutData).then(() => {
+        update(ref(db, 'users/' + userData.uid), { balance: 0.00 });
+        Swal.fire('Success', 'Payout request sent! Arriving in 24-48h.', 'success');
+    });
+};
+
+// --- EVENT LISTENERS ---
+document.getElementById('btn-interstitial').addEventListener('click', watchInterstitial);
+document.getElementById('btn-popup').addEventListener('click', watchPopup);
+document.getElementById('btn-withdraw').addEventListener('click', processWithdrawal);
+
+// Initialize Monetag In-App Interstitial
+show_10276123({
+  type: 'inApp',
+  inAppSettings: {
+    frequency: 2,
+    capping: 0.1,
+    interval: 30,
+    timeout: 5,
+    everyPage: false
+  }
+});
+
+initUser();
