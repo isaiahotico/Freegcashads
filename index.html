@@ -4,324 +4,429 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎖🤑PAPERHOUSE INC ADS🤑🎖</title>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <!-- Monetag SDK -->
-    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
             background-color: #f4f7f6;
             color: #333;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            line-height: 1.6;
         }
+
         .container {
+            max-width: 960px;
+            margin: 20px auto;
+            padding: 20px;
             background-color: #fff;
-            padding: 25px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
-            margin-bottom: 20px;
-            box-sizing: border-box;
         }
-        h1, h2, h3 {
-            color: #2c3e50;
+
+        header {
             text-align: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            color: #007bff; /* A primary color */
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        #user-info p {
+            margin: 5px 0;
+            font-size: 1.1em;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        section {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        section h2 {
+            margin-top: 0;
+            color: #0056b3;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
             margin-bottom: 20px;
         }
-        input[type="text"],
-        input[type="number"],
-        input[type="password"] {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin: 8px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
+
         button {
-            background-color: #28a745;
+            background-color: #28a745; /* Green for actions */
             color: white;
-            padding: 12px 20px;
+            padding: 10px 15px;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            margin-top: 10px;
+            font-size: 1em;
             transition: background-color 0.3s ease;
         }
-        button:hover:not(:disabled) {
+
+        button:hover {
             background-color: #218838;
         }
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        .error {
-            color: #dc3545;
-            margin-top: 10px;
-            text-align: center;
-        }
-        .success {
-            color: #28a745;
-            margin-top: 10px;
-            text-align: center;
-        }
-        .link {
-            display: block;
-            text-align: center;
-            margin-top: 15px;
-            color: #007bff;
-            cursor: pointer;
 
-            text-decoration: underline;
-        }
-        .tab-buttons {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-        .tab-button {
-            flex: 1;
+        input[type="text"],
+        input[type="password"],
+        textarea {
+            width: calc(100% - 20px);
             padding: 10px;
-            border: 1px solid #ddd;
-            border-bottom: none;
-            background-color: #f0f0f0;
-            cursor: pointer;
-            border-radius: 5px 5px 0 0;
-            text-align: center;
-            font-weight: bold;
-        }
-        .tab-button.active {
-            background-color: #fff;
-            border-color: #ddd;
-            border-bottom: 1px solid #fff;
-        }
-        .tab-content {
-            border: 1px solid #ddd;
-            border-top: none;
-            padding: 20px;
-            border-radius: 0 0 5px 5px;
-        }
-        .ad-item {
             margin-bottom: 15px;
-            padding: 15px;
-            border: 1px solid #eee;
+            border: 1px solid #ccc;
             border-radius: 5px;
-            background-color: #f9f9f9;
+            font-size: 1em;
         }
-        .ad-item h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #007bff;
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
         }
-        .ad-item p {
-            margin: 5px 0;
+
+        #ad-section button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+
+            font-size: 1.2em;
+            margin-top: 15px;
         }
-        .ad-item button {
-            margin-top: 10px;
-            background-color: #007bff;
+
+        #referral-section p {
+            font-weight: bold;
+            color: #dc3545; /* Red for emphasis */
         }
-        .ad-item button:hover:not(:disabled) {
-            background-color: #0056b3;
-        }
-        #chat-window {
-            height: 300px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+
+        #leaderboard-list,
+        #chat-box {
+            list-style: none;
+            padding: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #eee;
             padding: 10px;
-            overflow-y: scroll;
-            margin-bottom: 10px;
-            background-color: #e9ecef;
+            background-color: #fff;
+            margin-bottom: 15px;
+            border-radius: 5px;
         }
-        .chat-message {
-            margin-bottom: 8px;
-            line-height: 1.4;
-        }
-        .chat-message strong {
-            color: #3498db;
-        }
-        .leaderboard-item {
+
+        #leaderboard-list li,
+        .message {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
+            align-items: center;
+            padding: 8px 5px;
+            border-bottom: 1px dotted #eee;
         }
-        .leaderboard-item:last-child {
+
+        #leaderboard-list li:last-child,
+        .message:last-child {
             border-bottom: none;
         }
-        #profileReferralCode {
-            font-weight: bold;
-            color: #e67e22;
+
+        .message {
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 10px;
         }
-        .admin-dashboard-section {
-            margin-top: 20px;
+
+        .message strong {
+            color: #007bff;
+        }
+
+        .message .timestamp {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        #message-section { /* Renamed from chat-section */
+            grid-column: 1 / -1; /* Span full width */
+        }
+
+        #message-section input[type="text"] {
+            width: calc(100% - 70px); /* Adjust for button width */
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        #message-section button {
+            width: 60px;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        #withdraw-section label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        #withdraw-section button {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #withdraw-status {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
             padding-top: 20px;
             border-top: 1px solid #eee;
+            font-size: 0.9em;
+            color: #888;
         }
-        .admin-user-item, .admin-withdrawal-item {
-            border: 1px solid #eee;
-            padding: 10px;
-            margin-bottom: 10px;
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 30px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+            max-width: 400px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+
+        .modal-content input[type="password"],
+        .modal-content button {
+            width: calc(100% - 20px);
+            margin-top: 10px;
+        }
+
+        .modal-content button {
+            background-color: #007bff;
+        }
+        .modal-content button:hover {
+            background-color: #0056b3;
+        }
+
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #333;text-decoration: none;
+        }
+
+        #admin-login-error {
+            color: #dc3545;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        /* Admin Dashboard Styles */
+        #admin-dashboard {
+            margin-top: 40px;
+            padding: 30px;
+            background-color: #eef2f7;
+            border-radius: 10px;
+        }
+
+        #admin-dashboard h2,
+        #admin-dashboard h3 {
+            text-align: center;
+            color: #0056b3;
+        }
+
+        #admin-dashboard ul {
+            list-style: none;
+            padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: #fff;
+            margin-bottom: 20px;
             border-radius: 5px;
-            background-color: #fdfdfd;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
-        .admin-withdrawal-item.pending { background-color: #fff3cd; }
-        .admin-withdrawal-item.approved { background-color: #d4edda; }
-        .admin-withdrawal-item.rejected { background-color: #f8d7da; }
-        .admin-withdrawal-item button {
-            width: auto;
+
+        #admin-dashboard li {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Allow wrapping for long content */
+        }
+        #admin-dashboard li span {
             margin-right: 10px;
-            padding: 8px 15px;
         }
-        .admin-withdrawal-item button.approve { background-color: #28a745; }
-        .admin-withdrawal-item button.reject { background-color: #dc3545; }
-        .logout-btn {
-            background-color: #dc3545;
-            margin-top: 20px;
+
+        #admin-dashboard li:last-child {
+            border-bottom: none;
         }
-        .logout-btn:hover {
-            background-color: #c82333;
+
+        #logout-admin-btn {
+            display: block;
+            margin: 20px auto;
+            background-color: #6c757d;
+        }
+
+        #logout-admin-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #initial-setup-modal {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1001;
+        }
+        #initial-setup-modal .modal-content {
+            margin: 0;
+            max-width: 500px;
         }
     </style>
 </head>
 <body>
-    <div class="container" id="auth-container">
-        <h1>🎖🤑PAPERHOUSE INC ADS🤑🎖</h1>
-        <div id="auth-forms">
-            <h2>Login</h2>
-            <input type="text" id="loginUsername" placeholder="Username" required>
-            <input type="text" id="loginGcashNumber" placeholder="GCash Number" required>
-            <button id="loginButton">Login</button>
-            <p class="error" id="loginError"></p>
-            <a class="link" id="showRegister">Don't have an account? Register here.</a>
-
-            <div id="register-section" style="displ
-
-ay:none;">
-                <h2>Register</h2>
-                <input type="text" id="registerUsername" placeholder="Username" required>
-                <input type="text" id="registerGcashNumber" placeholder="GCash Number (09xxxxxxxxx)" pattern="09\d{9}" required>
-                <input type="text" id="referralCode" placeholder="Referral Code (Optional)">
-                <button id="registerButton">Register</button>
-                <p class="error" id="registerError"></p>
-                <a class="link" id="showLogin">Already have an account? Login here.</a>
+    <div class="container">
+        <header>
+            <h1>🎖🤑PAPERHOUSE INC ADS🤑🎖</h1>
+            <div id="user-info">
+                <p>Welcome, <span id="display-name">User</span>!</p>
+                <p>Balance: <span id="balance">0.00</span> Peso</p>
             </div>
-        </div>
+        </header>
 
-        <div id="admin-login-section" style="margin-top: 20px;">
+        <main>
+            <section id="ad-section">
+                <h2>Watch Ads & Earn!</h2>
+                <button id="watch-ad-btn">Watch Ad</button>
+                <p>Minimum withdraw: 0.02 Peso</p>
+                <p>Max reward per ad: 0.01 Peso</p>
+            </section>
+
+            <section id="referral-section">
+                <h2>Referral System</h2>
+                <p>Your Referral Code: <span id="referral-code"></span></p>
+                <p>Share this code to earn 10% of your friends' earnings!</p>
+            </section>
+
+            <section id="leaderboard-section">
+                <h2>Leaderboard</h2>
+                <ul id="leaderboard-list">
+                    <!-- Leaderboard entries will be loaded here -->
+                </ul>
+            </section>
+
+            <section id="message-section"> <!-- Renamed from chat-section -->
+                <h2>Chat Room</h2>
+                <div id="chat-box">
+                    <!-- Chat messages will be loaded here -->
+                </div>
+                <input type="text" id="chat-message" placeholder="Type your message...">
+                <button id="send-message-btn">Send</button>
+            </section>
+
+            <section id="withdraw-section">
+                <h2>Withdraw</h2>
+                <label for="gcash-number">GCash Number:</label>
+                <input type="text" id="gcash-number" placeholder="Enter your GCash number">
+                <button id="withdraw-btn">Withdraw</button>
+                <p id="withdraw-status"></p>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 PAPERHOUSE INC. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
             <h2>Admin Login</h2>
-            <input type="password" id="adminPassword" placeholder="Admin Password" required>
-            <button id="adminLoginButton">Admin Login</button>
-            <p class="error" id="adminLoginError"></p>
+            <input type="password" id="admin-password" placeholder="Enter Password">
+            <button id="login-admin-btn">Login</button>
+            <p id="admin-login-error"></p>
         </div>
     </div>
 
-    <div class="container" id="app-container" style="display:none;">
-        <h1>🎖🤑PAPERHOUSE INC ADS🤑🎖</h1>
-        <p class="success" id="app-message"></p>
-
-        <div class="tab-buttons">
-            <button class="tab-button active" data-tab="ads">Ads</button>
-            <button class="tab-button" data-tab="profile">Profile</button>
-            <button class="tab-button" data-tab="chat">Chat</button>
-            <button class="tab-button" data-tab="leaderboard">Leaderboard</button>
-            <button class="tab-button" data-tab="withdraw">Withdraw</button>
-            <button class="tab-button" data-tab="admin" style="display: none;">Admin</button>
-        </div>
-
-        <div id="ads-tab" class="tab-content">
-            <h2>Watch Ads & Earn!</h2>
-            <div class="ad-item">
-                <h3>Ad 1 (High Reward)</h3>
-                <p>Earn: <span id="ad1Reward">0.02</span> Peso</p>
-                <p>Cooldown: <span id="ad1CooldownTime">5:00</span></p>
-                <button id="watchAd1Button">Watch Ad 1</button>
-                <p class="error" id="ad1Error"></p>
-            </div>
-            <div class="ad-item">
-                <h3>Ad 2 (Medium Reward)</h3>
-                <p>Earn: <span id="ad2Reward">0.015</span> Peso</p>
-                <p>Cooldown: <span id="ad2CooldownTime">10:00</span></p>
-                <button id="watchAd2Button">Watch Ad 2</button>
-                <p class="error" id="ad2Error"></p>
-            </div>
-            <div class="ad-item">
-                <h3>Ad 3 (Low Reward)</h3>
-                <p>Earn: <span id="ad3Reward">0.01</span> Peso</p>
-                <p>Cooldown: <span id="ad3CooldownTime">15:00</span></p>
-                <button id="watchAd3Button">Watch Ad 3</button>
-                <p class="error" id="ad3Error"></p>
-            </div>
-        </div>
-
-        <div id="profile-tab" class="tab-content" style="display:none;">
-            <h2>My Profile</h2>
-            <p><strong>Username:</strong> <span id="profileUsername"></span></p>
-            <p><strong>GCash Number:</strong> <span id="profileGcashNumber"></span></p>
-            <p><strong>Current Balance:</strong> ₱<span id="profileBalance">0.00</span></p>
-            <p><strong>Your Referral Code:</strong> <span id="profileReferralCode"></span> <button onclick="copyToClipboard('profileReferralCode')">Copy</button></p>
-            <p><strong>Referrals:</strong> <span id="profileReferralCount">0</span></p>
-        </div>
-
-        <div id="chat-tab" class="tab-content" style="display:none;">
-            <h2>Global Chat Room</h2>
-            <div id="chat-window"></div>
-            <input type="text" id="chatInput" placeholder="Type your message..." maxlength="200">
-            <button id="sen
-
-dChatMessage">Send</button>
-        </div>
-
-        <div id="leaderboard-tab" class="tab-content" style="display:none;">
-            <h2>Top Earners Leaderboard</h2>
-            <div id="leaderboard-list">
-                <p>Loading leaderboard...</p>
-            </div>
-        </div>
-
-        <div id="withdraw-tab" class="tab-content" style="display:none;">
-            <h2>Withdraw GCash</h2>
-            <p>Your Current Balance: ₱<span id="withdrawBalance">0.00</span></p>
-            <p>Minimum Withdrawal: ₱1.00</p>
-            <input type="number" id="withdrawAmount" placeholder="Amount (e.g., 1.00)" min="1" step="0.01">
-            <input type="text" id="gcashNumberWithdraw" placeholder="GCash Number (e.g., 09xxxxxxxxx)">
-            <button id="requestWithdrawButton">Request Withdrawal</button>
-            <p class="error" id="withdrawError"></p>
-            <p class="success" id="withdrawSuccess"></p>
-
-            <h3>Your Withdrawal History</h3>
-            <div id="withdrawalHistory">
-                <p>No history yet.</p>
-            </div>
-        </div>
-
-        <div id="admin-tab" class="tab-content" style="display:none;">
-            <h2>Admin Dashboard</h2>
-            <div class="admin-dashboard-section">
-                <h3>Pending Withdrawals</h3>
-                <div id="adminPendingWithdrawals">
-                    <p>No pending withdrawals.</p>
-                </div>
-            </div>
-            <div class="admin-dashboard-section">
-                <h3>All Users</h3>
-                <div id="adminAllUsers">
-                    <p>Loading users...</p>
-                </div>
-            </div>
-        </div>
-
-        <button id="logoutButton" class="logout-btn">Logout</button>
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="hidden">
+        <h2>Admin Dashboard</h2>
+        <button id="logout-admin-btn">Logout Admin</button>
+        <h3>User Management</h3>
+        <ul id="user-list">
+            <!-- User list will be loaded here -->
+        </ul>
+        <h3>Broadcast Message</h3>
+        <textarea id="broadcast-message" placeholder="Enter message to broadcast to all users..."></textarea>
+        <button id="send-broadcast-btn">Send Broadcast</button>
     </div>
 
+    <!-- Initial User Setup Modal -->
+    <div id="initial-setup-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Welcome to PAPERHOUSE INC ADS!</h2>
+            <p>Please enter your desired username and an optional referral code.</p>
+            <input type="text" id="setup-username" placeholder="Your Username (e.g., JohnDoe)">
+            <input type="text" id="setup-referral-code" placeholder="Referral Code (Optional)">
+            <button id="complete-setup-btn">Start Earning!</button>
+            <p id="setup-error"></p>
+        </div>
+    </div>
+
+    <!-- Monetag Ads Script -->
+    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+
+    <!-- Firebase Configuration (v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <!-- Your App Script -->
     <script src="app.js"></script>
 </body>
 </html>
