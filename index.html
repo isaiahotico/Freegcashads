@@ -1,100 +1,102 @@
+ChatGPT | Midjourney:
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AdsGram Rewards</title>
-    <!-- Telegram WebApp SDK -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PaperHouse Global</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- AdsGram SDK -->
-    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <script src="https://adsgram.ai/sdk.js"></script>
+    <!-- Monetag SDKs -->
+    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+    
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            text-align: center;
-            padding: 20px;
-            margin: 0;
-            box-sizing: border-box;
-        }
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-        .balance-card {
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-            padding: 15px 20px;
-            border-radius: 12px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        #balance {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--tg-theme-accent-text-color, #007aff); /* Use accent for balance */
-        }
-        .user-info {
-            font-size: 14px;
-            color: var(--tg-theme-hint-color, #999999);
-            margin-bottom: 10px;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            width: 100%;
-        }
-        button {
-            background-color: var(--tg-theme-button-color, #2481cc);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            border: none;
-            padding: 15px 10px;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 14px;
-            transition: opacity 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        button:active {
-            opacity: 0.8;
-        }
-        .status {
-            margin-top: 15px;
-            font-size: 13px;
-            color: var(--tg-theme-hint-color, #999999);
-            min-height: 20px; /* Prevent layout shifts */
-        }
+        :root { --primary: #2481cc; --bg: #ffffff; --text: #000000; --sec-bg: #f0f0f0; }
+        body { font-family: sans-serif; background: var(--tg-theme-bg-color, var(--bg)); color: var(--tg-theme-text-color, var(--text)); margin: 0; padding-bottom: 70px; }
+        .page { display: none; padding: 20px; animation: fadeIn 0.3s; }
+        .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Navigation */
+        nav { position: fixed; bottom: 0; width: 100%; background: var(--tg-theme-secondary-bg-color, var(--sec-bg)); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ccc; z-index: 100; }
+        nav div { font-size: 12px; cursor: pointer; text-align: center; opacity: 0.6; }
+        nav div.active-nav { opacity: 1; color: var(--primary); font-weight: bold; }
+
+        /* UI Cards */
+        .card { background: var(--tg-theme-secondary-bg-color, var(--sec-bg)); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        .balance { font-size: 28px; font-weight: 800; color: #28a745; }
+        .btn { background: var(--tg-theme-button-color, var(--primary)); color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        .btn:disabled { background: #ccc; }
+
+        /* Chat System */
+        #chat-box { height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; background: rgba(0,0,0,0.05); }
+        .msg { padding: 8px 12px; border-radius: 12px; max-width: 80%; font-size: 14px; }
+        .msg.me { align-self: flex-end; background: var(--primary); color: white; }
+
+        .msg.others { align-self: flex-start; background: #e9e9eb; color: black; }
+        .msg-info { font-size: 10px; display: block; margin-bottom: 2px; opacity: 0.7; }
+
+        /* Admin Dashboard */
+        .withdraw-item { border-bottom: 1px solid #ddd; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="balance-card">
-            <div id="username">Hello, Guest!</div>
-            <div>Your Balance</div>
-            <div id="balance">₱ 0.00</div>
+    <!-- Tab 1: Home/Earn -->
+    <div id="home" class="page active">
+        <div class="card">
+            <div id="user-display">Loading User...</div>
+            <div class="balance" id="balance">₱ 0.00</div>
         </div>
-
-        <h3>Watch Ads to Earn</h3>
-        <div class="grid">
-            <button onclick="showRewardAd('task-21469')">🎁 Reward 1</button>
-            <button onclick="showRewardAd('task-21424')">🎁 Reward 2</button>
-            <button onclick="showRewardAd('21470')">🎁 Reward 3</button>
-            <button onclick="showRewardAd('int-21471')">🎁 Reward 4</button>
-            <button onclick="showRewardAd('21423')">🎁 Reward 5</button>
-            <button onclick="showRewardAd('int-21422')">🎁 Reward 6</button>
+        <h3>Earning Center</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button class="btn" onclick="playAdsgram('task-21469')">AD 1</button>
+            <button class="btn" onclick="playAdsgram('task-21424')">AD 2</button>
+            <button class="btn" onclick="playAdsgram('21470')">AD 3</button>
+            <button class="btn" onclick="playAdsgram('int-21471')">AD 4</button>
+            <button class="btn" onclick="playAdsgram('21423')">AD 5</button>
+            <button class="btn" onclick="playAdsgram('int-21422')">AD 6</button>
         </div>
-
-        <div id="status" class="status">Ready to earn</div>
     </div>
 
-    <!-- Firebase SDKs -->
+    <!-- Tab 2: Live Chat -->
+    <div id="chat" class="page">
+        <h3>📙 GLOBAL CHAT 📘</h3>
+        <div id="chat-box"></div>
+        <div id="cooldown-timer" style="color: red; font-size: 12px;"></div>
+        <input type="text" id="chat-input" placeholder="Type a message..." style="width: 70%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+        <button class="btn" id="send-btn" onclick="sendChatMessage()" style="width: 25%;">SEND</button>
+        <p style="font-size: 10px;">*Sending requires 3 ads + earns ₱0.015</p>
+    </div>
+
+    <!-- Tab 3: Wallet -->
+    <div id="wallet" class="page">
+        <h3>Withdraw (GCash)</h3>
+        <div class="card">
+            <p>Min Withdrawal: ₱ 0.02</p>
+            <input type="number" id="withdraw-amount" placeholder="Amount (₱)" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+            <input type="text" id="gcash-num" placeholder="GCash Number" style="width: 100%; padding: 10px;">
+            <button class="btn" onclick="requestWithdrawal()">Submit Request</button>
+        </div>
+        <h4>History</h4>
+        <div id="withdraw-history"></div>
+    </div>
+
+    <!-- Tab 4: Owner Dashboard -->
+    <div id="admin" class="page">
+        <h3>Owner Dashboard</h3>
+        <div id="pending-withdrawals"></div>
+    </div>
+
+    <nav>
+        <div onclick="showPage('home')" id="nav-home" class="active-nav">🏠 Home</div>
+        <div onclick="showPage('chat')" id="nav-chat">💬 Chat</div>
+        <div onclick="showPage('wallet')" id="nav-wallet">💰 Wallet</div>
+        <div onclick="showPage('admin')" id="nav-admin" style="display:none;">👑 Admin</div>
+    </nav>
+
     <script type="module" src="app.js"></script>
 </body>
 </html>
