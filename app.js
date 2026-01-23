@@ -1,109 +1,136 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+// 1. Initialize Telegram
+const tg = window.Telegram.WebApp;
+tg.expand();
+tg.ready();
 
-// --- CONFIGURATION ---
+const myUser = tg.initDataUnsafe?.user?.username || tg.initDataUnsafe?.user?.first_name || "Guest";
+document.getElementById('my-username').innerText = `@${myUser}`;
+
+// 2. Firebase Config (Paper House Inc)
 const firebaseConfig = {
   apiKey: "AIzaSyDMGU5X7BBp-C6tIl34Uuu5N9MXAVFTn7c",
   authDomain: "paper-house-inc.firebaseapp.com",
   projectId: "paper-house-inc",
   storageBucket: "paper-house-inc.firebasestorage.app",
   messagingSenderId: "658389836376",
-  appId: "1:658389836376:web:2ab1e2743c593f4ca8e02d"
+  appId: "1:658389836376:web:2ab1e2743c593f4ca8e02d",
+  databaseURL: "https://paper-house-inc-default-rtdb.firebaseio.com" // Standard URL for your Project ID
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const tele = window.Telegram.WebApp;
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-// Game State
-let userData = {
-    balance: 0.00,
-    ink: 100,
-    multiplier: 1,
-    lastSync: Date.now()
-};
+// 3. Game State
+let board = null;
+let game = new Chess();
+let userRole = null; // 'white', 'black', or 'spectator'
 
-// Use Telegram ID or a fallback for testing
-const userId = tele.initDataUnsafe?.user?.id || "guest_user";
+// Get Game ID from URL or create a default one
+const urlParams = new URLSearchParams(window.location.search);
+let gameId = urlParams.get('gameId') || 'lobby_1';
+document.getElementById('gameIdDisplay').innerText = `Room: ${gameId}`;
 
-// --- MONETAG ADS INTEGRATION ---
+const gameRef = db.ref('games/' + gameId);
 
-// 1. In-App Interstitials (Auto-run)
-show_10337795({
-  type: 'inApp',
-  inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+// 4. Board Logic
+function onDragStart(source, piece, position, orientation) {
+    if (game.game_over()) return false;
+    
+    // Only allow moving your own pieces
+    if (userRole === 'white' && piece.search(/^b/) !== -1) return false;
+    if (userRole === 'black' && piece.search(/^w/) !== -1) return false;
+    
+    // Only allow moving on your turn
+    if ((game.turn() === 'w' && userRole !== 'white') || 
+        (game.turn() === 'b' && userRole !== 'black')) return false;
+}
+
+function onDrop(source, target) {
+    let move = game.move({
+        from: source,
+        to: target,
+        promotion: 'q'
+    });
+
+    if (move === null) return 'snapback';
+
+    // Update Firebase
+    gameRef.update({
+        fen: game.fen(),
+        lastMove: Date.now()
+    });
+}
+
+function onSnapEnd() {
+    board.position(game.fen());
+}
+
+// 5. Sync with Firebase
+gameRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    
+    if (!data) {
+        // Initialize new game if none exists
+        gameRef.set({
+            fen: 'start',
+            white: myUser,
+            black: null
+        });
+        return;
+    }
+
+    // Role Assignment
+    if (data.white === myUser) {
+        userRole = 'white';
+    } else if (data.black === myUser) {
+        userRole = 'black';
+    } else if (!data.black) {
+        // Join as Black if slot is empty
+        gameRef.update({ black: myUser });
+        userRole = 'black';
+    } else {
+        userRole = 'spectator';
+    }
+
+    // Update Board
+    game.load(data.fen || 'start');
+    board.position(game.fen());
+    board.orientation(userRole === 'black' ? 'black' : 'white');
+
+    // Update UI
+    document.getElementById('player-white').innerText = `White: ${data.white || '?'}`;
+    document.getElementById('player-black').innerText = `Black: ${data.black || '?'}`;
+    updateStatus();
 });
 
-// 2. Rewarded Ad: Refill Ink
-window.watchRefillAd = function() {
-    show_10337795().then(() => {
-        userData.ink = 100;
-        updateUI();
-        saveToFirebase();
-        alert("Ink Refilled! Keep printing Pesos.");
-    });
-};
+function updateStatus() {
+    let status = '';
+    let moveColor = game.turn() === 'b' ? 'Black' : 'White';
 
-// 3. Rewarded Popup: Double Earnings
-window.watchDoubleAd = function() {
-    show_10337795('pop').then(() => {
-        userData.multiplier = 2;
-        updateUI();
-        setTimeout(() => { userData.multiplier = 1; updateUI(); }, 60000); // 1 min boost
-        alert("2x Boost active for 60 seconds!");
-    });
-};
-
-// --- CORE LOGIC ---
-
-async function initGame() {
-    tele.ready();
-    tele.expand();
-
-    // Load Data from Firebase
-    const userRef = ref(db, 'users/' + userId);
-    const snapshot = await get(userRef);
-    
-    if (snapshot.exists()) {
-        userData = { ...userData, ...snapshot.val() };
+    if (game.in_checkmate()) {
+        status = 'Game over! ' + moveColor + ' is in checkmate.';
+    } else if (game.in_draw()) {
+        status = 'Game over, Draw';
     } else {
-        await set(userRef, userData);
+        status = moveColor + ' to move';
+        if (game.in_check()) status += ' (Check!)';
     }
     
-    document.getElementById('loading').style.display = 'none';
-    updateUI();
+    if (userRole === 'spectator') status += " [Spectating]";
+    document.getElementById('status').innerText = status;
 }
 
-function updateUI() {
-    document.getElementById('balance').innerText = userData.balance.toFixed(2);
-    document.getElementById('ink').innerText = Math.floor(userData.ink);
+function shareGame() {
+    const inviteLink = `https://t.me/YOUR_BOT_USERNAME/app_name?startapp=${gameId}`;
+    tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=Play chess with me!`);
 }
 
-function saveToFirebase() {
-    const userRef = ref(db, 'users/' + userId);
-    update(userRef, userData);
-}
-
-// Click/Tap Logic
-document.getElementById('printBtn').addEventListener('click', () => {
-    if (userData.ink > 0) {
-        let earnings = 0.50 * userData.multiplier; // 0.50 Peso per tap
-        userData.balance += earnings;
-        userData.ink -= 1;
-        
-        // Haptic feedback for Telegram
-        tele.HapticFeedback.impactOccurred('light');
-        
-        updateUI();
-        
-        // Save every 10 clicks to save Firebase bandwidth
-        if (Math.floor(userData.balance) % 5 === 0) {
-            saveToFirebase();
-        }
-    } else {
-        tele.showAlert("Out of Ink! Watch an ad to refill.");
-    }
+// 6. Init Board
+board = ChessBoard('board', {
+    draggable: true,
+    position: 'start',
+    onDragStart: onDragStart,
+    onDrop: onDrop,
+    onSnapEnd: onSnapEnd,
+    pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
 });
-
-// Start the game
-initGame();
