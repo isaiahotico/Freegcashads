@@ -1,190 +1,182 @@
 
-// --- FIREBASE CONFIGURATION ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore, doc, setDoc, getDoc, addDoc,
+  collection, query, where, orderBy, limit,
+  onSnapshot, updateDoc, serverTimestamp, startAfter, limitToLast
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// --- FIREBASE SETUP ---
 const firebaseConfig = {
-    apiKey: "AIzaSyDMGU5X7BBp-C6tIl34Uuu5N9MXAVFTn7c",
-    authDomain: "paper-house-inc.firebaseapp.com",
-    projectId: "paper-house-inc",
-    storageBucket: "paper-house-inc.firebasestorage.app",
-    messagingSenderId: "658389836376",
-    appId: "1:658389836376:web:2ab1e2743c593f4ca8e02d"
+  apiKey: "AIzaSyDMGU5X7BBp-C6tIl34Uuu5N9MXAVFTn7c",
+  authDomain: "paper-house-inc.firebaseapp.com",
+  projectId: "paper-house-inc"
 };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// --- TELEGRAM SETUP ---
+const tg = window.Telegram.WebApp;
+tg.expand();
+const tgUser = tg.initDataUnsafe.user;
+const uid = tgUser ? (tgUser.username || `user_${tgUser.id}`) : "Guest";
+document.getElementById("display-username").innerText = uid;
 
-// --- TELEGRAM INIT ---
-const tg = window.Telegram?.WebApp;
-tg?.ready();
-const tgUser = tg?.initDataUnsafe?.user;
-const username = tgUser ? `@${tgUser.username || tgUser.first_name}` : "Guest_" + Math.floor(Math.random()*1000);
-document.getElementById("userBar").innerText = "👤 " + username;
+// --- STATE ---
+let currentBalance = 0;
+let lastMsgTime = localStorage.getItem('lastMsgTime') || 0;
+const userRef = doc(db, "users", uid);
 
-// --- APP STATE ---
-let myBalance = 0;
-let lastSent = localStorage.getItem('lastSent') || 0;
-
-// Initialize User
-async function syncUser() {
-    const userRef = db.collection('users').doc(username);
-    const doc = await userRef.get();
-    if (!doc.exists()) {
-        await userRef.set({ balance: 0 });
-    } else {
-        myBalance = doc.data().balance;
-    }
-    updateUI();
+// --- INITIALIZE USER & LIVE BALANCE ---
+async function init() {
+    await setDoc(userRef, { balance: 0 }, { merge: true });
+    onSnapshot(userRef, snap => {
+        if(snap.exists()){
+            currentBalance = snap.data().balance || 0;
+            document.getElementById("balance").innerText = currentBalance.toFixed(3);
+        }
+    });
 }
-syncUser();
+init();
 
-// --- THEME ENGINE (Aide Text) ---
+// --- THEME ENGINE ---
 const colors = ["pink", "green", "blue", "red", "violet", "yellow", "yellowgreen", "orange", "white", "cyan", "brown", "bricks"];
 document.getElementById('aide-text').onclick = () => {
     const body = document.getElementById('mainBody');
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    
-    body.className = ""; // Reset
-    body.style.backgroundColor = "";
-    body.style.color = "white";
-
-    if (randomColor === "bricks") {
-        body.classList.add('bricks');
-    } else {
-        body.style.backgroundColor = randomColor;
-        if (["white", "yellow", "cyan", "yellowgreen"].includes(randomColor)) {
-            body.style.color = "black";
-        }
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    body.className = ""; body.style.backgroundColor = ""; body.style.color = "white";
+    if(color === 'bricks') body.classList.add('bricks');
+    else {
+        body.style.backgroundColor = color;
+        if(['white','yellow','cyan','yellowgreen'].includes(color)) body.style.color = "black";
     }
 };
 
-// --- CHAT SYSTEM ---
-async function processMessage() {
-    const text = document.getElementById('chatInput').value;
+// --- CHAT LOGIC ---
+window.handleSendMessage = async () => {
+    const text = document.getElementById("chatInput").value.trim();
     const now = Date.now();
-
-    if (!text) return alert("Enter a message");
-    if (now - lastSent < 180000) return alert("Cooldown: 3 minutes");
+    if(!text) return;
+    if(now - lastMsgTime < 180000) return alert("Please wait 3 minutes cooldown.");
 
     try {
-        // Sequentially show 3 Interstitial Ads
-        alert("Preparing Ads (1/3)...");
+        // Sequentially show 3 Rewarded Interstitials
+        tg.MainButton.setText("WATCHING AD 1/3...").show();
         await show_10337853();
-        alert("Preparing Ads (2/3)...");
+        tg.MainButton.setText("WATCHING AD 2/3...");
         await show_10337795();
-        alert("Preparing Ads (3/3)...");
+        tg.MainButton.setText("WATCHING AD 3/3...");
         await show_10276123();
+        tg.MainButton.hide();
 
-        // Successful Ad Completion
-        myBalance += 0.015;
-        lastSent = now;
-        localStorage.setItem('lastSent', now);
-
-        await db.collection('users').doc(username).update({ balance: myBalance });
-        await db.collection('messages').add({
-            user: username,
+        // Update Balance & Send
+        const newBal = currentBalance + 0.015;
+        await updateDoc(userRef, { balance: newBal });
+        await addDoc(collection(db, "messages"), {
+            user: uid,
             text: text,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            createdAt: serverTimestamp()
         });
-
-        document.getElementById('chatInput').value = "";
-        updateUI();
-    } catch (err) {
-        alert("Ad failed. Watch all ads to send message.");
+        
+        lastMsgTime = now;
+        localStorage.setItem('lastMsgTime', now);
+        document.getElementById("chatInput").value = "";
+    } catch (e) {
+        alert("Ad interrupted. Watch all 3 ads to send.");
+        tg.MainButton.hide();
     }
-}
+};
 
-// Global Sync Listener for Chat
-db.collection('messages').orderBy('timestamp', 'desc').limit(50).onSnapshot(snap => {
-    const display = document.getElementById('chat-display');
-    display.innerHTML = "";
-    snap.forEach(doc => {
-        const m = doc.data();
-        display.innerHTML += `
-            <div class="msg">
-                <b>${m.user}</b>
-                <span>${m.text}</span>
-            </div>`;
-    });
+// Chat Listener
+onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(50)), snap => {
+    const box = document.getElementById("chat-box");
+    box.innerHTML = snap.docs.map(d => `
+        <div class="msg"><b>${d.data().user}</b>${d.data().text}</div>
+    `).join("");
 });
 
-// --- WITHDRAWAL SYSTEM ---
-async function submitWithdrawal() {
-    const name = document.getElementById('gcName').value;
-    const num = document.getElementById('gcNum').value;
-    const amt = parseFloat(document.getElementById('wdAmount').value);
+// --- WITHDRAWAL LOGIC ---
+window.requestWithdraw = async () => {
+  const name = document.getElementById("gcashName").value.trim();
+  const num = document.getElementById("gcashNumber").value.trim();
+  const amt = Number(document.getElementById("amount").value);
 
-    if (amt > myBalance || amt <= 0) return alert("Insufficient balance");
-    if (!name || !num) return alert("Fill all fields");
+  if (!name || !num || amt < 5) return alert("Min withdrawal ₱5. Fill all fields.");
+  if (amt > currentBalance) return alert("Insufficient balance.");
 
-    await db.collection('withdrawals').add({
-        username: username,
-        gcashName: name,
-        gcashNum: num,
-        amount: amt,
-        status: "pending",
-        date: firebase.firestore.FieldValue.serverTimestamp()
-    });
+  // AUTO DEDUCT
+  await updateDoc(userRef, { balance: currentBalance - amt });
 
-    myBalance -= amt;
-    await db.collection('users').doc(username).update({ balance: myBalance });
-    alert("Withdrawal Request Sent!");
-    updateUI();
-}
+  await addDoc(collection(db, "withdrawals"), {
+    user: uid,
+    gcashName: name,
+    gcashNumber: num,
+    amount: amt,
+    status: "pending",
+    rejectReason: "",
+    createdAt: serverTimestamp()
+  });
 
-// User Withdrawal Table Sync
-db.collection('withdrawals').where('username', '==', username).onSnapshot(snap => {
-    const tbody = document.getElementById('user-wd-list');
-    tbody.innerHTML = "";
-    snap.forEach(doc => {
-        const d = doc.data();
-        tbody.innerHTML += `<tr><td>${new Date(d.date?.seconds*1000).toLocaleDateString()}</td><td>₱${d.amount}</td><td class="status-${d.status}">${d.status}</td></tr>`;
-    });
+  alert("Submitted! Balance deducted.");
+};
+
+// Pagination & User History
+onSnapshot(query(collection(db, "withdrawals"), where("user", "==", uid), orderBy("createdAt", "desc"), limit(10)), snap => {
+    document.getElementById("userWithdrawals").innerHTML = snap.docs.map(d => {
+        const w = d.data();
+        return `<tr><td>₱${w.amount}</td><td>${w.gcashNumber}</td><td>${w.status}</td><td>${w.rejectReason || "-"}</td></tr>`;
+    }).join("");
 });
 
 // --- OWNER DASHBOARD ---
-function openAdmin() {
-    const pass = prompt("Enter Admin Password:");
-    if (pass === "Propetas6") {
-        openPage('admin-page');
-        syncAdminTable();
-    } else {
-        alert("Access Denied");
-    }
-}
+window.checkAdmin = () => showPage('admin-page');
 
-function syncAdminTable() {
-    db.collection('withdrawals').where('status', '==', 'pending').onSnapshot(snap => {
-        const tbody = document.getElementById('admin-wd-list');
-        tbody.innerHTML = "";
-        snap.forEach(doc => {
-            const d = doc.data();
-            tbody.innerHTML += `
-                <tr>
-                    <td>${d.username}</td>
-                    <td>${d.gcashName}<br>${d.gcashNum}</td>
-                    <td>₱${d.amount}</td>
-                    <td><button onclick="approveWD('${doc.id}')" style="background:#00ff00; border:none; border-radius:4px;">Approve</button></td>
-                </tr>`;
-        });
+window.loginAdmin = () => {
+    if(document.getElementById("adminPass").value === "Propetas6") {
+        document.getElementById("admin-auth").style.display = "none";
+        document.getElementById("admin-content").style.display = "block";
+        loadAdminTable();
+    } else alert("Wrong Password");
+};
+
+function loadAdminTable() {
+    onSnapshot(query(collection(db, "withdrawals"), where("status", "==", "pending")), snap => {
+        document.getElementById("adminTable").innerHTML = snap.docs.map(d => {
+            const w = d.data();
+            return `<tr>
+                <td>${w.user}</td>
+                <td>₱${w.amount}</td>
+                <td>${w.gcashNumber}</td>
+                <td>
+                    <button onclick="approve('${d.id}')" style="background:green">✔</button>
+                    <button onclick="reject('${d.id}')" style="background:red">✖</button>
+                </td>
+            </tr>`;
+        }).join("");
     });
 }
 
-async function approveWD(id) {
-    if(confirm("Mark as Paid?")) {
-        await db.collection('withdrawals').doc(id).update({ status: 'approved' });
+window.approve = async (id) => {
+    await updateDoc(doc(db, "withdrawals", id), { status: "approved" });
+};
+
+window.reject = async (id) => {
+    const reason = prompt("Reason for rejection?");
+    if(reason) {
+        // Return money on rejection? Optional.
+        await updateDoc(doc(db, "withdrawals", id), { status: "rejected", rejectReason: reason });
     }
-}
+};
 
-// --- UTILS ---
-function openPage(id) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+// --- GLOBAL UTILS ---
+window.showPage = (id) => {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active-page');
-}
-
-function updateUI() {
-    document.getElementById('bal-val').innerText = myBalance.toFixed(3);
-}
+    document.getElementById(id).classList.add('active');
+    if(id === 'chat-page') document.getElementById('nav-chat').classList.add('active');
+    if(id === 'withdraw-page') document.getElementById('nav-withdraw').classList.add('active');
+};
 
 setInterval(() => {
-    document.getElementById('live-clock').innerText = new Date().toLocaleString();
+    document.getElementById("time-display").innerText = new Date().toLocaleString();
 }, 1000);
