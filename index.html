@@ -1,114 +1,123 @@
-
+WELCOME USERS
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAPERHOUSE INC</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Monetag SDKs -->
+    <title>PAPERHOUSE INC | World Concept</title>
+    
+    <!-- Monetag & Telegram SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
     <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <style>
-        :root { --sky-blue: #87CEEB; --yellow-green: #9ACD32; --classic-yellow: #FFD700; }
-        body { background-color: var(--sky-blue); font-family: 'Segoe UI', sans-serif; margin: 0; transition: background 0.8s; text-align: center; min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; }
-        .rainbow-bg { background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff); background-size: 400% 400%; animation: rainbowAnim 10s ease infinite; }
-        @keyframes rainbowAnim { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-
-        header { padding: 15px; background: rgba(255,255,255,0.3); border-bottom: 2px solid #fff; }
-        .balance-card { font-size: 1.8em; font-weight: 900; color: #1a5e00; }
+        :root { --sky-blue: #87CEEB; --yellow-green: #9ACD32; --classic-yellow: #FFD700; --glass: rgba(255, 255, 255, 0.2); }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--sky-blue); transition: 0.5s; min-height: 100vh; overflow-x: hidden; }
+        body.rainbow { animation: rainbow 10s infinite linear; }
+        @keyframes rainbow { 0%{background:#ffadad} 20%{background:#ffd6a5} 40%{background:#fdffb6} 60%{background:#caffbf} 80%{background:#a0c4ff} 100%{background:#ffadad} }
         
-        button { background-color: var(--yellow-green); color: #000; border: none; padding: 12px 20px; margin: 8px; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px #558b2f; transition: 0.2s; }
-        button:active { background-color: var(--classic-yellow); transform: translateY(2px); box-shadow: 0 2px #558b2f; }
-        button:disabled { background-color: #bdc3c7; cursor: not-allowed; box-shadow: none; }
+        header { background: var(--glass); padding: 15px; text-align: center; backdrop-filter: blur(10px); sticky: top; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.3); }
+        .balance-card { font-size: 28px; font-weight: 900; color: #2e7d32; text-shadow: 1px 1px 0px #fff; }
 
-        .page { display: none; padding: 20px; flex: 1; animation: fadeIn 0.4s; }
-        .active-page { display: block; }
-        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
+        .container { display: none; padding: 20px; animation: fadeIn 0.3s; flex-direction: column; align-items: center; }
+        .active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .box { background: rgba(255,255,255,0.7); padding: 15px; border-radius: 15px; margin: 10px auto; max-width: 450px; border: 1px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .cooldown { font-size: 0.85em; color: #d35400; font-weight: bold; }
+        .btn { background: var(--yellow-green); border: none; padding: 15px 25px; margin: 8px; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #6b8e23; width: 90%; max-width: 350px; }
+        .btn:active { background: var(--classic-yellow) !important; transform: translateY(3px); box-shadow: none; }
         
-        table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; font-size: 0.75em; border-radius: 10px; overflow: hidden; }
+        /* Tables & Lists */
+        .glass-panel { background: white; border-radius: 20px; padding: 15px; width: 100%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
+        
+        /* Chat Styling */
 
-        th, td { border: 1px solid #eee; padding: 8px; text-align: center; }
-        th { background: var(--yellow-green); color: black; }
-        .status-pending { color: #e67e22; font-weight: bold; }
-        .status-approved { color: #27ae60; font-weight: bold; }
+        #chatBox { height: 300px; overflow-y: auto; display: flex; flex-direction: column; border: 1px solid #eee; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
+        .msg { margin-bottom: 8px; padding: 8px; border-radius: 8px; background: #f1f1f1; max-width: 80%; }
+        .msg-own { align-self: flex-end; background: #dcf8c6; }
 
-        #reward-anim-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10000; display: none; }
-        .particle { position: absolute; font-size: 2rem; animation: particleMove 3s ease-out forwards; }
-        @keyframes particleMove { 0% { bottom: -10%; transform: rotate(0deg); opacity: 1; } 100% { bottom: 110%; transform: rotate(720deg); opacity: 0; } }
+        .pagination { display: flex; gap: 10px; margin-top: 10px; }
+        .pg-btn { padding: 5px 10px; background: #eee; border: 1px solid #ccc; cursor: pointer; }
 
-        footer { padding: 10px; font-size: 10px; background: rgba(0,0,0,0.05); }
+        footer { text-align: center; padding: 20px; font-size: 12px; background: var(--glass); margin-top: auto; }
     </style>
 </head>
-<body onclick="triggerRainbow()">
-
-    <div id="reward-anim-layer"></div>
+<body id="body">
 
     <header>
-        <h1 style="margin:0;">PAPERHOUSE INC</h1>
         <div id="userBar">👤 User: Guest</div>
-        <div class="balance-card">₱ <span id="balance">0.000</span></div>
+        <div class="balance-card">₱<span id="mainBalance">0.000</span></div>
     </header>
 
-    <!-- NAVIGATION -->
-    <div id="mainPage" class="page active-page">
-        <button onclick="showPage('taskPage')">🤑🍍PAPERHOUSE Tasks🍍🤑</button><br>
-        <button onclick="showPage('giftPage')">🎁🍍PAPER HOUSE Gift🍍🎁</button><br>
-        <button onclick="showPage('leaderboardPage')">🏆 Top Earner Leaderboard 🏆</button><br>
-        <button onclick="showPage('withdrawPage')">💸 GCash Withdrawal 💸</button><br>
-        <button onclick="showPage('helpPage')">❓ Help Section ❓</button><br>
-        <button onclick="adminAuth()" style="background:#e74c3c; color:white;">⚙ Admin Dashboard</button>
+    <!-- Main Menu -->
+    <div id="homePage" class="container active">
+        <h1>PAPERHOUSE INC</h1>
+        <button class="btn" onclick="openPage('chatPage')">💬 WORLD CHAT</button>
+        <button class="btn" onclick="openPage('leaderboardPage')">🏆 TOP EARNERS</button>
+        <button class="btn" onclick="openPage('withdrawPage')">💸 WITHDRAW GCASH</button>
+        <button class="btn" onclick="openPage('giftPage')">🎁 GIFT AREA</button>
+        <button class="btn" style="background:#555; color:white;" onclick="checkAdmin()">🛠 OWNER DASHBOARD</button>
     </div>
 
-    <!-- WITHDRAW PAGE -->
-    <div id="withdrawPage" class="page">
-        <button onclick="showPage('mainPage')">⬅ Back</button>
-        <div class="box">
-            <h3>Withdraw to GCash</h3>
-            <input type="text" id="gcashNumber" placeholder="GCash Number (e.g. 09123456789)" style="width:85%; padding:10px; margin:5px; border-radius:8px; border:1px solid #ccc;"><br>
-            <input type="number" id="gcashAmount" placeholder="Amount (Minimum ₱1.00)" style="width:85%; padding:10px; margin:5px; border-radius:8px; border:1px solid #ccc;"><br>
-            <button onclick="requestWithdrawal()">Submit Withdrawal</button>
+    <!-- Chat Page -->
+    <div id="chatPage" class="container">
+        <button class="btn" onclick="openPage('homePage')">⬅ BACK</button>
+        <div class="glass-panel">
+            <h3>Global Chat</h3>
+            <div id="chatBox"></div>
+            <input type="text" id="chatInput" placeholder="Type a message..." style="width:70%; padding:10px; border-radius:5px; border:1px solid #ccc;">
+            <button onclick="sendChatMessage()" style="padding:10px;">Send (Ad)</button>
+            <div id="chatCD" style="font-size:11px; color:red;"></div>
         </div>
-        <h3>My Withdrawal History</h3>
-        <table id="userWithdrawTable">
-            <thead><tr><th>Date</th><th>GCash No.</th><th>Amount</th><th>Status</th></tr></thead>
-            <tbody></tbody>
-        </table>
     </div>
 
-    <!-- ADMIN DASHBOARD -->
-    <div id="adminPage" class="page">
-        <button onclick="showPage('mainPage')">⬅ Logout Admin</button>
-        <h2>Owner Dashboard (Real-time)</h2>
-        <div class="box" style="max-width: 95%;">
-            <table id="adminWithdrawTable">
-                <thead><tr><th>User</th><th>GCash No.</th><th>Amount</th><th>Date</th><th>Action</th></tr></thead>
+    <!-- Leaderboard Page -->
+    <div id="leaderboardPage" class="container">
+        <button class="btn" onclick="openPage('homePage')">⬅ BACK</button>
+        <div class="glass-panel">
+            <h3>Weekly Top Earners</h3>
+            <table id="leaderTable">
+                <thead><tr><th>Rank</th><th>User</th><th>Balance</th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <div class="pagination" id="leaderPg"></div>
+        </div>
+    </div>
+
+    <!-- Withdrawal Page -->
+    <div id="withdrawPage" class="container">
+        <button class="btn" onclick="openPage('homePage')">⬅ BACK</button>
+        <div class="glass-panel">
+            <h3>GCash Withdrawal</h3>
+            <input type="text" id="wdName" placeholder="Account Name" style="width:90%; padding:10px; margin-bottom:5px;">
+            <input type="number" id="wdNumber" placeholder="GCash Number" style="width:90%; padding:10px; margin-bottom:5px;">
+            <input type="number" id="wdAmount" placeholder="Amount (min ₱5)" style="width:90%; padding:10px; margin-bottom:10px;">
+            <button class="btn" style="width:100%" onclick="requestWithdrawal()">SUBMIT REQUEST</button>
+            
+            <h4>Live Status</h4>
+            <table id="myWdTable">
+                <thead><tr><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
     </div>
 
-    <!-- OTHER PAGES (TASKS/GIFTS/LEADERBOARD - Same structure as before) -->
-    <div id="taskPage" class="page">
-        <button onclick="showPage('mainPage')">⬅ Back</button>
-        <div class="box"><div id="cd_task1" class="cooldown"></div><button id="btn_task1" onclick="runAdTask(1, 0.025, 'task', 20)">🍍 Task #1</button><button id="claim_task1" style="display:none;" onclick="claimReward(1, 0.025, 'task', 20)">Claim Reward</button></div>
-        <div class="box"><div id="cd_task2" class="cooldown"></div><button id="btn_task2" onclick="runAdTask(2, 0.025, 'task', 20)">🍍 Task #2</button><button id="claim_task2" style="display:none;" o
+    <!-- Admin Dashboard -->
+    <div id="adminPage" class="container">
+        <button class="btn" onclick="openPage('homePage')">⬅ BACK</button>
+        <div class="glass-panel">
+            <h3>Pending Withdrawals</h3>
+            <table id="adminWdTable">
+                <t
 
-nclick="claimReward(2, 0.025, 'task', 20)">Claim Reward</button></div>
-    </div>
-
-    <div id="leaderboardPage" class="page">
-        <button onclick="showPage('mainPage')">⬅ Back</button>
-        <h3>🏆 Top World concept Leaderboard 🏆</h3>
-        <table id="lbTable">
-            <thead><tr><th>Rank</th><th>User</th><th>Earnings</th></tr></thead>
-            <tbody></tbody>
-        </table>
+head><tr><th>User</th><th>Details</th><th>Amount</th><th>Action</th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <div class="pagination" id="adminPg"></div>
+        </div>
     </div>
 
     <footer>
@@ -117,5 +126,12 @@ nclick="claimReward(2, 0.025, 'task', 20)">Claim Reward</button></div>
     </footer>
 
     <script type="module" src="app.js"></script>
+    <script>
+        function openPage(id) {
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+        document.body.onclick = (e) => { if(e.target.tagName !== 'BUTTON') document.body.classList.toggle('rainbow'); }
+    </script>
 </body>
 </html>
