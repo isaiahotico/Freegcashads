@@ -1,165 +1,123 @@
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, push, onValue, query, orderByChild, limitToLast, get, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { 
+    getFirestore, collection, addDoc, query, orderBy, 
+    limit, onSnapshot, serverTimestamp, where, startAfter, getDocs 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// Firebase Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDMGU5X7BBp-C6tIl34Uuu5N9MXAVFTn7c",
-  authDomain: "paper-house-inc.firebaseapp.com",
-  projectId: "paper-house-inc",
-  storageBucket: "paper-house-inc.firebasestorage.app",
-  messagingSenderId: "658389836376",
-  appId: "1:658389836376:web:2ab1e2743c593f4ca8e02d"
+    apiKey: "AIzaSyDMGU5X7BBp-C6tIl34Uuu5N9MXAVFTn7c",
+    authDomain: "paper-house-inc.firebaseapp.com",
+    projectId: "paper-house-inc",
+    storageBucket: "paper-house-inc.firebasestorage.app",
+    messagingSenderId: "658389836376",
+    appId: "1:658389836376:web:2ab1e2743c593f4ca8e02d"
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const db = getFirestore(app);
 
-// Telegram Init
-const tg = window.Telegram?.WebApp;
-tg?.ready();
-const userId = tg?.initDataUnsafe?.user?.id || "guest_" + Math.floor(Math.random()*1000);
-const username = tg?.initDataUnsafe?.user?.username || tg?.initDataUnsafe?.user?.first_name || "Guest";
-document.getElementById('userBar').innerText = `👤 ${username}`;
+// Telegram Setup
+const tg = window.Telegram.WebApp;
+tg.expand();
+const user = tg.initDataUnsafe?.user || { first_name: "Guest", username: "anonymous" };
+document.getElementById('user-name').innerText = ${user.first_name} (@${user.username});
 
-let currentBalance = 0;
+// Chat Logic Vars
+const chatContainer = document.getElementById('chat-container');
+const msgInput = document.getElementById('msg-input');
+const sendBtn = document.getElementById('send-btn');
+const loadMoreBtn = document.getElementById('load-more');
 
-/* --- SYNC USER DATA --- */
-onValue(ref(db, `users/${userId}`), (snapshot) => {
-    const data = snapshot.val();
-    currentBalance = data?.balance || 0;
-    document.getElementById('mainBalance').innerText = currentBalance.toFixed(3);
-    // Ensure user exists in DB for Leaderboard
-    if(!data) set(ref(db, `users/${userId}`), { username, balance: 0, lastChat: 0 });
-});
+let lastVisible = null;
+const MSG_LIMIT = 20;
+const THREE_DAYS_AGO = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
 
-/* --- GLOBAL CHAT SYSTEM (3-Day Reset Logic) --- */
-const chatRef = ref(db, 'messages');
-onValue(query(chatRef, limitToLast(50)), (snapshot) => {
-    const box = document.getElementById('chatBox');
-    box.innerHTML = "";
-    snapshot.forEach(child => {
-        const m = child.val();
-        const div = document.createElement('div');
-        div.className = `msg ${m.uid == userId ? 'msg-own' : ''}`;
-        div.innerHTML = `<b>${m.name}</b>: ${m.text}`;
-        box.appendChild(div);
-    });
-    box.scrollTop = box.scrollHeight;
-});
-
-window.sendChatMessage = async function() {
-    const text = document.getElementById('chatInput').value;
-    const now = Date.now();
-    
-    // 4 Min Cooldown Check
-    const userSnap = await get(ref(db, `users/${userId}/lastChat`));
-    if(userSnap.val() && now - userSnap.val() < 240000) {
-        alert("Wait 4 minutes to chat again!");
-        return;
-    }
-
-    if(!text) return;
+// --- 1. SEND MESSAGE ---
+async function sendMessage() {
+    const text = msgInput.value.trim();
+    if (!text) return;
 
     try {
-        // Must watch 3 ads
-        await show_10337853(); await show_10337795(); await show_10276123();
-        
-        push(chatRef, { uid: userId, name: username, text: text, timestamp: now });
-        set(ref(db, `users/${userId}/lastChat`), now);
-        set(ref(db, `users/${userId}/balance`), currentBalance + 0.02);
-        
-        document.getElementById('chatInput').value = "";
-        alert("🎉 Message Sent! +₱0.02 Reward");
-    } catch(e) { alert("Ad failed. Check connection."); }
-};
-
-/* --- LEADERBOARD (Paginated) --- */
-onValue(ref(db, 'users'), (snapshot) => {
-    const users = [];
-    snapshot.forEach(c => { users.push(c.val()); });
-    users.sort((a,b) => b.balance - a.balance);
-    
-    const table = document.querySelector('#leaderTable tbody');
-    table.innerHTML = "";
-    users.slice(0, 20).forEach((u, i) => {
-        table.innerHTML += `<tr><td>${i+1}</td><td>${u.username}</td><td>₱${u.balance.toFixed(2)}</td></tr>`;
-    });
-});
-
-/* --- WITHDRAWAL SYSTEM --- */
-window.requestWithdrawal = function() {
-    const name = document.getElementById('wdName').value;
-    const num = document.getElementById('wdNumber').value;
-    const amt = parseFloat(document.getElementById('wdAmount').value);
-
-    if(amt < 5 || amt > currentBalance) {
-        alert("Invalid Amount (Min ₱5)");
-        return;
-    }
-
-    const wdData = {
-        uid: userId,
-        username: username,
-        accountName: name,
-        accountNumber: num,
-        amount: amt,
-        status: "Pending",
-        timestamp: Date.now()
-    };
-
-    push(ref(db, 'withdrawals'), wdData);
-    set(ref(db, `users/${userId}/balance`), currentBalance - amt);
-    alert("Withdrawal Request Sent!");
-};
-
-// Show user's own withdrawals
-onValue(ref(db, 'withdrawals'), (snapshot) => {
-    const myTable = document.querySelector('#myWdTable tbody');
-    myTable.innerHTML = "";
-    snapshot.forEach(c => {
-        const d = c.val();
-        if(d.uid === userId) {
-            myTable.innerHTML += `<tr><td>${new Date(d.timestamp).toLocaleDateString()}</td><td>₱${d.amount}</td><td>${d.status}</td></tr>`;
-        }
-    });
-});
-
-/* --- ADMIN DASHBOARD --- */
-window.checkAdmin = function() {
-    const pass = prompt("Enter Owner Password:");
-    if(pass === "Propetas6") {
-        openPage('adminPage');
-        loadAdminWithdrawals();
-    } else {
-        alert("Unauthorized!");
-    }
-};
-
-function loadAdminWithdrawals() {
-    onValue(ref(db, 'withdrawals'), (snapshot) => {
-        const table = document.querySelector('#adminWdTable tbody');
-        table.innerHTML = "";
-        snapshot.forEach(c => {
-            const d = c.val();
-            if(d.status === "Pending") {
-                table.innerHTML += `
-                    <tr>
-                        <td>${d.username}</td>
-                        <td>${d.accountName}<br>${d.accountNumber}</td>
-                        <td>₱${d.amount}</td>
-                        <td><button onclick="approveWd('${c.key}')">Approve</button></td>
-                    </tr>`;
-            }
+        await addDoc(collection(db, "messages"), {
+            uid: user.id || 0,
+            username: user.username || user.first_name,
+            text: text,
+            timestamp: serverTimestamp()
         });
-    });
+        msgInput.value = "";
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    } catch (e) {
+        console.error("Error adding document: ", e);
+    }
 }
 
-window.approveWd = function(key) {
-    set(ref(db, `withdrawals/${key}/status`), "Approved ✅");
-    alert("Withdrawal Approved!");
+// --- 2. RENDER MESSAGE ---
+function renderMessage(doc, prepend = false) {
+    const data = doc.data();
+    if (!data.timestamp) return; // Skip messages being sent
+
+    const div = document.createElement('div');
+    div.className = 'message';
+    div.innerHTML = 
+        <span class="user">${data.username}</span>
+        <span class="text">${data.text}</span>
+        <span class="time">${data.timestamp.toDate().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+    ;
+    
+    if (prepend) {
+        chatContainer.prepend(div);
+    } else {
+        chatContainer.appendChild(div);
+    }
+}
+
+// --- 3. LIVE LISTEN (Last 20 messages, 3-day filter) ---
+const qLive = query(
+    collection(db, "messages"),
+    where("timestamp", ">=", THREE_DAYS_AGO),
+    orderBy("timestamp", "desc"),
+    limit(MSG_LIMIT)
+);
+
+onSnapshot(qLive, (snapshot) => {
+    chatContainer.innerHTML = ""; // Clear for fresh load
+    const docs = snapshot.docs.reverse(); // Newest at bottom
+    docs.forEach(doc => renderMessage(doc));
+    
+    if (!lastVisible) {
+        lastVisible = snapshot.docs[snapshot.docs.length - 1];
+    }
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+});
+
+// --- 4. PAGINATION (Load Older) ---
+loadMoreBtn.onclick = async () => {
+    if (!lastVisible) return;
+
+    const qMore = query(
+        collection(db, "messages"),
+        where("timestamp", ">=", THREE_DAYS_AGO),
+        orderBy("timestamp", "desc"),
+        startAfter(lastVisible),
+        limit(MSG_LIMIT)
+    );
+
+    const snapshot = await getDocs(qMore);
+    if (snapshot.empty) {
+        loadMoreBtn.innerText = "No more messages";
+        return;
+    }
+    lastVisible = snapshot.docs[snapshot.docs.length - 1];
+    snapshot.docs.forEach(doc => renderMessage(doc, true)); // Prepend older
 };
 
-// Footer Time
-setInterval(() => {
-    document.getElementById('footerTime').innerText = "PAPERHOUSE INC " + new Date().toLocaleString();
-}, 1000);
+// --- EVENTS ---
+sendBtn.onclick = sendMessage;
+msgInput.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
+
+// Ad Reward Simulation
+document.getElementById('watch-ad-btn').onclick = () => {
+    tg.showConfirm("Watch video to earn 50 tokens?", (res) => {
+        if(res) tg.showAlert("Reward added to " + user.username);
+    });
