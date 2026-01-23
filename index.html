@@ -1,104 +1,121 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Paper House Chess</title>
-    <!-- Telegram Web App Script -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAPERHOUSE INC</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Chessboard CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+    <!-- Monetag SDKs -->
+    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+
     <style>
-        :root {
-            --bg-color: var(--tg-theme-bg-color, #ffffff);
-            --text-color: var(--tg-theme-text-color, #222222);
-            --hint-color: var(--tg-theme-hint-color, #999999);
-            --button-color: var(--tg-theme-button-color, #2481cc);
-            --button-text: var(--tg-theme-button-text-color, #ffffff);
-        }
+        :root { --sky-blue: #87CEEB; --yellow-green: #9ACD32; --classic-yellow: #FFD700; }
+        body { background-color: var(--sky-blue); font-family: 'Segoe UI', sans-serif; margin: 0; transition: background 0.8s; text-align: center; min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; }
+        .rainbow-bg { background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff); background-size: 400% 400%; animation: rainbowAnim 10s ease infinite; }
+        @keyframes rainbowAnim { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        header { padding: 15px; background: rgba(255,255,255,0.3); border-bottom: 2px solid #fff; }
+        .balance-card { font-size: 1.8em; font-weight: 900; color: #1a5e00; }
+        
+        button { background-color: var(--yellow-green); color: #000; border: none; padding: 12px 20px; margin: 8px; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px #558b2f; transition: 0.2s; }
+        button:active { background-color: var(--classic-yellow); transform: translateY(2px); box-shadow: 0 2px #558b2f; }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; box-shadow: none; }
 
-        #header {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
+        .page { display: none; padding: 20px; flex: 1; animation: fadeIn 0.4s; }
+        .active-page { display: block; }
+        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
 
-        .user-tag {
-            background: var(--button-color);
-            color: var(--button-text);
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-weight: bold;
-        }
+        .box { background: rgba(255,255,255,0.7); padding: 15px; border-radius: 15px; margin: 10px auto; max-width: 450px; border: 1px solid #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .cooldown { font-size: 0.85em; color: #d35400; font-weight: bold; }
+        
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; font-size: 0.75em; border-radius: 10px; overflow: hidden; }
 
-        #board {
-            width: 95vw;
-            max-width: 400px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
+        th, td { border: 1px solid #eee; padding: 8px; text-align: center; }
+        th { background: var(--yellow-green); color: black; }
+        .status-pending { color: #e67e22; font-weight: bold; }
+        .status-approved { color: #27ae60; font-weight: bold; }
 
-        .info-panel {
-            margin-top: 15px;
-            text-align: center;
-            width: 100%;
-        }
+        #reward-anim-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10000; display: none; }
+        .particle { position: absolute; font-size: 2rem; animation: particleMove 3s ease-out forwards; }
+        @keyframes particleMove { 0% { bottom: -10%; transform: rotate(0deg); opacity: 1; } 100% { bottom: 110%; transform: rotate(720deg); opacity: 0; } }
 
-        #status { font-weight: bold; margin-bottom: 10px; }
-        #gameIdDisplay { font-size: 12px; color: var(--hint-color); }
-
-        .btn-group { margin-top: 20px; }
-        .btn {
-            background: var(--button-color);
-            color: var(--button-text);
-            border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-        }
+        footer { padding: 10px; font-size: 10px; background: rgba(0,0,0,0.05); }
     </style>
 </head>
-<body>
+<body onclick="triggerRainbow()">
 
-    <div id="header">
-        <div id="player-white">White: <i>Waiting...</i></div>
-        <div class="user-tag" id="my-username">@loading...</div>
-        <div id="player-black">Black: <i>Waiting...</i></div>
+    <div id="reward-anim-layer"></div>
+
+    <header>
+        <h1 style="margin:0;">PAPERHOUSE INC</h1>
+        <div id="userBar">👤 User: Guest</div>
+        <div class="balance-card">₱ <span id="balance">0.000</span></div>
+    </header>
+
+    <!-- NAVIGATION -->
+    <div id="mainPage" class="page active-page">
+        <button onclick="showPage('taskPage')">🤑🍍PAPERHOUSE Tasks🍍🤑</button><br>
+        <button onclick="showPage('giftPage')">🎁🍍PAPER HOUSE Gift🍍🎁</button><br>
+        <button onclick="showPage('leaderboardPage')">🏆 Top Earner Leaderboard 🏆</button><br>
+        <button onclick="showPage('withdrawPage')">💸 GCash Withdrawal 💸</button><br>
+        <button onclick="showPage('helpPage')">❓ Help Section ❓</button><br>
+        <button onclick="adminAuth()" style="background:#e74c3c; color:white;">⚙ Admin Dashboard</button>
     </div>
 
-    <div id="board"></div>
+    <!-- WITHDRAW PAGE -->
+    <div id="withdrawPage" class="page">
+        <button onclick="showPage('mainPage')">⬅ Back</button>
+        <div class="box">
+            <h3>Withdraw to GCash</h3>
+            <input type="text" id="gcashNumber" placeholder="GCash Number (e.g. 09123456789)" style="width:85%; padding:10px; margin:5px; border-radius:8px; border:1px solid #ccc;"><br>
+            <input type="number" id="gcashAmount" placeholder="Amount (Minimum ₱1.00)" style="width:85%; padding:10px; margin:5px; border-radius:8px; border:1px solid #ccc;"><br>
+            <button onclick="requestWithdrawal()">Submit Withdrawal</button>
+        </div>
+        <h3>My Withdrawal History</h3>
+        <table id="userWithdrawTable">
+            <thead><tr><th>Date</th><th>GCash No.</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
-    <div class="info-panel">
-        <div id="status">Initializing...</div>
-        <div id="gameIdDisplay">Room: Loading...</div>
-        
-        <div class="btn-group">
-            <button class="btn" onclick="shareGame()">Invite Friend</button>
+    <!-- ADMIN DASHBOARD -->
+    <div id="adminPage" class="page">
+        <button onclick="showPage('mainPage')">⬅ Logout Admin</button>
+        <h2>Owner Dashboard (Real-time)</h2>
+        <div class="box" style="max-width: 95%;">
+            <table id="adminWithdrawTable">
+                <thead><tr><th>User</th><th>GCash No.</th><th>Amount</th><th>Date</th><th>Action</th></tr></thead>
+                <tbody></tbody>
+            </table>
         </div>
     </div>
 
-    <!-- Dependencies -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
-    
-    <!-- Firebase SDK (Compat Version) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
-    <script src="app.js"></script>
+    <!-- OTHER PAGES (TASKS/GIFTS/LEADERBOARD - Same structure as before) -->
+    <div id="taskPage" class="page">
+        <button onclick="showPage('mainPage')">⬅ Back</button>
+        <div class="box"><div id="cd_task1" class="cooldown"></div><button id="btn_task1" onclick="runAdTask(1, 0.025, 'task', 20)">🍍 Task #1</button><button id="claim_task1" style="display:none;" onclick="claimReward(1, 0.025, 'task', 20)">Claim Reward</button></div>
+        <div class="box"><div id="cd_task2" class="cooldown"></div><button id="btn_task2" onclick="runAdTask(2, 0.025, 'task', 20)">🍍 Task #2</button><button id="claim_task2" style="display:none;" o
+
+nclick="claimReward(2, 0.025, 'task', 20)">Claim Reward</button></div>
+    </div>
+
+    <div id="leaderboardPage" class="page">
+        <button onclick="showPage('mainPage')">⬅ Back</button>
+        <h3>🏆 Top World concept Leaderboard 🏆</h3>
+        <table id="lbTable">
+            <thead><tr><th>Rank</th><th>User</th><th>Earnings</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <footer>
+        <div id="footerTime"></div>
+        <div>PAPERHOUSE INC | otico.isai2@gmail.com</div>
+    </footer>
+
+    <script type="module" src="app.js"></script>
 </body>
 </html>
