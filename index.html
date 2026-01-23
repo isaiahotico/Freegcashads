@@ -1,11 +1,287 @@
-UnlimAI (GPT | Claude | MidJourney):
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LUMINA: The Infinite Canvas - Ad & Reward System</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- Combined CSS -->
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0e0e0e; /* Dark background for LUMINA */
+            color: #ffffff;
+            overflow-x: hidden; /* Prevent horizontal scrollbars */
+        }
+
+        #app {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #1a1a2e; /* Darker background for app container */
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); /* Cyan glow */
+        }
+
+        .section {
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            background-color: #0f1c30; /* Slightly lighter inner section */
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #0f3460;
+        }
+
+        header h1 {
+            color: #00e6e6; /* Bright cyan */
+            text-shadow: 0 0 5px #00e6e6;
+        }
+
+        header p {
+            font-size: 0.9em;
+            color: #ccc;
+        }
+
+        /* Inputs & Buttons */
+        input[type="email"],
+        input[type="password"],
+        input[type="text"],
+        input[type="number"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #0f3460;
+            border-radius: 5px;
+            background-color: #0d1726;
+            color: #fff;
+            font-size: 1em;
+        }
+
+        input[type="email"]::placeholder,
+        input[type="password"]::placeholder,
+        input[type="text"]::placeholder,
+        input[type="number"]::placeholder {
+            color: #777;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1em;
+            margin-right: 10px;            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background-color: #333;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .action-btn {
+            background-color: #4CAF50; /* Green for actions */
+        }
+        .action-btn:hover:not(:disabled) {
+            background-color: #45a049;
+        }
+
+        /* Messages */
+        p#auth-message, p#withdrawal-message, p#owner-message {
+            color: #ffda00; /* Yellow for warnings/messages */
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* User Info */
+        .user-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .user-info p {
+            font-size: 1.1em;
+            margin: 5px 0;
+        }
+        #user-balance {
+            color: #00ff00; /* Bright green for balance */
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #0f3460;
+            margin: 30px 0;
+        }
+
+        .subsection {
+            margin-top: 30px;
+        }
+
+        h2 {
+            color: #00e6e6;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 3px #00e6e6;
+        }
+
+        /* Tables (Leaderboard, Withdrawal Requests) */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        table th, table td {
+            border: 1px solid #0f3460;
+            padding: 10px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #0f2a4a;
+            color: #00e6e6;
+            font-weight: bold;
+        }
+
+        table td {
+            background-color: #0d1726;
+            color: #eee;
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: #0b1420; /* Slightly different background for even rows */
+        }
+
+        /* Leaderboard specific */
+        .leaderboard-header {
+            text-align: center;            font-size: 0.8em;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        /* Owner Dashboard specific */
+        .pagination-controls {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .pagination-controls button {
+            margin: 0 5px;
+        }
+        #page-info {
+            color: #ccc;
+            font-size: 0.9em;
+        }
+
+        /* Withdrawal Request Status Colors */
+        .status-pending { color: #ffda00; font-weight: bold; }
+        .status-approved { color: #4CAF50; font-weight: bold; }
+        .status-rejected { color: #f44336; font-weight: bold; }
+
+
+        /* Loading Overlay Spinner */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            font-size: 1.5em;
+        }
+
+        .spinner {
+            border: 8px solid #333;
+            border-top: 8px solid #00e6e6; /* Cyan spinner */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }}
+
+        @media (max-width: 768px) {
+            #app {
+                margin: 10px;
+                padding: 15px;
+            }
+            table, table th, table td {
+                display: block;
+                width: 100%;
+            }
+            table thead {
+                display: none;
+            }
+            table tbody tr {
+                margin-bottom: 10px;
+                display: block;
+                border: 1px solid #0f3460;
+                border-radius: 5px;
+                padding: 10px;
+            }
+            table tbody td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+                border: none;
+                background-color: transparent;
+            }
+            table tbody td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: calc(50% - 20px);
+                padding-right: 10px;
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+                color: #00e6e6;
+            }
+            button {
+                display: block;
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            header button {
+                width: auto;
+                display: inline-block;
+            }
+        }
+    </style>
     <!-- Monetag SDK - Note: 'async' helps load without blocking -->
     <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795' async></script>
 </head>
@@ -58,7 +334,6 @@ UnlimAI (GPT | Claude | MidJourney):
                             <th>Total Earned</th>
                             <th>Ads Watched</th>
                         </tr>
-
                     </thead>
                     <tbody>
                         <!-- Leaderboard rows will be inserted here by app.js -->
