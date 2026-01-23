@@ -2,52 +2,103 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paper House Inc.</title>
-    <!-- Telegram SDK -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Paper House Chess</title>
+    <!-- Telegram Web App Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Monetag SDK -->
-    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
-    
+    <!-- Chessboard CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
     <style>
-        :root { --primary: #008f4c; --bg: #1a1a1a; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; text-align: center; margin: 0; overflow: hidden; }
-        .header { padding: 20px; background: #252525; border-bottom: 2px solid var(--primary); }
-        .balance-container { font-size: 32px; font-weight: bold; color: var(--primary); margin: 20px 0; }
-        .printer-area { height: 40vh; display: flex; align-items: center; justify-content: center; position: relative; }
-        .money-btn { width: 200px; height: 200px; cursor: pointer; transition: transform 0.1s; z-index: 2; }
-        .money-btn:active { transform: scale(0.95); }
-        .stats { display: flex; justify-content: space-around; padding: 10px; font-size: 14px; background: #252525; }
-        .ads-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; }
-        button { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-boost { background: #d97706; }
-        #loading { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 99; }
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #ffffff);
+            --text-color: var(--tg-theme-text-color, #222222);
+            --hint-color: var(--tg-theme-hint-color, #999999);
+            --button-color: var(--tg-theme-button-color, #2481cc);
+            --button-text: var(--tg-theme-button-text-color, #ffffff);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .user-tag {
+            background: var(--button-color);
+            color: var(--button-text);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        #board {
+            width: 95vw;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .info-panel {
+            margin-top: 15px;
+            text-align: center;
+            width: 100%;
+        }
+
+        #status { font-weight: bold; margin-bottom: 10px; }
+        #gameIdDisplay { font-size: 12px; color: var(--hint-color); }
+
+        .btn-group { margin-top: 20px; }
+        .btn {
+            background: var(--button-color);
+            color: var(--button-text);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-    <div id="loading">Initialing Paper House...</div>
-
-    <div class="header">
-        <div>PAPER HOUSE INC.</div>
-        <div class="balance-container">₱ <span id="balance">0.00</span></div>
+    <div id="header">
+        <div id="player-white">White: <i>Waiting...</i></div>
+        <div class="user-tag" id="my-username">@loading...</div>
+        <div id="player-black">Black: <i>Waiting...</i></div>
     </div>
 
-    <div class="stats">
-        <span>Ink Level: <span id="ink">100</span>%</span>
-        <span>Level: <span id="lvl">1</span></span>
+    <div id="board"></div>
+
+    <div class="info-panel">
+        <div id="status">Initializing...</div>
+        <div id="gameIdDisplay">Room: Loading...</div>
+        
+        <div class="btn-group">
+            <button class="btn" onclick="shareGame()">Invite Friend</button>
+        </div>
     </div>
 
-    <div class="printer-area">
-        <img src="https://cdn-icons-png.flaticon.com/512/2654/2654304.png" class="money-btn" id="printBtn" alt="Print">
-    </div>
-
-    <div class="ads-grid">
-        <button onclick="watchRefillAd()">⚡ Refill Ink (Ad)</button>
-        <button class="btn-boost" onclick="watchDoubleAd()">💰 Double Profit (Ad)</button>
-    </div>
-
-    <!-- Firebase SDKs (v10) -->
-    <script type="module" src="app.js"></script>
+    <!-- Dependencies -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    
+    <!-- Firebase SDK (Compat Version) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <script src="app.js"></script>
 </body>
 </html>
