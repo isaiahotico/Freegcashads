@@ -1,136 +1,140 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-    getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, 
-    serverTimestamp, where, doc, setDoc, getDoc, updateDoc, increment, startAfter, getDocs 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+// 1. Firebase Configuration (REPLACE WITH YOUR KEYS)
 const firebaseConfig = {
-  apiKey: "AIzaSyDMGU5X7BBp-C6tIl34Uuu5N9MXAVFTn7c",
-  authDomain: "paper-house-inc.firebaseapp.com",
-  projectId: "paper-house-inc",
-  storageBucket: "paper-house-inc.firebasestorage.app",
-  messagingSenderId: "658389836376",
-  appId: "1:658389836376:web:2ab1e2743c593f4ca8e02d"
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+    projectId: "YOUR_PROJECT",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_ID",
+    appId: "YOUR_APP_ID"
 };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-// Init Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-/* ================= TELEGRAM IDENTITY ================= */
+// 2. Telegram Integration
 const tg = window.Telegram?.WebApp;
 tg?.ready();
 tg?.expand();
 
 const tgUser = tg?.initDataUnsafe?.user;
-const userNameStr = tgUser ? `@${tgUser.username || tgUser.first_name}` : "@Guest";
-const userId = tgUser?.id ? String(tgUser.id) : "guest_user";
+const username = tgUser ? `@${tgUser.username || tgUser.first_name}` : "Guest_" + Math.floor(Math.random()*1000);
+document.getElementById("userBar").innerText = "👤 " + username;
 
-// Display Username Immediately
-document.getElementById("userBar").innerText = "👤 " + userNameStr;
+// 3. App State
+let userBalance = parseFloat(localStorage.getItem('balance') || '0');
+let lastSentTime = parseInt(localStorage.getItem('lastSent') || '0');
+updateUI();
 
-/* ================= LIVE BALANCE LOGIC ================= */
-const balanceEl = document.getElementById("balanceBar");
+// 4. Background Cycler
+const colors = ["pink", "green", "blue", "red", "violet", "yellow", "yellowgreen", "orange", "white", "cyan", "brown", "bricks"];
+let colorIndex = 0;
 
-async function initUser() {
-    const userRef = doc(db, "users", userId);
-    const userSnap = await getDoc(userRef);
-
-    if (!userSnap.exists()) {
-        await setDoc(userRef, { username: userNameStr, balance: 0 });
-    }
-
-    // Live Listen to Balance changes
-    onSnapshot(userRef, (doc) => {
-        const data = doc.data();
-        balanceEl.innerText = `💰 ${data?.balance || 0}`;
-    });
-}
-initUser();
-
-/* ================= CHAT SYSTEM (3 DAYS) ================= */
-const chatWindow = document.getElementById("chat-window");
-const chatInput = document.getElementById("chatInput");
-const sendBtn = document.getElementById("sendBtn");
-const loadMoreBtn = document.getElementById("loadMore");
-
-let lastVisible = null;
-const THREE_DAYS_AGO = new Date(Date.now() - 3 × 24 × 60 × 60 × 1000);
-
-// Send Message
-sendBtn.onclick = async () => {
-    const text = chatInput.value.trim();
-    if (!text) return;
-    chatInput.value = "";
-
-    await addDoc(collection(db, "messages"), {
-        uid: userId,
-        username: userNameStr,
-        text: text,
-        timestamp: serverTimestamp()
-    });
-};
-
-// Render Message
-function displayMsg(docData, prepend = false) {
-    const data = docData.data();    if (!data.timestamp) return;
-
-    const div = document.createElement("div");
-    div.className = `msg ${data.uid === userId ? 'me' : ''}`;
-    div.innerHTML = `
-        <span class="msg-info">${data.username}</span>
-        ${data.text}
-    `;
+document.getElementById('aide-box').addEventListener('click', () => {
+    const body = document.body;
+    const color = colors[colorIndex];
     
-    if (prepend) chatWindow.prepend(div);
-    else {
-        chatWindow.appendChild(div);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
+    // Reset classes
+    body.classList.remove('brick-bg');
+    body.style.backgroundColor = "";
+    body.style.color = "white";
+
+    if (color === 'bricks') {
+        body.classList.add('brick-bg');
+    } else {
+        body.style.backgroundColor = color;
+        // Text contrast
+        if(['white', 'yellow', 'cyan', 'yellowgreen'].includes(color)) body.style.color = "black";
     }
-}
-
-// Live Chat Listener (Newest 20 within 3 days)
-const q = query(
-    collection(db, "messages"),
-    where("timestamp", ">=", THREE_DAYS_AGO),
-    orderBy("timestamp", "desc"),
-    limit(20)
-);
-
-onSnapshot(q, (snapshot) => {
-    chatWindow.innerHTML = "";
-    const docs = snapshot.docs.reverse();
-    docs.forEach(d => displayMsg(d));
-    lastVisible = snapshot.docs[snapshot.docs.length - 1];
+    
+    colorIndex = (colorIndex + 1) % colors.length;
 });
 
-// Pagination
-loadMoreBtn.onclick = async () => {
-    if (!lastVisible) return;
-    const nextQ = query(
-        collection(db, "messages"),
-        where("timestamp", ">=", THREE_DAYS_AGO),
-        orderBy("timestamp", "desc"),
-        startAfter(lastVisible),
-        limit(10)
-    );
-    const snap = await getDocs(nextQ);
-    snap.docs.forEach(d => displayMsg(d, true));
-    lastVisible = snap.docs[snap.docs.length - 1];
-};
+// 5. Chat Logic
+function toggleChat() {
+    const chat = document.getElementById('chat-page');
+    const btn = document.getElementById('chat-toggle-btn');
+    if (chat.style.display === "none" || chat.style.display === "") {
+        chat.style.display = "flex";
+        btn.innerText = "✖ CLOSE CHAT";
+        loadMessages();
+    } else {
+        chat.style.display = "none";
+        btn.innerText = "📙 OPEN ADVANCED CHAT 📘";
+    }
+}
 
-/* ================= AD REWARD LOGIC ================= */
-document.getElementById("watchAd").onclick = async () => {
-    tg.showConfirm("Watch ad to get 50 coins?", async (ok) => {
-        if (ok) {
-            // Simulate Ad delay
-            tg.MainButton.setText("SHOWING AD...").show();
-            setTimeout(async () => {
-                const userRef = doc(db, "users", userId);
-                await updateDoc(userRef, { balance: increment(50) });
-                tg.MainButton.hide();
-                tg.showAlert("Success! +50 Coins added.");
-            }, 2000);
-        }
+async function handleSendMessage() {
+    const text = document.getElementById('msgInput').value;
+    const now = Date.now();
+
+    if (!text) return alert("Message cannot be empty");
+    if (now - lastSentTime < 180000) { // 3 minutes cooldown
+        const remaining = Math.ceil((180000 - (now - lastSentTime)) / 1000);
+        return alert(`Cooldown active. Wait ${remaining}s`);    }
+
+    try {
+        tg.MainButton.setText("SHOWING AD 1/3...").show();
+        await show_10276123(); // Monetag Ad 1
+        
+        tg.MainButton.setText("SHOWING AD 2/3...");
+        await show_10337795(); // Monetag Ad 2
+        
+        tg.MainButton.setText("SHOWING AD 3/3...");
+        await show_10337853(); // Monetag Ad 3
+
+        // Reward and Send
+        userBalance += 0.015;
+        lastSentTime = now;
+        
+        db.ref('messages').push({
+            username: username,
+            text: text,
+            timestamp: now
+        });
+
+        localStorage.setItem('balance', userBalance);
+        localStorage.setItem('lastSent', lastSentTime);
+        document.getElementById('msgInput').value = "";
+        updateUI();
+        tg.MainButton.hide();
+        alert("Message Sent! Earned ₱0.015");
+
+    } catch (err) {
+        alert("Ad failed or was skipped. You must watch all 3 to send.");
+        tg.MainButton.hide();
+    }
+}
+
+function loadMessages() {
+    db.ref('messages').limitToLast(50).on('value', (snapshot) => {
+        const container = document.getElementById('messages');
+        container.innerHTML = "";
+        snapshot.forEach((child) => {
+            const data = child.val();
+            container.innerHTML += `
+                <div class="msg">
+                    <div class="msg-user">${data.username}</div>
+                    <div class="msg-text">${data.text}</div>
+                </div>
+            `;
+        });
+        container.scrollTop = container.scrollHeight;
     });
-};
+}
+
+// 6. Maintenance & Utilities
+function updateUI() {
+    document.getElementById('balance-val').innerText = userBalance.toFixed(3);
+    document.getElementById('current-time').innerText = new Date().toLocaleString();
+}
+
+// Auto-delete older than 3 days logic (Triggered by any user once per day)
+function cleanupOldMessages() {
+    const threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000);
+    db.ref('messages').orderByChild('timestamp').endAt(threeDaysAgo).once('value', (snapshot) => {
+        snapshot.forEach((child) => child.ref.remove());
+    });
+}
+cleanupOldMessages();
+
+setInterval(updateUI, 1000);
