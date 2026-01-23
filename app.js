@@ -24,12 +24,11 @@ const OWNER_PASSWORD = "Propetas6"; // INSECURE: Hardcoded password for demo
 const PAGINATION_LIMIT = 15;
 let currentUser = null;
 let currentLeaderboardWeekId = '';
-let withdrawalRequests = []; // Renamed from withdrawalRequests to match DB path 'withdrawals'
+let withdrawalRequests = [];
 let currentPage = 1;
 let totalPages = 1;
 
 // --- DOM Elements ---
-const loadingOverlay = document.getElementById('loading-overlay');
 const authSection = document.getElementById('auth-section');
 const mainAppSection = document.getElementById('main-app-section');
 const ownerDashboardSection = document.getElementById('owner-dashboard-section');
@@ -66,16 +65,14 @@ const ownerPasswordInput = document.getElementById('owner-password-input');
 const ownerLoginBtn = document.getElementById('owner-login-btn');
 const ownerLogoutBtn = document.getElementById('owner-logout-btn');
 const ownerDashboardContent = document.getElementById('owner-dashboard-content');
-const withdrawalRequestsTableBody = document.querySelector('#withdrawal-requests-table tbody'); // HTML ID remains the same
+const withdrawalRequestsTableBody = document.querySelector('#withdrawal-requests-table tbody');
 const prevPageBtn = document.getElementById('prev-page-btn');
 const nextPageBtn = document.getElementById('next-page-btn');
 const pageInfoSpan = document.getElementById('page-info');
 
 
 // --- Utility Functions ---
-function showLoading(show) {
-    loadingOverlay.style.display = show ? 'flex' : 'none';
-}
+// Removed showLoading function as per requirement
 
 function showSection(sectionId) {
     authSection.classList.add('hidden');
@@ -104,7 +101,6 @@ async function showRewardedAd() {
     }
 
     showRewardedAdBtn.disabled = true; // Disable button while ad is loading/playing
-    showLoading(true);
 
     try {
         await window.show_10337795(); // Assuming rewarded interstitial for simplicity
@@ -115,7 +111,6 @@ async function showRewardedAd() {
         alert("Ad unavailable or error occurred. Please try again later.");
     } finally {
         showRewardedAdBtn.disabled = false;
-        showLoading(false);
     }
 }
 
@@ -134,12 +129,8 @@ async function giveUserReward(rewardType) {
         let currentBalance = userData.balance || 0;
         let currentAdsWatched = userData.adsWatched || 0; // Global count
         let currentTotalEarned = userData.totalEarned || 0; // Total earned across all weeks
-        let currentDailyAds = userData.dailyAds || 0; // Daily ad count (if you implement daily resets)
         
-        // --- ADAPTED: Check for Telegram ID for indexOn ---
-        // Ensure telegramId exists for proper indexing. If it's missing, use stored telegramUsername or 'N/A'.
         const userTelegramId = userData.telegramId || userData.telegramUsername || 'N/A';
-        // --- END ADAPTED ---
 
         // Update user's personal balance and total earned
         currentBalance += REWARD_PER_AD;
@@ -158,7 +149,7 @@ async function giveUserReward(rewardType) {
         const leaderboardSnapshot = await get(leaderboardUserRef);
         const leaderboardUserData = leaderboardSnapshot.val() || {
             username: userData.username || currentUser.email,
-            telegramUsername: userData.telegramUsername || 'N/A',
+            telegramUsername: userData.telegramId || 'N/A', // Use telegramId here too
             totalEarnings: 0,
             adsWatched: 0
         };
@@ -195,7 +186,6 @@ function getNextResetDate(currentDate) {
 
 
 async function initializeLeaderboard() {
-    showLoading(true);
     const now = new Date();
     const currentWeek = getWeekId(now);
     const leaderboardResetRef = ref(database, 'globalSettings/leaderboardLastReset');
@@ -210,8 +200,6 @@ async function initializeLeaderboard() {
 
         if (currentWeek !== lastResetWeek) {
             console.log("New week detected. Resetting leaderboard related data for week:", currentWeek);
-            // In a real app, this would trigger a Cloud Function to archive old data and prepare new.
-            // For client-side, we just update the currentWeekId and expect users to start fresh or update their entry.
             await set(leaderboardResetRef, serverTimestamp()); // Update last reset time
             currentLeaderboardWeekId = currentWeek; // Set new week ID
         } else {
@@ -224,8 +212,6 @@ async function initializeLeaderboard() {
 
     } catch (error) {
         console.error("Error initializing leaderboard:", error);
-    } finally {
-        showLoading(false);
     }
 }
 
@@ -276,14 +262,12 @@ async function requestWithdrawal() {
         return;
     }
 
-    showLoading(true);
     const userRef = ref(database, `users/${currentUser.uid}`);
     try {
         const userSnapshot = await get(userRef);
         const userData = userSnapshot.val();
         if (!userData || userData.balance < amount) {
             withdrawalMessage.textContent = "Insufficient balance.";
-            showLoading(false);
             return;
         }
 
@@ -291,10 +275,10 @@ async function requestWithdrawal() {
         const newBalance = userData.balance - amount;
         await update(userRef, { balance: newBalance });
 
-        // Push withdrawal request to Firebase (path changed to 'withdrawals')
-        const newRequestRef = push(ref(database, 'withdrawals')); // ADAPTED: Path changed to 'withdrawals'
+        // Push withdrawal request to Firebase
+        const newRequestRef = push(ref(database, 'withdrawals'));
         await set(newRequestRef, {
-            uid: currentUser.uid, // ADAPTED: Renamed from userId to uid for indexing
+            uid: currentUser.uid,
             username: userData.username || currentUser.email,
             telegramUsername: telegramUsername,
             gcashNumber: gcashNumber,
@@ -311,8 +295,6 @@ async function requestWithdrawal() {
         withdrawalMessage.textContent = "Failed to send withdrawal request. Please try again.";
         // IMPORTANT: If balance deduction succeeded but request failed, user balance needs to be restored.
         // A Cloud Function for this entire process is safer.
-    } finally {
-        showLoading(false);
     }
 }
 
@@ -347,12 +329,12 @@ function renderWithdrawalRequests() {
             const approveBtn = document.createElement('button');
             approveBtn.textContent = 'Approve';
             approveBtn.className = 'action-btn small-btn';
-            approveBtn.onclick = () => handleWithdrawalAction(req.id, 'approved', req.uid, req.amount); // ADAPTED: used req.uid
+            approveBtn.onclick = () => handleWithdrawalAction(req.id, 'approved', req.uid, req.amount);
             
             const rejectBtn = document.createElement('button');
             rejectBtn.textContent = 'Reject';
             rejectBtn.className = 'reject-btn small-btn'; // You might want a different style for reject
-            rejectBtn.onclick = () => handleWithdrawalAction(req.id, 'rejected', req.uid, req.amount); // ADAPTED: used req.uid
+            rejectBtn.onclick = () => handleWithdrawalAction(req.id, 'rejected', req.uid, req.amount);
 
             actionCell.appendChild(approveBtn);
             actionCell.appendChild(rejectBtn);
@@ -368,7 +350,7 @@ function renderWithdrawalRequests() {
 }
 
 function setupWithdrawalRequestsListener() {
-    const requestsRef = query(ref(database, 'withdrawals'), orderByChild('timestamp')); // ADAPTED: Path changed to 'withdrawals'
+    const requestsRef = query(ref(database, 'withdrawals'), orderByChild('timestamp'));
     onValue(requestsRef, (snapshot) => {
         withdrawalRequests = [];
         snapshot.forEach(childSnapshot => {
@@ -380,13 +362,12 @@ function setupWithdrawalRequestsListener() {
     });
 }
 
-async function handleWithdrawalAction(requestId, status, userId, amount) { // userId parameter still used
+async function handleWithdrawalAction(requestId, status, userId, amount) {
     if (!confirm(`Are you sure you want to ${status} request ${requestId}?`)) {
         return;
     }
 
-    showLoading(true);
-    const requestRef = ref(database, `withdrawals/${requestId}`); // ADAPTED: Path changed to 'withdrawals'
+    const requestRef = ref(database, `withdrawals/${requestId}`);
     try {
         await update(requestRef, {
             status: status,
@@ -409,14 +390,11 @@ async function handleWithdrawalAction(requestId, status, userId, amount) { // us
     } catch (error) {
         console.error(`Error processing withdrawal request ${requestId}:`, error);
         ownerMessage.textContent = `Failed to ${status} request ${requestId}.`;
-    } finally {
-        showLoading(false);
     }
 }
 
 // --- Authentication Handlers ---
 onAuthStateChanged(auth, async (user) => {
-    showLoading(true);
     if (user) {
         currentUser = user;
         console.log("User logged in:", user.uid);
@@ -425,17 +403,15 @@ onAuthStateChanged(auth, async (user) => {
         const snapshot = await get(userProfileRef);
         const userData = snapshot.val();
 
-        // ADAPTED: Check for telegramId as the primary identifier now
         if (!userData || !userData.telegramId) { 
             // User exists but missing Telegram, prompt to update or complete registration
             authMessage.textContent = "Please complete your profile (Telegram username).";
             showSection('auth-section');
-            showLoading(false);
             return;
         }
 
         displayUsername.textContent = userData.username || user.email;
-        displayTelegram.textContent = userData.telegramId; // ADAPTED: Display telegramId
+        displayTelegram.textContent = userData.telegramId; 
 
         // Set up real-time listener for user balance and ads watched
         onValue(userProfileRef, (snapshot) => {
@@ -445,13 +421,12 @@ onAuthStateChanged(auth, async (user) => {
         });
 
         await initializeLeaderboard(); // Initialize and listen to leaderboard
-        showSection('main-app-section');
+        showSection('main-app-section'); // Show main app if user is authenticated
     } else {
         currentUser = null;
         console.log("User logged out.");
-        showSection('auth-section');
+        showSection('auth-section'); // Show auth screen if no user
     }
-    showLoading(false);
 });
 
 async function handleLogin() {
@@ -461,15 +436,12 @@ async function handleLogin() {
         authMessage.textContent = "Please enter email and password.";
         return;
     }
-    showLoading(true);
     try {
         await signInWithEmailAndPassword(auth, email, password);
         authMessage.textContent = ""; // Clear message on success
     } catch (error) {
         console.error("Login error:", error.message);
         authMessage.textContent = `Login failed: ${error.message}`;
-    } finally {
-        showLoading(false);
     }
 }
 
@@ -487,7 +459,6 @@ async function handleRegister() {
         return;
     }
 
-    showLoading(true);
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
@@ -495,7 +466,7 @@ async function handleRegister() {
         // Store user profile data in Realtime Database
         await set(ref(database, `users/${user.uid}`), {
             username: email.split('@')[0], // Default username from email
-            telegramId: telegramUsername, // ADAPTED: Storing as telegramId for indexing
+            telegramId: telegramUsername, // Storing as telegramId for indexing
             balance: 0,
             adsWatched: 0,
             totalEarned: 0, // Lifetime earnings
@@ -508,13 +479,10 @@ async function handleRegister() {
     } catch (error) {
         console.error("Registration error:", error.message);
         authMessage.textContent = `Registration failed: ${error.message}`;
-    } finally {
-        showLoading(false);
     }
 }
 
 async function handleLogout() {
-    showLoading(true);
     try {
         await signOut(auth);
         authEmail.value = '';
@@ -525,8 +493,6 @@ async function handleLogout() {
     } catch (error) {
         console.error("Logout error:", error.message);
         alert("Logout failed. Please try again.");
-    } finally {
-        showLoading(false);
     }
 }
 
@@ -551,7 +517,7 @@ function handleOwnerLogout() {
     ownerPasswordInput.value = '';
     ownerLoginBtn.classList.remove('hidden');
     ownerLogoutBtn.classList.add('hidden');
-    // Stop listening for withdrawal requests if applicable, or just let it update in background.
+    // Consider stopping withdrawal requests listener here if needed for performance
 }
 
 // --- Event Listeners ---
@@ -581,15 +547,5 @@ nextPageBtn.addEventListener('click', () => {
     }
 });
 
-// Initial load
-showLoading(true);
-document.addEventListener('DOMContentLoaded', async () => {
-    // This part is handled by onAuthStateChanged listener after Firebase init
-    // Simulate initial LUMINA 3D environment load (if applicable, abstracted for now)
-    setTimeout(() => {
-        // Hide initial loading screen after a small delay
-        if (!currentUser) { // If user is not authenticated yet, keep auth screen
-            showLoading(false);
-        }
-    }, 1000);
-});
+// Initial logic: onAuthStateChanged handles which section is shown directly.
+// No need for a separate DOMContentLoaded listener with loading logic.
