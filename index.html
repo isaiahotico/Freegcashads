@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUMINA: The Infinite Canvas - Ad & Reward System</title>
+    <title>LUMINA: Ad & Reward System</title>
     <!-- Combined CSS -->
     <style>
         body {
@@ -83,7 +84,8 @@
             color: #fff;
             cursor: pointer;
             font-size: 1em;
-            margin-right: 10px;            transition: background-color 0.3s ease, transform 0.1s ease;
+            margin-right: 10px;
+            transition: background-color 0.3s ease, transform 0.1s ease;
         }
 
         button:hover:not(:disabled) {
@@ -178,7 +180,8 @@
 
         /* Leaderboard specific */
         .leaderboard-header {
-            text-align: center;            font-size: 0.8em;
+            text-align: center;
+            font-size: 0.8em;
             color: #aaa;
             margin-bottom: 10px;
         }
@@ -200,38 +203,6 @@
         .status-pending { color: #ffda00; font-weight: bold; }
         .status-approved { color: #4CAF50; font-weight: bold; }
         .status-rejected { color: #f44336; font-weight: bold; }
-
-
-        /* Loading Overlay Spinner */
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            color: white;
-            font-size: 1.5em;
-        }
-
-        .spinner {
-            border: 8px solid #333;
-            border-top: 8px solid #00e6e6; /* Cyan spinner */
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }}
 
         @media (max-width: 768px) {
             #app {
@@ -263,8 +234,7 @@
                 content: attr(data-label);
                 position: absolute;
                 left: 10px;
-                width: calc(50% - 20px);
-                padding-right: 10px;
+                width: calc(50% - 20px);padding-right: 10px;
                 white-space: nowrap;
                 text-align: left;
                 font-weight: bold;
@@ -287,13 +257,7 @@
 </head>
 <body>
     <div id="app">
-        <!-- Loading Overlay -->
-        <div id="loading-overlay" class="overlay">
-            <div class="spinner"></div>
-            <p>Loading LUMINA...</p>
-        </div>
-
-        <!-- Authentication Section -->
+        <!-- Authentication Section (visible by default) -->
         <div id="auth-section" class="section">
             <h2>Welcome to LUMINA</h2>
             <input type="email" id="auth-email" placeholder="Email">
@@ -304,7 +268,7 @@
             <p id="auth-message"></p>
         </div>
 
-        <!-- Main App Section (User Dashboard) -->
+        <!-- Main App Section (User Dashboard - hidden initially) -->
         <div id="main-app-section" class="section hidden">
             <header>
                 <h1>LUMINA: Your Canvas</h1>
@@ -361,10 +325,9 @@
             </section>
         </div>
 
-        <!-- Owner Dashboard Section -->
+        <!-- Owner Dashboard Section (hidden initially) -->
         <div id="owner-dashboard-section" class="section hidden">
-            <header>
-                <h1>Owner Dashboard</h1>
+            <header><h1>Owner Dashboard</h1>
                 <input type="password" id="owner-password-input" placeholder="Owner Password">
                 <button id="owner-login-btn">Login</button>
                 <button id="owner-logout-btn" class="hidden">Back to Main App</button>
