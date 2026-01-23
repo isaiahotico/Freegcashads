@@ -1,137 +1,146 @@
-WELCOME USERS
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PAPERHOUSE INC | World Concept</title>
-    
-    <!-- Monetag & Telegram SDKs -->
-    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+    <title>TG Rewards & Chat</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --sky-blue: #87CEEB; --yellow-green: #9ACD32; --classic-yellow: #FFD700; --glass: rgba(255, 255, 255, 0.2); }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--sky-blue); transition: 0.5s; min-height: 100vh; overflow-x: hidden; }
-        body.rainbow { animation: rainbow 10s infinite linear; }
-        @keyframes rainbow { 0%{background:#ffadad} 20%{background:#ffd6a5} 40%{background:#fdffb6} 60%{background:#caffbf} 80%{background:#a0c4ff} 100%{background:#ffadad} }
-        
-        header { background: var(--glass); padding: 15px; text-align: center; backdrop-filter: blur(10px); sticky: top; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.3); }
-        .balance-card { font-size: 28px; font-weight: 900; color: #2e7d32; text-shadow: 1px 1px 0px #fff; }
+        :root {
+            --bg: var(--tg-theme-bg-color, #ffffff);
+            --text: var(--tg-theme-text-color, #222222);
+            --hint: var(--tg-theme-hint-color, #999999);
+            --btn: var(--tg-theme-button-color, #248bcf);
+            --btn-text: var(--tg-theme-button-text-color, #ffffff);
+            --sec-bg: var(--tg-theme-secondary-bg-color, #f4f4f4);
+        }
 
-        .container { display: none; padding: 20px; animation: fadeIn 0.3s; flex-direction: column; align-items: center; }
-        .active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body {
+            font-family: sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-        .btn { background: var(--yellow-green); border: none; padding: 15px 25px; margin: 8px; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #6b8e23; width: 90%; max-width: 350px; }
-        .btn:active { background: var(--classic-yellow) !important; transform: translateY(3px); box-shadow: none; }
-        
-        /* Tables & Lists */
-        .glass-panel { background: white; border-radius: 20px; padding: 15px; width: 100%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
-        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
-        
-        /* Chat Styling */
+        /* User Profile Header */
+        .header {
+            padding: 15px;
+            background: var(--sec-bg);
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        #user-name { font-weight: bold; color: var(--btn); }
 
-        #chatBox { height: 300px; overflow-y: auto; display: flex; flex-direction: column; border: 1px solid #eee; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
-        .msg { margin-bottom: 8px; padding: 8px; border-radius: 8px; background: #f1f1f1; max-width: 80%; }
-        .msg-own { align-self: flex-end; background: #dcf8c6; }
+        /* Ads Area */
+        .ad-slot {
+            margin: 10px;
+            padding: 15px;
+            background: #fffbe6;
+            border: 1px dashed #ffe58f;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+        }
 
-        .pagination { display: flex; gap: 10px; margin-top: 10px; }
-        .pg-btn { padding: 5px 10px; background: #eee; border: 1px solid #ccc; cursor: pointer; }
+        /* Chat Container */
+        #chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
 
-        footer { text-align: center; padding: 20px; font-size: 12px; background: var(--glass); margin-top: auto; }
+        .message {
+            background: var(--sec-bg);
+            padding: 8px 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            max-width: 85%;
+            word-wrap: break-word;
+            position: relative;
+        }
+
+        .message .user {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--btn);
+            display: block;
+        }
+
+        .message .time {
+            font-size: 9px;
+            color: var(--hint);
+            float: right;
+            margin-top: 5px;
+        }
+
+        /* Pagination Button */
+        #load-more {
+            background: none;
+            border: none;
+            color: var(--btn);
+            font-size: 12px;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+            background: var(--bg);
+            border-top: 1px solid #ddd;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        #send-btn {
+            background: var(--btn);
+            color: var(--btn-text);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
     </style>
 </head>
-<body id="body">
+<body>
 
-    <header>
-        <div id="userBar">👤 User: Guest</div>
-        <div class="balance-card">₱<span id="mainBalance">0.000</span></div>
-    </header>
-
-    <!-- Main Menu -->
-    <div id="homePage" class="container active">
-        <h1>PAPERHOUSE INC</h1>
-        <button class="btn" onclick="openPage('chatPage')">💬 WORLD CHAT</button>
-        <button class="btn" onclick="openPage('leaderboardPage')">🏆 TOP EARNERS</button>
-        <button class="btn" onclick="openPage('withdrawPage')">💸 WITHDRAW GCASH</button>
-        <button class="btn" onclick="openPage('giftPage')">🎁 GIFT AREA</button>
-        <button class="btn" style="background:#555; color:white;" onclick="checkAdmin()">🛠 OWNER DASHBOARD</button>
+    <div class="header">
+        Welcome, <span id="user-name">Loading...</span> 
+        <div style="font-size: 12px; color: var(--hint);">Messages reset every 3 days</div>
     </div>
 
-    <!-- Chat Page -->
-    <div id="chatPage" class="container">
-        <button class="btn" onclick="openPage('homePage')">⬅ BACK</button>
-        <div class="glass-panel">
-            <h3>Global Chat</h3>
-            <div id="chatBox"></div>
-            <input type="text" id="chatInput" placeholder="Type a message..." style="width:70%; padding:10px; border-radius:5px; border:1px solid #ccc;">
-            <button onclick="sendChatMessage()" style="padding:10px;">Send (Ad)</button>
-            <div id="chatCD" style="font-size:11px; color:red;"></div>
-        </div>
+    <div class="ad-slot" id="ad-box">
+        <button id="watch-ad-btn" style="border:none; background:none; color:orange; font-weight:bold;">
+            <i class="fas fa-play-circle"></i> Watch Ad for Rewards
+        </button>
     </div>
 
-    <!-- Leaderboard Page -->
-    <div id="leaderboardPage" class="container">
-        <button class="btn" onclick="openPage('homePage')">⬅ BACK</button>
-        <div class="glass-panel">
-            <h3>Weekly Top Earners</h3>
-            <table id="leaderTable">
-                <thead><tr><th>Rank</th><th>User</th><th>Balance</th></tr></thead>
-                <tbody></tbody>
-            </table>
-            <div class="pagination" id="leaderPg"></div>
-        </div>
+    <center><button id="load-more">Load Older Messages</button></center>
+    
+    <div id="chat-container">
+        <!-- Messages appear here -->
     </div>
 
-    <!-- Withdrawal Page -->
-    <div id="withdrawPage" class="container">
-        <button class="btn" onclick="openPage('homePage')">⬅ BACK</button>
-        <div class="glass-panel">
-            <h3>GCash Withdrawal</h3>
-            <input type="text" id="wdName" placeholder="Account Name" style="width:90%; padding:10px; margin-bottom:5px;">
-            <input type="number" id="wdNumber" placeholder="GCash Number" style="width:90%; padding:10px; margin-bottom:5px;">
-            <input type="number" id="wdAmount" placeholder="Amount (min ₱5)" style="width:90%; padding:10px; margin-bottom:10px;">
-            <button class="btn" style="width:100%" onclick="requestWithdrawal()">SUBMIT REQUEST</button>
-            
-            <h4>Live Status</h4>
-            <table id="myWdTable">
-                <thead><tr><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
+    <div class="input-area">
+        <input type="text" id="msg-input" placeholder="Write a message...">
+        <button id="send-btn">Send</button>
     </div>
-
-    <!-- Admin Dashboard -->
-    <div id="adminPage" class="container">
-        <button class="btn" onclick="openPage('homePage')">⬅ BACK</button>
-        <div class="glass-panel">
-            <h3>Pending Withdrawals</h3>
-            <table id="adminWdTable">
-                <t
-
-head><tr><th>User</th><th>Details</th><th>Amount</th><th>Action</th></tr></thead>
-                <tbody></tbody>
-            </table>
-            <div class="pagination" id="adminPg"></div>
-        </div>
-    </div>
-
-    <footer>
-        <div id="footerTime"></div>
-        <div>PAPERHOUSE INC | otico.isai2@gmail.com</div>
-    </footer>
 
     <script type="module" src="app.js"></script>
-    <script>
-        function openPage(id) {
-            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
-        document.body.onclick = (e) => { if(e.target.tagName !== 'BUTTON') document.body.classList.toggle('rainbow'); }
-    </script>
 </body>
 </html>
