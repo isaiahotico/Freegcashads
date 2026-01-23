@@ -1,26 +1,21 @@
-Welcome
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔰💎📄PAPERHOUSE INC CHAT📄💎🔰</title>
-    
-    <!-- Firebase & Telegram SDKs -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
+    
     <!-- Monetag SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
     <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
 
     <style>
-        :root { --accent: #ffd700; --bg: #0f0f0f; }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; transition: background 0.3s; }
+        :root { --accent: #22c55e; --bg: #0f172a; }
+        body { background: var(--bg); color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 10px; transition: background 0.3s; }
         
-        /* Brick Pattern */
+        /* Brick Background Class */
         .bricks {
             background-color: #2e1a1a !important;
             background-image:  linear-gradient(335deg, #422 23px, transparent 23px),
@@ -31,100 +26,101 @@ Welcome
             background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
         }
 
-        header { background: rgba(0,0,0,0.9); padding: 15px; border-bottom: 2px solid var(--accent); position: sticky; top: 0; z-index: 1000; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; }
-        .balance { color: #00ff00; font-weight: bold; font-size: 1.1rem; }
+        .header { background: #020617; padding: 15px; border-radius: 10px; border-bottom: 2px solid var(--accent); margin-bottom: 10px; }
+        .balance-area { color: var(--accent); font-weight: bold; font-size: 1.2rem; }
 
-        #aide-text { background: rgba(255,255,255,0.1); margin: 10px; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; border: 1px dashed var(--accent); }
+        #aide-text { padding: 15px; text-align: center; border: 2px dashed #334155; margin: 10px 0; border-radius: 8px; cursor: pointer; }
 
-        nav { display: flex; overflow-x: auto; background: #1a1a1a; padding: 10px; gap: 10px; }
-        nav button { flex: 1; padding: 10px; border: none; border-radius: 5px; background: #333; color: white; font-weight: bold; cursor: pointer; white-space: nowrap; }
-        nav button.active { background: var(--accent); color: black; }
+        nav { display: flex; gap: 5px; margin-bottom: 15px; }
+        nav button { flex: 1; padding: 10px; background: #1e293b; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        nav button.active { background: var(--accent); color: #000; font-weight: bold; }
 
-        .page { display: none; padding: 15px; min-height: 70vh; }
-        .active-page { display: block; }
+        .page { display: none; }
+        .page.active { display: block; }
 
-        /* Chat UI */
+        /* Chat Styles */
+        #chat-box { height: 300px; overflow-y: auto; background: #020617; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .msg { background: #1e293b; padding: 8px; border-radius: 5px; margin-bottom: 8px; border-left: 3px solid var(--accent); }
+        .msg b { color: var(--accent); font-size: 0.8rem; display: block; }
 
-        #chat-display { height: 400px; overflow-y: auto; background: rgba(0,0,0,0.5); border-radius: 10px; padding: 10px; border: 1px solid #333; }
-        .msg { margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 4px solid var(--accent); }
-        .msg b { color: var(--accent); display: block; font-size: 0.8rem; }
-        .chat-controls { display: flex; gap: 10px; margin-top: 15px; }
-        input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #222; color: white; }
+        /* Withdrawal Styles */        input, .action-btn { padding: 10px; margin: 5px 0; width: 100%; border-radius: 6px; border: none; box-sizing: border-box; }
+        input { background: #1e293b; color: white; }
+        .action-btn { background: var(--accent); font-weight: bold; color: #000; cursor: pointer; }
 
-        /* Tables */
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.8rem; }
-        th, td { border: 1px solid #333; padding: 10px; text-align: left; }
-        th { background: #111; color: var(--accent); }
-        .status-pending { color: orange; font-weight: bold; }
-        .status-approved { color: #00ff00; font-weight: bold; }
+        table { width: 100%; font-size: 12px; border-collapse: collapse; margin-top: 10px; }
+        th, td { border-bottom: 1px solid #334155; padding: 8px; text-align: left; }
+        th { background: #020617; }
 
-        footer { text-align: center; padding: 25px; background: #000; border-top: 1px solid #222; margin-top: 20px; font-size: 0.8rem; }
-        .admin-btn { background: #ff4444 !important; }
+        .admin-sec { margin-top: 20px; background: #020617; padding: 15px; border-radius: 10px; border: 1px solid red; }
+        
+        footer { text-align: center; font-size: 10px; color: #64748b; padding: 20px; }
     </style>
 </head>
 <body id="mainBody">
 
-<header>
-    <div class="top-bar">
-        <div id="userBar">👤 @Guest</div>
-        <div class="balance">₱<span id="bal-val">0.000</span></div>
-    </div>
-</header>
-
-<div id="aide-text">
-    💎 <b>THEME ENGINE</b> 💎<br>
-    Click here to switch background styles
+<div class="header">
+    <div style="font-size: 11px;">🔰💎📄PAPERHOUSE INC CHAT📄💎🔰</div>
+    <h3>👤 <span id="display-username">Loading...</span></h3>
+    <div class="balance-area">💰 Balance: ₱<span id="balance">0.00</span></div>
 </div>
 
+<div id="aide-text">💡 TAP TO CHANGE BACKGROUND 💡</div>
+
 <nav>
-    <button onclick="openPage('chat-page')" id="btn-chat" class="active">📙 CHAT📘</button>
-    <button onclick="openPage('wallet-page')">💰 WITHDRAW</button>
-    <button onclick="openAdmin()" class="admin-btn">🔑 OWNER</button>
+    <button onclick="showPage('chat-page')" id="nav-chat" class="active">📙 CHAT📘</button>
+    <button onclick="showPage('withdraw-page')" id="nav-withdraw">💰 WALLET</button>
+    <button onclick="checkAdmin()" style="background: #7f1d1d;">🔑 OWNER</button>
 </nav>
 
 <!-- CHAT PAGE -->
-<div id="chat-page" class="page active-page">
-    <div id="chat-display"></div>
-    <div class="chat-controls">
-        <input type="text" id="chatInput" placeholder="Message everyone...">
-        <button onclick="processMessage()" style="background:var(--accent); border:none; padding:10px 20px; border-radius:8px; font-weight:bold;">SEND</button>
-    </div>
-    <p style="font-size: 0.7rem; color: #888; text-align: center;">Requires 3 Ads | Reward: ₱0.015 | 3m Cooldown</p>
+<div id="chat-page" class="page active">
+    <div id="chat-box"></div>
+    <input type="text" id="chatInput" placeholder="Type a message...">
+    <button class="action-btn" onclick="handleSendMessage()">SEND (3 ADS = ₱0.015)</button>
+    <p style="font-size: 10px; text-align: center; color: #64748b;">Cooldown: 3 minutes</p>
 </div>
 
-<!-- WALLET PAGE -->
-<div id="wallet-page" class="page">
-    <h3>GCash Withdrawal</h3>
-    <input type="text" id="gcName" placeholder="GCash Full Name" style="width: 100%; margin-bottom:10px;">
-    <input type="text" id="gcNum" placeholder="GCash Number (09...)" style="width: 100%; margin-bottom:10px;">
-    <input type="number" id="wdAmount" placeholder="Amount to Withdraw" style="width: 100%; margin-bottom:10px;">
-    <button onclick="submitWithdrawal()" style="width:100%; padding:15px; background:#00ff00; border:none; font-weight:bold; border-radius:8px;">SUBMIT REQUEST</button>
+<!-- WITHDRAW PAGE -->
+<div id="withdraw-page" class="page">
+    <h4>📤 Withdraw via GCash</h4>
+    <input id="gcashName" placeholder="GCash Registered Name">
+    <input id="gcashNumber" placeholder="GCash Number">
+    <input id="amount" type="number" placeholder="Amount (Min ₱5.00)">
+    <button class="action-btn" onclick="requestWithdraw()">Submit Withdrawal</button>
 
-    <h4>Withdrawal History</h4>
+    <h4>📊 My Withdrawals</h4>
     <table>
-        <thead><tr><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
-        <tbody id="user-wd-list"></tbody>
+        <thead><tr><th>Amount</th><th>GCash</th><th>Status</th><th>Reason</th></tr></thead>
+        <tbody id="userWithdrawals"></tbody>
     </table>
-</div>
-
-<!-- ADMIN PAGE -->
-<div id="admin-page" class="page">
-    <h2 style="color:red">Owner Dashboard</h2>
-    <div id="admin-content">
-        <table>
-            <thead><tr><th>User</th><th>Details</th><th>Amount</th><th>Action</th></tr></thead>
-            <tbody id="admin-wd-list"></tbody>
-        </table>
+    <div style="display: flex; gap: 5px; margin-top: 10px;">
+        <button onclick="prevPage()" style="flex:1">◀ Prev</button>
+        <button onclick="nextPage()" style="flex:1">Next ▶</button>
     </div>
 </div>
 
-<footer>
-    PAPERHOUSE INC<br>
-    <span id="live-clock"></span><br>
+<!-- OWNER DASHBOARD -->
+<div id="admin-page" class="page">
+    <div class="admin-sec">
+        <h4>🔐 Owner Dashboard</h4>
+        <div id="admin-auth">
+            <input id="adminPass" type="password" placeholder="Enter Password">
+            <button class="action-btn" onclick="loginAdmin()">Login</button>
+        </div>
+        <div id="admin-content" style="display:none">
+            <table>
+                <thead><tr><th>User</th><th>Amount</th><th>GCash</th><th>Action</th></tr></thead>
+                <tbody id="adminTable"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<footer id="footer-note">
+    PAPERHOUSE INC | <span id="time-display"></span><br>
     otico.isai2@gmail.com
 </footer>
 
-<script src="app.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
