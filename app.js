@@ -1,195 +1,352 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PAPERHOUSE INC | PRO</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Monetag SDKs -->
-    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, set, get, update, push, onValue, query, orderByChild, limitToLast, serverTimestamp, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    <style>
-        body { background: #020617; color: #f8fafc; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .gold-gradient { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .nav-active { color: #fbbf24; }
-        .hidden-timer { display: none; }
-        .chat-msg { background: #1e293b; border-radius: 12px; padding: 10px; margin-bottom: 8px; max-width: 85%; }
-        .my-msg { background: #2563eb; margin-left: auto; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-    </style>
-</head>
-<body>
+const firebaseConfig = {
+    apiKey: "AIzaSyBwpa8mA83JAv2A2Dj0rh5VHwodyv5N3dg",
+    authDomain: "freegcash-ads.firebaseapp.com",
+    databaseURL: "https://freegcash-ads-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "freegcash-ads",
+    storageBucket: "freegcash-ads.firebasestorage.app",
+    messagingSenderId: "608086825364",
+    appId: "1:608086825364:web:3a8e628d231b52c6171781"
+};
 
-    <!-- Auth Screen -->
-    <div id="login-screen" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-8">
-        <h1 class="text-4xl font-black mb-2 text-yellow-500">PAPERHOUSE</h1>
-        <p class="text-slate-400 text-sm mb-8">Premium Earning Portal</p>
-        <input type="text" id="reg-name" placeholder="Username (This is your Ref Code)" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-800 mb-4 outline-none focus:border-yellow-500">
-        <input type="number" id="reg-gcash" placeholder="GCash Number" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-800 mb-6 outline-none">
-        <button onclick="app.register()" class="w-full gold-gradient py-4 rounded-xl font-bold text-slate-900 uppercase">Enter Dashboard</button>
-    </div>
+const fb = initializeApp(firebaseConfig);
+const db = getDatabase(fb);
 
-    <div id="app" class="hidden min-h-screen pb-24">
-        <!-- Header -->
-        <header class="p-5 flex justify-between items-center glass sticky top-0 z-50">
-            <div>
+const ZONES = ['show_10276123', 'show_10337795', 'show_10337853'];
+let user = null;
+let uid = localStorage.getItem('ph_uid');
+let cd = { premium: 0, turbo: 0, chat: 0 };
+let activeTopicId = null;
 
-                <h2 id="u-name" class="font-bold text-white">---</h2>
-                <span class="text-[10px] text-green-500 font-bold uppercase">● Online</span>
-            </div>
-            <div class="text-right">
-                <p class="text-[9px] text-slate-400 font-bold">WALLET</p>
-                <h2 id="u-balance" class="text-xl font-black text-yellow-500">₱0.00</h2>
-            </div>
-        </header>
+const app = {
+    init: async () => {
+        if (!uid) {
+            document.getElementById('login-screen').classList.remove('hidden');
+        } else {
+            const snap = await get(ref(db, `users/${uid}`));
+            if (snap.exists()) {
+                user = snap.val();
+                app.launch();
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+            }
+        }
+    },
 
-        <main class="p-4 space-y-6">
-            <!-- Home: Ads -->
-            <section id="sec-home" class="space-y-4">
-                <div class="glass p-8 rounded-[2rem] text-center">
-                    <p class="text-xs text-slate-400 mb-1">Total Balance</p>
-                    <h1 id="big-balance" class="text-5xl font-black mb-6">₱0.00</h1>
-                    <button onclick="app.withdraw()" class="w-full py-3 rounded-xl bg-white text-black font-bold">CASH OUT</button>
-                </div>
+    register: async () => {
+        const name = document.getElementById('reg-name').value.trim();
+        const gcash = document.getElementById('reg-gcash').value.trim();
+        if (name.length < 3 || gcash.length < 10) return alert("Invalid inputs");
 
-                <!-- Premium Ad -->
-                <div id="box-premium">
-                    <button onclick="app.playSequence('premium')" class="w-full gold-gradient p-6 rounded-2xl flex justify-between items-center shadow-lg shadow-yellow-500/10">
-                        <div class="text-left"><h4 class="font-black text-slate-900">PREMIUM AD</h4><p class="text-[10px] text-slate-800 font-bold">3X SEQUENCED ADS | ₱0.0102</p></div>
-                        <i class="fas fa-crown text-slate-900 text-2xl"></i>
-                    </button>
-                </div>
-                <div id="timer-premium" class="hidden-timer glass p-6 rounded-2xl text-center">
-                    <p class="text-slate-400 text-xs uppercase font-bold">Premium Ready In</p>
-                    <h4 class="text-2xl font-black text-yellow-500 cd-val">45s</h4>
-                </div>
+        // Check if username taken
+        const usersSnap = await get(query(ref(db, 'users'), orderByChild('username'), equalsTo(name)));
+        if(usersSnap.exists()) return alert("Username taken");
 
-                <!-- Turbo Ad -->
-                <div id="box-turbo">
-                    <button onclick="app.playSequence('turbo')" class="w-full bg-blue-600 p-6 rounded-2xl flex justify-between items-center shadow-lg shadow-blue-500/10">
-                        <div class="text-left"><h4 class="font-black text-white">TURBO AD</h4><p class="text-[10px] text-blue-100 font-bold">3X SEQUENCED ADS | ₱0.0102</p></div>
-                        <i class="fas fa-bolt text-white text-2xl"></i>
-                    </button>
-                </div>
-                <div id="timer-turbo" class="hidden-timer glass p-6 rounded-2xl text-center">
-                    <p class="text-slate-400 text-xs uppercase font-bold">Turbo Ready In</p>
-                    <h4 class="text-2xl font-black text-blue-500 cd-val">45s</h4>
-                </div>
-            </section>
+        uid = 'U' + Math.floor(Math.random() * 900000);
+        user = { 
+            uid, username: name, gcash, balance: 0, 
+            pendingBonus: 0, referredBy: null, totalAds: 0 
+        };
+        await set(ref(db, `users/${uid}`), user);
+        localStorage.setItem('ph_uid', uid);
+        app.launch();
+    },
 
-            <!-- Referrals -->
-            <section id="sec-referral" class="hidden space-y-4">
-                <div class="glass p-6 rounded-2xl">
-                    <h3 class="font-bold text-yellow-500 mb-2">Manual Referral Claim</h3>
-                    <p class="text-[10px] text-slate-400 mb-4">Enter your friend's username to set them as your referrer and earn 8% bonus for them!</p>
-                    <div class="flex gap-2">
-                        <input id="ref-input" type="text" placeholder="Friend's Username" class="flex-1 bg-slate-900 p-3 rounded-xl outline-none border border-slate-700">
-                        <button onclick="app.claimReferral()" class="bg-white text-black px-4 rounded-xl font-bold text-xs">SET</button>
-                    </div>
-                </div>
+    launch: () => {
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        app.sync();
+        app.nav('home');
+    },
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="glass p-4 rounded-2xl text-center">
-                        <p class="text-[10px] text-slate-400">TOTAL REFERRALS</p>
+    sync: () => {
+        onValue(ref(db, `users/${uid}`), s => {
+            user = s.val();
+            document.getElementById('u-name').innerText = user.username;
+            document.getElementById('u-balance').innerText = `₱${user.balance.toFixed(4)}`;
+            document.getElementById('big-balance').innerText = `₱${user.balance.toFixed(4)}`;
+            document.getElementById('ref-unclaimed').innerText = `₱${(user.pendingBonus || 0).toFixed(4)}`;
+            app.loadRefList();
+        });
+    },
 
-<h4 id="ref-count" class="text-xl font-black">0</h4>
-                    </div>
-                    <div class="glass p-4 rounded-2xl text-center">
-                        <p class="text-[10px] text-slate-400">UNCLAIMED BONUS</p>
-                        <h4 id="ref-unclaimed" class="text-xl font-black text-green-500">₱0.00</h4>
-                    </div>
-                </div>
-                <button onclick="app.claimBonus()" class="w-full gold-gradient py-3 rounded-xl text-slate-900 font-bold">CLAIM BONUS TO WALLET</button>
-                
-                <h3 class="font-bold text-sm mt-4">My Referral List</h3>
-                <div id="ref-list" class="space-y-2"></div>
-            </section>
+    // --- ADS LOGIC ---
+    playSequence: async (type) => {
+        if (cd[type] > 0) return;
+        
+        // Sequential 3 Ads
+        for (const zone of ZONES) {
+            try { if (window[zone]) await window[zone](); } catch (e) {}
+        }
 
-            <!-- Forum -->
-            <section id="sec-forum" class="hidden space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-black">Forum</h3>
-                    <button onclick="app.showModal('modal-topic')" class="bg-yellow-500 text-black px-4 py-2 rounded-xl text-xs font-bold">+ NEW TOPIC</button>
-                </div>
-                <div id="topics-list" class="space-y-3"></div>
-            </section>
+        // Reward
+        const reward = 0.0102;
+        await app.grantReward(reward);
+        app.startCD(type, 45);
+    },
 
-            <!-- Chat -->
-            <section id="sec-chat" class="hidden flex flex-col h-[65vh]">
-                <div id="chat-box" class="flex-1 overflow-y-auto pr-2"></div>
-                <div id="chat-reward-box" class="hidden-timer p-2 text-center text-[10px] font-bold text-yellow-500">Reward Cooldown: <span id="chat-cd">0</span>s</div>
-                <div class="flex gap-2 p-2 glass rounded-2xl mt-2">
-                    <input id="chat-input" type="text" placeholder="Watch 3 ads to send..." class="flex-1 bg-transparent p-2 outline-none">
-                    <button onclick="app.sendChatMessage()" class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
-                </div>
-            </section>
+    grantReward: async (amt) => {
+        const updates = {
+            balance: (user.balance || 0) + amt,
+            totalAds: (user.totalAds || 0) + 1
+        };
+        await update(ref(db, `users/${uid}`), updates);
 
-            <!-- History -->
-            <section id="sec-history" class="hidden space-y-4">
-                <h3 class="text-xl font-black">Withdrawal Logs</h3>
-                <div id="hist-list" class="space-y-2"></div>
-            </section>
+        // 8% Commision to Referrer
+        if (user.referredBy) {
+            const refUserRef = ref(db, `users/${user.referredBy}`);
+            const refSnap = await get(refUserRef);
+            if (refSnap.exists()) {
+                const comm = amt * 0.08;
+                await update(refUserRef, {
+                    pendingBonus: (refSnap.val().pendingBonus || 0) + comm
+                });
+            }
+        }
+    },
 
-            <!-- Help -->
-            <section id="sec-help" class="hidden space-y-4">
-                <h3 class="text-xl font-black">Follow Us for Updates</h3>
-                <div class="grid gap-3">
-                    <a href="https://t.me/paperhouseinc" target="_blank" class="glass p-4 rounded-xl flex items-center gap-3"><i class="fab fa-telegram text-blue-400"></i> Telegram Group</a>
-                    <a href="https://t.me/PAPERHOUSE_INC" target="_blank" class="glass p-4 rounded-xl flex items-center gap-3"><i class="fab fa-telegram text-blue-500"></i> Telegram Channel</a>
-                    <a href="https://facebook.com/groups/1193693469083843/" target="_blank" class="glass p-4 rounded-xl flex items-center gap-3"><i class="fab fa-facebook text-blue-700"></i> Facebook Group</a>
-                    <a href="https://www.facebook.com/profile.php?id=61586281245735" target="_blank" class="glass p-4 rounded-xl flex items-center gap-3"><i class="fab fa-facebook text-blue-600"></i> Facebook Page</a>
-                </div>
-            </section>
+    startCD: (type, seconds) => {
+        cd[type] = seconds;
+        const btnBox = document.getElementById(`box-${type}`);
+        const timerBox = document.getElementById(`timer-${type}`);
+        const display = timerBox.querySelector('.cd-val');
 
-            <!-- Admin -->
-            <section id="sec-admin" class="hidden space-y-4">
-                <h3 class="text-xl font-black text-red-500">Admin - Pending Payouts</h3>
-                <div id="admin-list" class="space-y-2"></div>
-            </section>
-        </main>
+        btnBox.classList.add('hidden-timer');
+        timerBox.classList.remove('hidden-timer');
 
-        <!-- Navbar -->
-        <nav class="fixed bottom-0 left-0 right-0 gl
+        const ticker = setInterval(() => {
+            cd[type]--;
+            if (display) display.innerText = cd[type] + 's';
+            if (type === 'chat') document.getElementById('chat-cd').innerText = cd[type];
 
-ass flex justify-around p-4 z-50 rounded-t-3xl border-t border-white/10">
-            <button onclick="app.nav('home')"><i class="fas fa-home"></i></button>
-            <button onclick="app.nav('referral')"><i class="fas fa-users"></i></button>
-            <button onclick="app.nav('forum')"><i class="fas fa-comments"></i></button>
-            <button onclick="app.nav('chat')"><i class="fas fa-paper-plane"></i></button>
-            <button onclick="app.nav('history')"><i class="fas fa-clock"></i></button>
-            <button onclick="app.nav('help')"><i class="fas fa-question-circle"></i></button>
-            <button onclick="app.nav('admin')" class="text-slate-800"><i class="fas fa-user-shield"></i></button>
-        </nav>
-    </div>
+            if (cd[type] <= 0) {
+                clearInterval(ticker);
+                btnBox.classList.remove('hidden-timer');
+                timerBox.classList.add('hidden-timer');
+                if (type === 'chat') document.getElementById('chat-reward-box').classList.add('hidden-timer');
+            }
+        }, 1000);
+    },
 
-    <!-- Modals -->
-    <div id="modal-topic" class="modal">
-        <div class="bg-slate-900 w-full max-w-md p-6 rounded-3xl">
-            <h3 class="font-bold mb-4">Create Topic</h3>
-            <input id="topic-title" type="text" placeholder="Title" class="w-full bg-slate-950 p-3 rounded-xl mb-3 border border-slate-800">
-            <textarea id="topic-desc" placeholder="Content..." rows="4" class="w-full bg-slate-950 p-3 rounded-xl mb-4 border border-slate-800"></textarea>
-            <button onclick="app.postTopic()" class="w-full gold-gradient py-3 rounded-xl text-slate-900 font-bold">Post Topic</button>
-            <button onclick="app.closeModal('modal-topic')" class="w-full text-slate-400 mt-2 text-xs">Close</button>
-        </div>
-    </div>
+    // --- REFERRAL SYSTEM ---
+    claimReferral: async () => {
+        const code = document.getElementById('ref-input').value.trim();
+        if (code === user.username) return alert("Cannot refer yourself");
+        
+        const q = query(ref(db, 'users'), orderByChild('username'));
+        const snap = await get(q);
+        let foundUid = null;
+        snap.forEach(c => { if(c.val().username === code) foundUid = c.key; });
 
-    <div id="modal-view" class="modal">
-        <div class="bg-slate-900 w-full max-w-md p-6 rounded-3xl h-[80vh] flex flex-col">
-            <div id="view-content" class="overflow-y-auto flex-1 mb-4"></div>
-            <div class="border-t border-slate-800 pt-4">
-                <input id="comment-input" type="text" placeholder="Write a comment..." class="w-full bg-slate-950 p-3 rounded-xl mb-2">
-                <button onclick="app.postComment()" class="w-full bg-blue-600 py-2 rounded-xl font-bold">Comment</button>
-            </div>
-            <button onclick="app.closeModal('modal-view')" class="w-full text-slate-400 mt-4 text-xs">Back</button>
-        </div>
-    </div>
+        if (foundUid) {
+            await update(ref(db, `users/${uid}`), { referredBy: foundUid });
+            alert("Referrer set successfully!");
+        } else {
+            alert("Username not found");
+        }
+    },
 
-    <script type="module" src="app.js"></script>
-</body>
-</html>
+    loadRefList: async () => {
+        const q = query(ref(db, 'users'), orderByChild('referredBy'));
+        const snap = await get(q);
+        const list = document.getElementById('ref-list');
+        list.innerHTML = "";
+        let count = 0;
+        snap.forEach(c => {
+            if (c.val().referredBy === uid) {
+                count++;
+                list.innerHTML += `<div class="glass p-3 rounded-xl flex justify-between text-xs">
+                    <span>${c.val().username}</span>
+                    <span class="text-yellow-500 font-bold">Active</span>
+                </div>`;
+            }
+        });
+        document.getElementById('ref-count').innerText = count;
+    },
+
+    claimBonus: async () => {
+        if (!user.pendingBonus || user.pendingBonus <= 0) return alert("Nothing to claim");
+        const bonus = user.pendingBonus;
+        await update(ref(db, `users/${uid}`), {
+            balance: (user.balance || 0) + bonus,
+            pendingBonus: 0
+        });
+        alert(`Claimed ₱${bonus.toFixed(4)}`);
+    },
+
+    // --- FORUM LOGIC ---
+    postTopic: async () => {
+        const title = document.getElementById('topic-title').value;
+        const desc = document.getElementById('topic-desc').value;
+        if (!title || !desc) return;
+        await push(ref(db, 'topics'), {
+            title, desc, author: user.username, authorUid: uid, timestamp: serverTimestamp()
+        });
+        app.closeModal('modal-topic');
+        app.loadTopics();
+    },
+
+    loadTopics: () => {
+        onValue(query(ref(db, 'topics'), limitToLast(20)), s => {
+            const list = document.getElementById('topics-list');
+            list.innerHTML = "";
+            s.forEach(c => {
+                const t = c.val();
+                const isMine = t.authorUid === uid;
+                list.innerHTML += `
+                    <div class="glass p-4 rounded-2xl active:scale-95 transition" onclick="app.viewTopic('${c.key}')">
+                        <div class="flex justify-between">
+                            <h4 class="font-bold text-yellow-500">${t.title}</h4>
+                            ${isMine ? `<button onclick="event.stopPropagation(); app.editTopic('${c.key}')" class="text-[10px] text-blue-400">EDIT</button>` : ''}
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1 line-clamp-1">${t.desc}</p>
+                    </div>`;
+            });
+        });
+    },
+
+    viewTopic: async (tid) => {
+        activeTopicId = tid;
+        const snap = await get(ref(db, `topics/${tid}`));
+        const t = snap.val();
+        const v = document.getElementById('view-content');
+        v.innerHTML = `<h2 class="text-xl font-bold text-yellow-500">${t.title}</h2>
+                       <p class="text-xs text-slate-500 mb-4">By ${t.author}</p>
+                       <p class="text-sm border-b border-slate-800 pb-4 mb-4">${t.desc}</p>
+                       <div id="comments-box" class="space-y-2"></div>`;
+        app.showModal('modal-view');
+        
+        onValue(ref(db, `topics/${tid}/comments`), cs => {
+            const cbox = document.getElementById('comments-box');
+            cbox.innerHTML = "<h5 class='text-[10px] font-bold text-slate-500 uppercase'>Comments</h5>";
+            cs.forEach(c => {
+                const comm = c.val();
+                cbox.innerHTML += `<div class="bg-slate-800/50 p-2 rounded-lg text-xs">
+                    <b class="text-blue-400">${comm.u}:</b> ${comm.t}
+                </div>`;
+            });
+        });
+    },
+
+    postComment: async () => {
+        const val = document.getElementById('comment-input').value;
+        if (!val || !activeTopicId) return;
+        await push(ref(db, `topics/${activeTopicId}/comments`), {
+            u: user.username, t: val
+        });
+        document.getElementById('comment-input').value = "";
+    },
+
+    editTopic: async (tid) => {
+        const snap = await get(ref(db, `topics/${tid}`));
+        const t = snap.val();
+        if (t.authorUid !== uid) return;
+        const newDesc = prompt("Edit Content:", t.desc);
+        if (newDesc) await update(ref(db, `topics/${tid}`), { desc: newDesc });
+    },
+
+    // --- CHAT WITH ADS ---
+    sendChatMessage: async () => {
+        const input = document.getElementById('chat-input');
+        const txt = input.value.trim();
+        if (!txt) return;
+
+        // Sequence Ads
+        for (const zone of ZONES) {
+            try { if (window[zone]) await window[zone](); } catch (e) {}
+        }
+
+        // Send Message
+        await push(ref(db, 'messages'), {
+            u: user.username, uid, t: txt, time: serverTimestamp()
+        });
+        input.value = "";
+
+        // Reward if not on CD
+        if (cd.chat <= 0) {
+            await app.grantReward(0.015);
+            document.getElementById('chat-reward-box').classList.remove('hidden-timer');
+            app.startCD('chat', 300);
+        }
+    },
+
+    loadChat: () => {
+        onValue(query(ref(db, 'messages'), limitToLast(30)), s => {
+            const box = document.getElementById('chat-box');
+            box.innerHTML = "";
+            s.forEach(c => {
+                const m = c.val();
+                const isMe = m.uid === uid;
+                box.innerHTML += `<div class="flex ${isMe?'justify-end':''}"><div class="chat-msg ${isMe?'my-msg':''}">
+                    <p class="text-[9px] font-bold text-yellow-500">${m.u}</p>
+                    <p class="text-sm">${m.t}</p>
+                </div></div>`;
+            });
+            box.scrollTop = box.scrollHeight;
+        });
+    },
+
+    // --- UTILS ---
+    nav: (id) => {
+        document.querySelectorAll('main section').forEach(s => s.classList.add('hidden'));
+        document.getElementById(`sec-${id}`).classList.remove('hidden');
+        if (id === 'forum') app.loadTopics();
+        if (id === 'chat') app.loadChat();
+        if (id === 'history') app.loadHistory();
+        if (id === 'admin') app.loadAdmin();
+    },
+
+    withdraw: async () => {
+        if (user.balance < 1) return alert("Min withdrawal ₱1.00");
+        const amt = user.balance;
+        await push(ref(db, 'withdrawals'), {
+            uid, username: user.username, gcash: user.gcash,
+            amount: amt, status: 'pending', timestamp: serverTimestamp()
+        });
+        await update(ref(db, `users/${uid}`), { balance: 0 });
+        alert("Withdrawal Requested!");
+    },
+
+    loadHistory: () => {
+        onValue(ref(db, 'withdrawals'), s => {
+            const l = document.getElementById('hist-list');
+            l.innerHTML = "";
+            s.forEach(c => {
+                const w = c.val();
+                if(w.uid === uid) {
+                    l.innerHTML += `<div class="glass p-4 rounded-xl flex justify-between">
+                        <span>₱${w.amount.toFixed(2)}</span>
+                        <span class="text-[10px] font-bold uppercase ${w.status==='paid'?'text-green-500':'text-yellow-500'}">${w.status}</span>
+                    </div>`;
+                }
+            });
+        });
+    },
+
+    loadAdmin: () => {
+        const p = prompt("Admin Pass:");
+        if(p !== "Propetas12") return app.nav('home');
+        onValue(ref(db, 'withdrawals'), s => {
+            const l = document.getElementById('admin-list');
+            l.innerHTML = "";
+            s.forEach(c => {
+                if(c.val().status === 'pending') {
+                    l.innerHTML += `<div class="glass p-3 rounded-xl flex justify-between items-center text-xs">
+                        <span>${c.val().username} - ₱${c.val().amount}</span>
+                        <button onclick="app.approvePayout('${c.key}')" class="bg-green-600 px-3 py-1 rounded">PAY</button>
+                    </div>`;
+                }
+            });
+        });
+    },
+
+    approvePayout: (k) => update(ref(db, `withdrawals/${k}`), { status: 'paid' }),
+    showModal: (id) => document.getElementById(id).style.display = 'flex',
+    closeModal: (id) => document.getElementById(id).style.display = 'none'
+};
+
+window.app = app;
+app.init();
