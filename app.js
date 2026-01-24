@@ -1,182 +1,195 @@
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getFirestore, doc, setDoc, getDoc, addDoc,
-  collection, query, where, orderBy, limit,
-  onSnapshot, updateDoc, serverTimestamp, startAfter, limitToLast
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PAPERHOUSE INC | PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Monetag SDKs -->
+    <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
 
-// --- FIREBASE SETUP ---
-const firebaseConfig = {
-  apiKey: "AIzaSyDMGU5X7BBp-C6tIl34Uuu5N9MXAVFTn7c",
-  authDomain: "paper-house-inc.firebaseapp.com",
-  projectId: "paper-house-inc"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+    <style>
+        body { background: #020617; color: #f8fafc; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .gold-gradient { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .nav-active { color: #fbbf24; }
+        .hidden-timer { display: none; }
+        .chat-msg { background: #1e293b; border-radius: 12px; padding: 10px; margin-bottom: 8px; max-width: 85%; }
+        .my-msg { background: #2563eb; margin-left: auto; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+    </style>
+</head>
+<body>
 
-// --- TELEGRAM SETUP ---
-const tg = window.Telegram.WebApp;
-tg.expand();
-const tgUser = tg.initDataUnsafe.user;
-const uid = tgUser ? (tgUser.username || `user_${tgUser.id}`) : "Guest";
-document.getElementById("display-username").innerText = uid;
+    <!-- Auth Screen -->
+    <div id="login-screen" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-8">
+        <h1 class="text-4xl font-black mb-2 text-yellow-500">PAPERHOUSE</h1>
+        <p class="text-slate-400 text-sm mb-8">Premium Earning Portal</p>
+        <input type="text" id="reg-name" placeholder="Username (This is your Ref Code)" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-800 mb-4 outline-none focus:border-yellow-500">
+        <input type="number" id="reg-gcash" placeholder="GCash Number" class="w-full p-4 rounded-xl bg-slate-900 border border-slate-800 mb-6 outline-none">
+        <button onclick="app.register()" class="w-full gold-gradient py-4 rounded-xl font-bold text-slate-900 uppercase">Enter Dashboard</button>
+    </div>
 
-// --- STATE ---
-let currentBalance = 0;
-let lastMsgTime = localStorage.getItem('lastMsgTime') || 0;
-const userRef = doc(db, "users", uid);
+    <div id="app" class="hidden min-h-screen pb-24">
+        <!-- Header -->
+        <header class="p-5 flex justify-between items-center glass sticky top-0 z-50">
+            <div>
 
-// --- INITIALIZE USER & LIVE BALANCE ---
-async function init() {
-    await setDoc(userRef, { balance: 0 }, { merge: true });
-    onSnapshot(userRef, snap => {
-        if(snap.exists()){
-            currentBalance = snap.data().balance || 0;
-            document.getElementById("balance").innerText = currentBalance.toFixed(3);
-        }
-    });
-}
-init();
+                <h2 id="u-name" class="font-bold text-white">---</h2>
+                <span class="text-[10px] text-green-500 font-bold uppercase">● Online</span>
+            </div>
+            <div class="text-right">
+                <p class="text-[9px] text-slate-400 font-bold">WALLET</p>
+                <h2 id="u-balance" class="text-xl font-black text-yellow-500">₱0.00</h2>
+            </div>
+        </header>
 
-// --- THEME ENGINE ---
-const colors = ["pink", "green", "blue", "red", "violet", "yellow", "yellowgreen", "orange", "white", "cyan", "brown", "bricks"];
-document.getElementById('aide-text').onclick = () => {
-    const body = document.getElementById('mainBody');
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    body.className = ""; body.style.backgroundColor = ""; body.style.color = "white";
-    if(color === 'bricks') body.classList.add('bricks');
-    else {
-        body.style.backgroundColor = color;
-        if(['white','yellow','cyan','yellowgreen'].includes(color)) body.style.color = "black";
-    }
-};
+        <main class="p-4 space-y-6">
+            <!-- Home: Ads -->
+            <section id="sec-home" class="space-y-4">
+                <div class="glass p-8 rounded-[2rem] text-center">
+                    <p class="text-xs text-slate-400 mb-1">Total Balance</p>
+                    <h1 id="big-balance" class="text-5xl font-black mb-6">₱0.00</h1>
+                    <button onclick="app.withdraw()" class="w-full py-3 rounded-xl bg-white text-black font-bold">CASH OUT</button>
+                </div>
 
-// --- CHAT LOGIC ---
-window.handleSendMessage = async () => {
-    const text = document.getElementById("chatInput").value.trim();
-    const now = Date.now();
-    if(!text) return;
-    if(now - lastMsgTime < 180000) return alert("Please wait 3 minutes cooldown.");
+                <!-- Premium Ad -->
+                <div id="box-premium">
+                    <button onclick="app.playSequence('premium')" class="w-full gold-gradient p-6 rounded-2xl flex justify-between items-center shadow-lg shadow-yellow-500/10">
+                        <div class="text-left"><h4 class="font-black text-slate-900">PREMIUM AD</h4><p class="text-[10px] text-slate-800 font-bold">3X SEQUENCED ADS | ₱0.0102</p></div>
+                        <i class="fas fa-crown text-slate-900 text-2xl"></i>
+                    </button>
+                </div>
+                <div id="timer-premium" class="hidden-timer glass p-6 rounded-2xl text-center">
+                    <p class="text-slate-400 text-xs uppercase font-bold">Premium Ready In</p>
+                    <h4 class="text-2xl font-black text-yellow-500 cd-val">45s</h4>
+                </div>
 
-    try {
-        // Sequentially show 3 Rewarded Interstitials
-        tg.MainButton.setText("WATCHING AD 1/3...").show();
-        await show_10337853();
-        tg.MainButton.setText("WATCHING AD 2/3...");
-        await show_10337795();
-        tg.MainButton.setText("WATCHING AD 3/3...");
-        await show_10276123();
-        tg.MainButton.hide();
+                <!-- Turbo Ad -->
+                <div id="box-turbo">
+                    <button onclick="app.playSequence('turbo')" class="w-full bg-blue-600 p-6 rounded-2xl flex justify-between items-center shadow-lg shadow-blue-500/10">
+                        <div class="text-left"><h4 class="font-black text-white">TURBO AD</h4><p class="text-[10px] text-blue-100 font-bold">3X SEQUENCED ADS | ₱0.0102</p></div>
+                        <i class="fas fa-bolt text-white text-2xl"></i>
+                    </button>
+                </div>
+                <div id="timer-turbo" class="hidden-timer glass p-6 rounded-2xl text-center">
+                    <p class="text-slate-400 text-xs uppercase font-bold">Turbo Ready In</p>
+                    <h4 class="text-2xl font-black text-blue-500 cd-val">45s</h4>
+                </div>
+            </section>
 
-        // Update Balance & Send
-        const newBal = currentBalance + 0.015;
-        await updateDoc(userRef, { balance: newBal });
-        await addDoc(collection(db, "messages"), {
-            user: uid,
-            text: text,
-            createdAt: serverTimestamp()
-        });
-        
-        lastMsgTime = now;
-        localStorage.setItem('lastMsgTime', now);
-        document.getElementById("chatInput").value = "";
-    } catch (e) {
-        alert("Ad interrupted. Watch all 3 ads to send.");
-        tg.MainButton.hide();
-    }
-};
+            <!-- Referrals -->
+            <section id="sec-referral" class="hidden space-y-4">
+                <div class="glass p-6 rounded-2xl">
+                    <h3 class="font-bold text-yellow-500 mb-2">Manual Referral Claim</h3>
+                    <p class="text-[10px] text-slate-400 mb-4">Enter your friend's username to set them as your referrer and earn 8% bonus for them!</p>
+                    <div class="flex gap-2">
+                        <input id="ref-input" type="text" placeholder="Friend's Username" class="flex-1 bg-slate-900 p-3 rounded-xl outline-none border border-slate-700">
+                        <button onclick="app.claimReferral()" class="bg-white text-black px-4 rounded-xl font-bold text-xs">SET</button>
+                    </div>
+                </div>
 
-// Chat Listener
-onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(50)), snap => {
-    const box = document.getElementById("chat-box");
-    box.innerHTML = snap.docs.map(d => `
-        <div class="msg"><b>${d.data().user}</b>${d.data().text}</div>
-    `).join("");
-});
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass p-4 rounded-2xl text-center">
+                        <p class="text-[10px] text-slate-400">TOTAL REFERRALS</p>
 
-// --- WITHDRAWAL LOGIC ---
-window.requestWithdraw = async () => {
-  const name = document.getElementById("gcashName").value.trim();
-  const num = document.getElementById("gcashNumber").value.trim();
-  const amt = Number(document.getElementById("amount").value);
+<h4 id="ref-count" class="text-xl font-black">0</h4>
+                    </div>
+                    <div class="glass p-4 rounded-2xl text-center">
+                        <p class="text-[10px] text-slate-400">UNCLAIMED BONUS</p>
+                        <h4 id="ref-unclaimed" class="text-xl font-black text-green-500">₱0.00</h4>
+                    </div>
+                </div>
+                <button onclick="app.claimBonus()" class="w-full gold-gradient py-3 rounded-xl text-slate-900 font-bold">CLAIM BONUS TO WALLET</button>
+                
+                <h3 class="font-bold text-sm mt-4">My Referral List</h3>
+                <div id="ref-list" class="space-y-2"></div>
+            </section>
 
-  if (!name || !num || amt < 5) return alert("Min withdrawal ₱5. Fill all fields.");
-  if (amt > currentBalance) return alert("Insufficient balance.");
+            <!-- Forum -->
+            <section id="sec-forum" class="hidden space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-black">Forum</h3>
+                    <button onclick="app.showModal('modal-topic')" class="bg-yellow-500 text-black px-4 py-2 rounded-xl text-xs font-bold">+ NEW TOPIC</button>
+                </div>
+                <div id="topics-list" class="space-y-3"></div>
+            </section>
 
-  // AUTO DEDUCT
-  await updateDoc(userRef, { balance: currentBalance - amt });
+            <!-- Chat -->
+            <section id="sec-chat" class="hidden flex flex-col h-[65vh]">
+                <div id="chat-box" class="flex-1 overflow-y-auto pr-2"></div>
+                <div id="chat-reward-box" class="hidden-timer p-2 text-center text-[10px] font-bold text-yellow-500">Reward Cooldown: <span id="chat-cd">0</span>s</div>
+                <div class="flex gap-2 p-2 glass rounded-2xl mt-2">
+                    <input id="chat-input" type="text" placeholder="Watch 3 ads to send..." class="flex-1 bg-transparent p-2 outline-none">
+                    <button onclick="app.sendChatMessage()" class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </section>
 
-  await addDoc(collection(db, "withdrawals"), {
-    user: uid,
-    gcashName: name,
-    gcashNumber: num,
-    amount: amt,
-    status: "pending",
-    rejectReason: "",
-    createdAt: serverTimestamp()
-  });
+            <!-- History -->
+            <section id="sec-history" class="hidden space-y-4">
+                <h3 class="text-xl font-black">Withdrawal Logs</h3>
+                <div id="hist-list" class="space-y-2"></div>
+            </section>
 
-  alert("Submitted! Balance deducted.");
-};
+            <!-- Help -->
+            <section id="sec-help" class="hidden space-y-4">
+                <h3 class="text-xl font-black">Follow Us for Updates</h3>
+                <div class="grid gap-3">
+                    <a href="https://t.me/paperhouseinc" target="_blank" class="glass p-4 rounded-xl flex items-center gap-3"><i class="fab fa-telegram text-blue-400"></i> Telegram Group</a>
+                    <a href="https://t.me/PAPERHOUSE_INC" target="_blank" class="glass p-4 rounded-xl flex items-center gap-3"><i class="fab fa-telegram text-blue-500"></i> Telegram Channel</a>
+                    <a href="https://facebook.com/groups/1193693469083843/" target="_blank" class="glass p-4 rounded-xl flex items-center gap-3"><i class="fab fa-facebook text-blue-700"></i> Facebook Group</a>
+                    <a href="https://www.facebook.com/profile.php?id=61586281245735" target="_blank" class="glass p-4 rounded-xl flex items-center gap-3"><i class="fab fa-facebook text-blue-600"></i> Facebook Page</a>
+                </div>
+            </section>
 
-// Pagination & User History
-onSnapshot(query(collection(db, "withdrawals"), where("user", "==", uid), orderBy("createdAt", "desc"), limit(10)), snap => {
-    document.getElementById("userWithdrawals").innerHTML = snap.docs.map(d => {
-        const w = d.data();
-        return `<tr><td>₱${w.amount}</td><td>${w.gcashNumber}</td><td>${w.status}</td><td>${w.rejectReason || "-"}</td></tr>`;
-    }).join("");
-});
+            <!-- Admin -->
+            <section id="sec-admin" class="hidden space-y-4">
+                <h3 class="text-xl font-black text-red-500">Admin - Pending Payouts</h3>
+                <div id="admin-list" class="space-y-2"></div>
+            </section>
+        </main>
 
-// --- OWNER DASHBOARD ---
-window.checkAdmin = () => showPage('admin-page');
+        <!-- Navbar -->
+        <nav class="fixed bottom-0 left-0 right-0 gl
 
-window.loginAdmin = () => {
-    if(document.getElementById("adminPass").value === "Propetas6") {
-        document.getElementById("admin-auth").style.display = "none";
-        document.getElementById("admin-content").style.display = "block";
-        loadAdminTable();
-    } else alert("Wrong Password");
-};
+ass flex justify-around p-4 z-50 rounded-t-3xl border-t border-white/10">
+            <button onclick="app.nav('home')"><i class="fas fa-home"></i></button>
+            <button onclick="app.nav('referral')"><i class="fas fa-users"></i></button>
+            <button onclick="app.nav('forum')"><i class="fas fa-comments"></i></button>
+            <button onclick="app.nav('chat')"><i class="fas fa-paper-plane"></i></button>
+            <button onclick="app.nav('history')"><i class="fas fa-clock"></i></button>
+            <button onclick="app.nav('help')"><i class="fas fa-question-circle"></i></button>
+            <button onclick="app.nav('admin')" class="text-slate-800"><i class="fas fa-user-shield"></i></button>
+        </nav>
+    </div>
 
-function loadAdminTable() {
-    onSnapshot(query(collection(db, "withdrawals"), where("status", "==", "pending")), snap => {
-        document.getElementById("adminTable").innerHTML = snap.docs.map(d => {
-            const w = d.data();
-            return `<tr>
-                <td>${w.user}</td>
-                <td>₱${w.amount}</td>
-                <td>${w.gcashNumber}</td>
-                <td>
-                    <button onclick="approve('${d.id}')" style="background:green">✔</button>
-                    <button onclick="reject('${d.id}')" style="background:red">✖</button>
-                </td>
-            </tr>`;
-        }).join("");
-    });
-}
+    <!-- Modals -->
+    <div id="modal-topic" class="modal">
+        <div class="bg-slate-900 w-full max-w-md p-6 rounded-3xl">
+            <h3 class="font-bold mb-4">Create Topic</h3>
+            <input id="topic-title" type="text" placeholder="Title" class="w-full bg-slate-950 p-3 rounded-xl mb-3 border border-slate-800">
+            <textarea id="topic-desc" placeholder="Content..." rows="4" class="w-full bg-slate-950 p-3 rounded-xl mb-4 border border-slate-800"></textarea>
+            <button onclick="app.postTopic()" class="w-full gold-gradient py-3 rounded-xl text-slate-900 font-bold">Post Topic</button>
+            <button onclick="app.closeModal('modal-topic')" class="w-full text-slate-400 mt-2 text-xs">Close</button>
+        </div>
+    </div>
 
-window.approve = async (id) => {
-    await updateDoc(doc(db, "withdrawals", id), { status: "approved" });
-};
+    <div id="modal-view" class="modal">
+        <div class="bg-slate-900 w-full max-w-md p-6 rounded-3xl h-[80vh] flex flex-col">
+            <div id="view-content" class="overflow-y-auto flex-1 mb-4"></div>
+            <div class="border-t border-slate-800 pt-4">
+                <input id="comment-input" type="text" placeholder="Write a comment..." class="w-full bg-slate-950 p-3 rounded-xl mb-2">
+                <button onclick="app.postComment()" class="w-full bg-blue-600 py-2 rounded-xl font-bold">Comment</button>
+            </div>
+            <button onclick="app.closeModal('modal-view')" class="w-full text-slate-400 mt-4 text-xs">Back</button>
+        </div>
+    </div>
 
-window.reject = async (id) => {
-    const reason = prompt("Reason for rejection?");
-    if(reason) {
-        // Return money on rejection? Optional.
-        await updateDoc(doc(db, "withdrawals", id), { status: "rejected", rejectReason: reason });
-    }
-};
-
-// --- GLOBAL UTILS ---
-window.showPage = (id) => {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    if(id === 'chat-page') document.getElementById('nav-chat').classList.add('active');
-    if(id === 'withdraw-page') document.getElementById('nav-withdraw').classList.add('active');
-};
-
-setInterval(() => {
-    document.getElementById("time-display").innerText = new Date().toLocaleString();
-}, 1000);
+    <script type="module" src="app.js"></script>
+</body>
+</html>
