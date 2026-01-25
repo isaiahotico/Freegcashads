@@ -8,133 +8,133 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- Monetag Main SDK -->
+    <!-- Monetag SDKs -->
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
 
     <style>
-        body { background-color: #0b0f1a; color: #e2e8f0; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        body { background-color: #0b0f1a; color: #e2e8f0; font-family: 'Inter', sans-serif; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .btn-reward { background: linear-gradient(135deg, #fbbf24, #d97706); color: #000; font-weight: 800; transition: 0.3s; }
-        .btn-reward:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; }
+        .btn-reward { background: linear-gradient(135deg, #fbbf24, #d97706); color: #000; font-weight: 800; }
+        .btn-reward:disabled { opacity: 0.5; cursor: not-allowed; }
         .nav-active { color: #fbbf24; border-top: 3px solid #fbbf24; }
-        .cooldown-text { font-size: 0.7rem; color: #f87171; }
+        #native-ad-container { min-height: 100px; }
     </style>
 </head>
 <body class="pb-24">
 
     <!-- Header -->
-    <header class="p-5 glass sticky top-0 z-50 flex justify-between items-center shadow-2xl">
+    <header class="p-5 glass sticky top-0 z-50 flex justify-between items-center">
         <div>
-            <h1 class="text-lg font-black text-yellow-500 italic">PAPERHOUSE INC</h1>
-            <div class="text-xs text-green-400"><i class="fas fa-circle text-[8px] animate-pulse"></i> <span id="online-count">1</span> Users Online</div>
+            <h1 class="text-sm font-black text-yellow-500 italic">PAPERHOUSE INC</h1>
+            <div class="text-[10px] text-green-400">@<span id="display-username">loading...</span></div>
         </div>
         <div class="text-right">
-            <p class="text-xs text-slate-400 uppercase tracking-widest">Balance</p>
-            <p class="text-xl font-bold text-white">₱<span id="user-balance">0.0000</span></p>
+            <p class="text-[10px] text-slate-400 uppercase">Balance</p>
+            <p class="text-lg font-bold text-white">₱<span id="user-balance">0.0000</span></p>
         </div>
     </header>
 
     <main class="p-4 space-y-4">
         
+        <!-- Native Ad Card (Auto updates every 30m) -->
+        <div id="native-ad-container" class="glass rounded-xl p-2 overflow-hidden">
+            <p class="text-[9px] text-slate-500 mb-1">Sponsored</p>
+            <div id="native-slot"></div>
+        </div>
+
         <!-- HOME SECTION -->
         <section id="home-sec" class="section-content space-y-4">
             <div class="glass p-6 rounded-3xl text-center">
-                <div class="mb-4 text-5xl">🎖</div>
-                <h2 class="text-xl font-bold mb-1">Standard Reward</h2>
-                <p class="text-slate-400 text-sm mb-4">Earn ₱0.01 per Ad</p>
-                <button id="btn-main-ad" onclick="watchMainAd()" class="btn-reward w-full py-4 rounded-2xl shadow-lg uppercase">Watch Ad</button>
-                <p id="cd-main" class="cooldown-text mt-2"></p>
+                <h2 class="text-lg font-bold mb-1">Earn ₱0.01</h2>
+                <button id="btn-main-ad" onclick="watchMainAd()" class="btn-reward w-full py-4 rounded-2xl shadow-lg">WATCH AD</button>
+                <p id="cd-main" class="text-[10px] text-red-400 mt-2"></p>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-3">
 
                 <div class="glass p-4 rounded-2xl text-center">
-                    <i class="fas fa-bolt text-blue-400 mb-2"></i>
-                    <p class="text-xs font-bold">Quick Popup</p>
-                    <p class="text-[10px] text-slate-400 mb-2">₱0.0095</p>
-                    <button id="btn-pop-ad" onclick="watchQuickPop()" class="bg-blue-600 text-xs px-3 py-1 rounded-full">Claim</button>
-                    <p id="cd-pop" class="cooldown-text mt-1"></p>
+                    <p class="text-xs font-bold">Quick Pop</p>
+                    <p class="text-[10px] text-slate-400">₱0.0095</p>
+                    <button id="btn-pop-ad" onclick="watchQuickPop()" class="bg-blue-600 text-[10px] px-3 py-1 mt-2 rounded-full">Claim</button>
+                    <p id="cd-pop" class="text-[9px] text-red-400 mt-1"></p>
                 </div>
-                <div class="glass p-4 rounded-2xl text-center" onclick="showSection('history')">
-                    <i class="fas fa-history text-purple-400 mb-2"></i>
-                    <p class="text-xs font-bold">History</p>
-                    <p class="text-[10px] text-slate-400 mb-2">My Payouts</p>
-                    <span class="text-blue-400 text-xs">View All</span>
+                <div class="glass p-4 rounded-2xl text-center" onclick="showSection('profile')">
+                    <p class="text-xs font-bold">Referral</p>
+                    <p class="text-[10px] text-slate-400">8% Bonus</p>
+                    <span class="text-yellow-500 text-[10px]">Invite Friends</span>
                 </div>
             </div>
         </section>
 
         <!-- CHAT SECTION -->
         <section id="chat-sec" class="section-content hidden space-y-3">
-            <div class="bg-yellow-900/20 border border-yellow-700/50 p-3 rounded-xl text-xs text-yellow-200">
-                🚀 <b>Chat Boost:</b> Send a message to watch 3 ads and earn <b>₱0.0145</b>!
+            <div class="bg-blue-900/20 border border-blue-700/50 p-3 rounded-xl text-[10px]">
+                💬 <b>3X AD BOOST:</b> Send a message to watch 3 Interstitial ads and earn <b>₱0.0186</b>!
             </div>
-            <div class="glass h-[350px] rounded-2xl flex flex-col">
-                <div id="chat-box" class="flex-grow overflow-y-auto p-4 space-y-3 text-sm"></div>
-                <div class="p-3 bg-slate-800/50 flex gap-2">
-                    <input type="text" id="chat-input" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 flex-grow outline-none" placeholder="Say something...">
-                    <button id="btn-chat-send" onclick="sendChatMessage()" class="bg-yellow-500 text-black w-10 h-10 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
+            <div class="glass h-[300px] rounded-2xl flex flex-col">
+                <div id="chat-box" class="flex-grow overflow-y-auto p-4 space-y-2 text-sm"></div>
+                <div class="p-3 flex gap-2">
+                    <input type="text" id="chat-input" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 flex-grow outline-none text-xs" placeholder="Type message...">
+                    <button id="btn-chat-send" onclick="sendChatMessage()" class="bg-yellow-500 text-black px-4 rounded-lg"><i class="fas fa-paper-plane"></i></button>
                 </div>
-                <p id="cd-chat" class="text-center cooldown-text pb-2"></p>
+                <p id="cd-chat" class="text-center text-[9px] text-red-400 pb-2"></p>
             </div>
         </section>
 
-        <!-- LEADERBOARD & ONLINE SECTION -->
-        <section id="leaderboard-sec" class="section-content hidden space-y-4">
-            <div class="flex gap-2">
-                <button onclick="toggleTop('ranks')" class="flex-1 bg-slate-800 py-2 rounded-lg text-xs font-bold">TOP EARNERS</button>
-                <button onclick="toggleTop('online')" class="flex-1 bg-slate-800 py-2 rounded-lg text-xs font-bold">ONLINE USERS</button>
+        <!-- PROFILE / REFERRAL SECTION -->
+        <section id="profile-sec" class="section-content hidden space-y-4">
+            <div class="glass p-5 rounded-2xl">
+                <h3 class="text-yellow-500 font-bold text-sm mb-2">REFERRAL SYSTEM (8%)</h3>
+                <p class="text-[10px] text-slate-400 mb-3">Share your link and earn 8% of all your friends' ad earnings forever!</p>
+                <div class="bg-slate-900 p-2 rounded text-[10px] break-all border border-slate-700" id="ref-link">loading...</div>
+                <div class="mt-3 flex justify-between text-xs">
+                    <span>Total Ref Earnings:</span>
+                    <span class="text-green-400 font-bold">₱<span id="total-ref-earn">0.00</span></span>
+                </div>
             </div>
-            <div id="ranks-list" class="space-y-2"></div>
-            <div id="online-list" class="space-y-2 hidden"></div>
-        </section>
 
-        <!-- WITHDRAW & HISTORY SECTION -->
-        <section id="history-sec" class="section-content hidden space-y-4">
-            <div class="glass p-6 rounded-3xl">
-                <h3 class="text-yellow-500 font-bold mb-4 italic">WITHDRAW GCASH</h3>
-                <input type="number" id="wd-amount" placeholder="Amount (Min ₱1.00)" class="w-full bg-slate-900 p-3 rounded-xl mb-3 outline-none border border-slate-700">
-                <input type="text" id="wd-gcash" placeholder="GCash Number" class="w-full bg-slate-900 p-3 rounded-xl mb-4 outline-none border border-slate-700">
-                <button onclick="submitWithdrawal()" class="btn-reward w-full py-3 rounded-xl">REQUEST PAYOUT</button>
+            <div class="glass p-5 rounded-2xl">
+                <h3 class="text-white font-bold text-sm mb-4">WITHDRAW (Min ₱1.00)</h3>
+                <input type="number" id="wd-amount" placeholder="Amount" class="w-full bg-slate-900 p-3 rounded-xl mb-2 text-xs outline-none">
+                <input type="text" id="wd-gcash" placeholder="GCash Number" class="w-full bg-slate-900 p-3 rounded-xl mb-4 text-xs outline-none">
+                <button onclick="submitWithdrawal()" class="btn-reward w-full py-3 rounded-xl text-xs">SUBMIT GCASH REQUEST</button>
             </div>
-            <h3 class="font-bold text-sm px-2">My Withdrawal History</h3>
+
+            <h3 class="text-xs font-bold px-1 uppercase tracking-widest text-slate-500">Payout History</h3>
             <div id="my-history" class="space-y-2"></div>
         </section>
 
         <!-- ADMIN SECTION -->
         <section id="admin-sec" class="section-content hidden space-y-4">
+            <div id="admin-auth" class="glass p-6 rounded-2xl">
+                <input type="password" id="admin-pass" placeholder="A
 
-<div id="admin-auth" class="glass p-6 rounded-2xl">
-                <input type="password" id="admin-pass" placeholder="Master Key" class="w-full bg-slate-900 p-3 rounded-xl mb-3 outline-none">
-                <button onclick="verifyAdmin()" class="bg-white text-black w-full py-2 rounded-xl font-bold">Login Dashboard</button>
+dmin Password" class="w-full bg-slate-900 p-3 rounded-xl mb-3 outline-none">
+                <button onclick="verifyAdmin()" class="bg-white text-black w-full py-2 rounded-xl font-bold">Login</button>
             </div>
             <div id="admin-dashboard" class="hidden space-y-4">
-                <h2 class="font-black text-red-500">PENDING PAYOUTS</h2>
+                <h2 class="font-black text-red-500 text-sm italic">MANUAL APPROVALS</h2>
                 <div id="admin-wd-list" class="space-y-2 text-[10px]"></div>
             </div>
         </section>
-
     </main>
 
     <!-- Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 glass border-t border-slate-800 flex justify-around items-center h-20 px-2 z-50">
+    <nav class="fixed bottom-0 left-0 right-0 glass border-t border-slate-800 flex justify-around items-center h-16 z-50">
         <button onclick="showSection('home')" class="nav-btn nav-active flex flex-col items-center flex-1">
-            <i class="fas fa-home mb-1"></i><span class="text-[10px]">Home</span>
+            <i class="fas fa-home text-sm"></i><span class="text-[9px]">Home</span>
         </button>
         <button onclick="showSection('chat')" class="nav-btn flex flex-col items-center flex-1">
-            <i class="fas fa-comment-dots mb-1"></i><span class="text-[10px]">Chat</span>
+            <i class="fas fa-comment text-sm"></i><span class="text-[9px]">Chat</span>
         </button>
-        <button onclick="showSection('leaderboard')" class="nav-btn flex flex-col items-center flex-1">
-            <i class="fas fa-trophy mb-1"></i><span class="text-[10px]">Rank</span>
+        <button onclick="showSection('profile')" class="nav-btn flex flex-col items-center flex-1">
+            <i class="fas fa-user-friends text-sm"></i><span class="text-[9px]">Refer</span>
         </button>
         <button onclick="showSection('admin')" class="nav-btn flex flex-col items-center flex-1">
-            <i class="fas fa-user-shield mb-1"></i><span class="text-[10px]">Admin</span>
+            <i class="fas fa-tools text-sm"></i><span class="text-[9px]">Admin</span>
         </button>
     </nav>
 
-    <!-- Firebase -->
     <script type="module" src="app.js"></script>
 </body>
 </html>
