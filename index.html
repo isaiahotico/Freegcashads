@@ -2,212 +2,120 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PAPERHOUSE V4 | TURBO GOLD</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PAPERHOUSE INC ADS</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Monetag SDKs -->
+    <!-- Monetag SDK -->
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
-
     <style>
-        @keyframes shine { 0% { background-position: -200% } 100% { background-position: 200% } }
-        body { 
-            background: radial-gradient(circle at top, #332601 0%, #020617 100%); 
-            color: #f8fafc; font-family: 'Inter', sans-serif; min-height: 100vh;
-        }
-        .gold-card {
-            background: rgba(30, 41, 59, 0.5);
-            border: 1px solid rgba(251, 191, 36, 0.2);
-            backdrop-filter: blur(12px);
-        }
-        .gold-btn {
-            background: linear-gradient(90deg, #b45309, #fbbf24, #b45309);
-            background-size: 200% auto;
-            animation: shine 4s linear infinite;
-            color: #000; font-weight: 900;
-        }
-        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 8px; color: #94a3b8; font-weight: bold; }
-        .nav-active { color: #fbbf24; text-shadow: 0 0 10px rgba(251,191,36,0.5); }
-        .hidden-el { display: none !important; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; }
+        .card { background: #1e293b; border-radius: 15px; border: 1px solid #334155; }
+        .btn-gold { background: linear-gradient(45deg, #facc15, #eab308); color: #000; font-weight: bold; }
+        .nav-item.active { color: #facc15; border-bottom: 2px solid #facc15; }
+        #admin-panel { display: none; }
     </style>
 </head>
-<body>
+<body class="pb-20">
 
-    <!-- Auth Screen -->
-    <div id="login-screen" class="fixed inset-0 z-[100] bg-slate-950 flex flex-col items-center justify-center p-8">
-        <div class="w-20 h-20 gold-btn rounded-3xl mb-6 flex items-center justify-center rotate-12">
-            <i class="fas fa-bolt text-4xl text-black -rotate-12"></i>
-        </div>
-        <h1 class="text-4xl font-black mb-2 text-yellow-500 italic tracking-tighter">PAPERHOUSE V4</h1>
-        <p class="text-slate-500 text-[10px] mb-8 uppercase tracking-[0.5em]">Turbo Gold Edition</p>
-        <div class="w-full space-y-4 max-w-sm">
-
-            <input type="text" id="reg-name" placeholder="Choose Username" class="w-full p-4 rounded-2xl bg-slate-900 border border-slate-800 outline-none focus:border-yellow-500 transition-all">
-            <input type="number" id="reg-gcash" placeholder="GCash Number" class="w-full p-4 rounded-2xl bg-slate-900 border border-slate-800 outline-none focus:border-yellow-500 transition-all">
-            <button onclick="app.register()" class="w-full gold-btn py-4 rounded-2xl uppercase shadow-lg shadow-yellow-500/20">Initialize Account</button>
-        </div>
-    </div>
-
-    <div id="app" class="hidden pb-24">
-        <!-- Header -->
-        <header class="p-4 flex justify-between items-center sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-yellow-500/10">
-            <div onclick="app.nav('profile')" class="cursor-pointer">
-                <h2 id="u-name" class="font-black text-yellow-500 italic text-lg leading-tight">---</h2>
-                <span id="online-indicator" class="text-[9px] text-green-400 font-bold uppercase tracking-widest">● 0 Online</span>
+    <!-- Header -->
+    <header class="p-4 text-center border-b border-slate-700">
+        <h1 class="text-xl font-black text-yellow-400">🎖🤑 PAPERHOUSE INC ADS 🤑🎖</h1>
+        <div class="flex justify-between mt-4 px-2">
+            <div class="text-left">
+                <p class="text-xs text-slate-400">Your Balance</p>
+                <p class="text-2xl font-bold">₱ <span id="user-balance">0.00</span></p>
             </div>
-            <div class="text-right">
-                <p class="text-[9px] text-slate-500 font-black uppercase">Earnings</p>
-                <h2 id="u-balance" class="text-xl font-black text-white">₱0.0000</h2>
-            </div>
-        </header>
-
-        <main class="p-4 space-y-6">
-            
-            <!-- HOME / TURBO -->
-            <section id="sec-home" class="space-y-4">
-                <div class="gold-card p-8 rounded-[2.5rem] text-center shadow-2xl relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent"></div>
-                    <p class="text-[10px] text-yellow-600 font-black uppercase mb-1">Available for Payout</p>
-                    <h1 id="big-balance" class="text-5xl font-black text-white mb-6 tracking-tighter">₱0.00</h1>
-                    <button onclick="app.withdraw()" class="w-full py-4 rounded-2xl bg-white text-black font-black uppercase text-xs shadow-xl active:scale-95 transition-transform">Withdraw GCash</button>
-                </div>
-
-                <div id="box-turbo">
-                    <button onclick="app.playTurbo()" class="w-full gold-btn p-6 rounded-2xl flex justify-between items-center shadow-2xl active:scale-95 transition-transform">
-                        <div class="text-left text-black">
-                            <h4 class="font-black italic text-xl uppercase leading-none">Turbo Premium</h4>
-                            <p class="text-[10px] font-bold opacity-80 mt-1">3 Random High-CPM Ads | ₱0.0210</p>
-                        </div>
-                        <i class="fas fa-bolt-lightning text-3xl"></i>
-                    </button>
-                </div>
-                <div id="timer-turbo" class="hidden-el gold-card p-6 rounded-2xl text-center border-yellow-500/50">
-                    <p class="text-[10px] text-slate-500 font-black uppercase mb-1">Turbo Recharging</p>
-                    <h4 class="text-3xl font-black cd-val text-yellow-500">60s</h4>
-                </div>
-            </section>
-
-            <!-- LEADERBOARD -->
-            <section id="sec-leaderboard" class="hidden space-y-6">
-                <div class="gold-btn p-5 rounded-3xl shadow-xl">
-                    <h3 class="font-black italic uppercase text-black">Weekly Reward Bank</h3>
-                    <p class="text-[10px] font-bold text-black/70 mb-4">Target: 10,000 Ads | Bonus: ₱25.00</p>
-                    <div class="flex justify-between items-center">
-                        <h4 id="lb-progress" class="text-2xl font-black text-black">0 / 10000</h4>
-                        <button onclick="app.claimLB()" class="bg-black text-yellow-500 px-6 py-2 rounded-xl text-[10px] font-black shadow-lg">CLAIM</button>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <h3 class="font-black text-yellow-500 italic flex items-center gap-2">
-                        <i class="fas fa-calendar-day"></i> Today's Top Earners
-                    </h3>
-                    <div id="lb-daily" class="space-y-2"></div>
-                </div>
-            </section>
-
-            <!-- FORUM -->
-            <section id="sec-forum" class="hidden space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-2xl font-black italic text-yellow-500 tracking-tighter">GOLD FORUM</h3>
-                    <button onclick="app.openModal('modal-post')" class="gold-btn px-5 py-2 rounded-xl text-[10px] uppercase shadow-lg">+ Topic</button>
-                </div>
-                <div id="forum-list" class="space-y-4"></div>
-            </section>
-
-            <!-- CHAT -->
-            <section id="sec-chat" class="hidden flex flex-col h-[68vh]">
-                <div id="chat-box" class="flex-1 overflow-y-auto pr-2 space-y-3"></div>
-                <div id="chat-cd-label" class="text-[9px] text-center text-yellow-500 font-bold p-2 uppercase tracking-widest"></div>
-                <div class="flex gap-2 p-3 gold-card rounded-2xl shadow-xl">
-                    <input id="chat-input" placeholder="Watch 3 ads to unlock message..." class="flex-1 bg-transparent p-2 text-sm outline-none placeholder:text-slate-600">
-                    <button onclick="app.sendChatMessage()" class="gold-btn w-12 h-12 rounded-xl flex items-center justify-center shadow-lg active:scale-90 transition-all">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </section>
-
-            <!-- PROFILE -->
-            <section id="sec-profile" class="hidden space-y-4">
-                <div class="gold-card p-8 rounded-[2.5rem] text-center shadow-inner">
-                    <div class="w-20 h-20 bg-slate-900 rounded-full mx-auto mb-4 border-2 border-yellow-500 flex items-center justify-center text-3xl text-yellow-500">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
-                    <h2 id="p-name" class="text-3xl font-black text-white">---</h2>
-                    <p class="text-[10px] text-slate-500 uppercase font-black tracking-widest mt-1">Ref ID / GCash</p>
-                    <div class="mt-3 bg-slate-950 py-2 px-6 rounded-full inline-block border border-yellow-500/20">
-                        <span id="p-gcash" class="text-yellow-500 font-black tracking-widest">---</span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="gold-card p-4 rounded-3xl text-center">
-                        <p class="text-[9px] text-slate-500 font-bold mb-1">TODAY ADS</p>
-                        <h4 id="st-d" class="text-xl font-black text-yellow-500">0</h4>
-                    </div>
-                    <div class="gold-card p-4 rounded-3xl text-center">
-                        <p class="text-[9px] text-slate-500 font-bold mb-1">TOTAL ADS</p>
-                        <h4 id="st-o" class="text-xl font-black text-yellow-500">0</h4>
-                    </div>
-                </div>
-
-                <div class="gold-card p-6 rounded-3xl space-y-4">
-                    <h4 class="text-xs font-black text-yellow-500 uppercase italic">Referral Sync</h4>
-                    <div class="flex gap-2">
-                        <input id="ref-input" type="text" placeholder="Friend's Username" class="flex-1 bg-slate-950 p-3 rounded-xl outline-none text-xs border border-yellow-500/10">
-                        <button onclick="app.syncReferral()" class="gold-btn px-6 rounded-xl text-[10px] uppercase">Sync</button>
-                    </div>
-                    <div class="pt-4 border-t border-yellow-500/10 flex justify-between items-center">
-                        <span class="text-xs text-slate-400">Bonus Commission (8%)</span>
-                        <span id="p-bonus" class="text-green-400 font-black">₱0.00</span>
-                    </div>
-                    <button onclick="app.claimBonus()" class="w-full bg-white text-black font-black py-3 rounded-xl text-[10px] uppercase">Claim Bonus to Wallet</button>
-                </div>
-            </section>
-
-            <!-- OWNER DASHBOARD -->
-            <section id="sec-admin" class="hidden space-y-4">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-black text-red-500 italic uppercase">Admin Hub</h3>
-                    <span id="admin-pending-count" class="bg-red-500 text-white text-[10px] px-2 py-1 rounded-full">0 Pending</span>
-                </div>
-                <div id="admin-withdrawals" class="space-y-3"></div>
-            </section>
-
-            <!-- WITHDRAWAL HISTORY -->
-            <section id="sec-history" class="hidden space-y-4">
-                <h3 class="text-xl font-black italic text-yellow-500">Withdrawal Logs</h3>
-                <div id="hist-list" class="space-y-2"></div>
-            </section>
-
-        </main>
-
-        <!-- Navbar -->
-        <nav class="fixed bottom-0 left-0 right-0 bg-slate-950/95 border-t border-yellow-500/20 flex justify-around p-3 z-50 rounded-t-[2.5rem] backdrop-blur-xl">
-            <button onclick="app.nav('home')" class="nav-btn nav-active"><i class="fas fa-home text-lg mb-1"></i>Home</button>
-            <button onclick="app.nav('leaderboard')" class="nav-btn"><i class="fas fa-trophy text-lg mb-1"></i>Rank</button>
-            <button onclick="app.nav('forum')" class="nav-btn"><i class="fas fa-comments text-lg mb-1"></i>Forum</button>
-            <button onclick="app.nav('chat')" class="nav-btn"><i class="fas fa-paper-plane text-lg mb-1"></i>Chat</button>
-            <button onclick="app.nav('profile')" class="nav-btn"><i class="fas fa-user-shield text-lg mb-1"></i>Profile</button>
-            <button onclick="app.nav('admin')" class="nav-btn text-slate-900"><i class="fas fa-crown text-lg mb-1"></i>Owner</button>
-        </nav>
-    </div>
-
-    <!-- Modals -->
-    <div id="modal-post" class="modal">
-        <div class="bg-slate-900 w-full max-w-md p-6 rounded-[2.5rem] border border-yellow-500/30">
-            <h3 class="font-black text-yellow-500 mb-4 text-xl italic">Create Topic</h3>
-            <input id="post-title" type="text" placeholder="Topic Heading" class="w-full bg-slate-950 p-4 rounded-xl mb-3 outline-none border border-slate-800 focus:border-yellow-500">
-            <textarea id="post-body" placeholder="Share your thoughts..." rows="4" class="w-full bg-slate-950 p-4 rounded-xl mb-4 outline-none border border-slate-800 focus:border-yellow-500"></textarea>
-            <button onclick="app.submitPost()" class="w-full gold-btn py-4 rounded-xl shadow-xl">POST TOPIC</button>
-            <button onclick="app.closeModal('modal-post')" class="w-full mt-2 text-slate-500 text-[10px] font-bold uppercase">Discard</button>
+            <button onclick="showSection('withdraw')" class="btn-gold px-4 py-1 rounded-full text-sm">Withdraw</button>
         </div>
-    </div>
+    </header>
 
+    <!-- Main Content Sections -->
+    <main class="p-4">
+        <!-- Home Section -->
+        <section id="home-sec" class="section-content">
+            <div class="card p-6 text-center mb-6">
+                <i class="fas fa-ad text-5xl text-yellow-400 mb-4"></i>
+                <h2 class="text-xl font-bold mb-2">Earn ₱0.01 per Ad</h2>
+                <p class="text-slate-400 text-sm mb-4">Watch simple ads to grow your wallet.</p>
+                <button onclick="watchAd()" class="btn-gold w-full py-3 rounded-xl shadow-lg active:scale-95 transition-transform">
+                    WATCH REWARDED AD
+                </button>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="card p-4 text-center" onclick="watchPopupAd()">
+                    <i class="fas fa-layer-group text-blue-400 mb-2"></i>
+                    <p class="text-xs">Quick Popup</p>
+
+                </div>
+                <div class="card p-4 text-center" onclick="showSection('chat')">
+                    <i class="fas fa-comments text-green-400 mb-2"></i>
+                    <p class="text-xs">Chat Room</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Leaderboard Section -->
+        <section id="leaderboard-sec" class="section-content hidden">
+            <h2 class="text-xl font-bold mb-4"><i class="fas fa-trophy text-yellow-400 mr-2"></i>Top Earners</h2>
+            <div id="leaderboard-list" class="space-y-2">
+                <!-- Data injected here -->
+            </div>
+        </section>
+
+        <!-- Chat Section -->
+        <section id="chat-sec" class="section-content hidden">
+            <div class="card h-[400px] flex flex-col">
+                <div id="chat-box" class="flex-grow overflow-y-auto p-4 space-y-2"></div>
+                <div class="p-2 border-t border-slate-700 flex gap-2">
+                    <input type="text" id="chat-input" class="bg-slate-800 rounded px-3 py-2 flex-grow outline-none" placeholder="Type a message...">
+                    <button onclick="sendMessage()" class="bg-yellow-500 text-black px-4 rounded"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Withdraw Section -->
+        <section id="withdraw-sec" class="section-content hidden">
+            <div class="card p-6">
+                <h2 class="text-xl font-bold mb-4 text-yellow-400">GCash Withdrawal</h2>
+                <p class="text-xs text-slate-400 mb-4">Min: ₱0.02 | Processing: 24h</p>
+                <input type="number" id="withdraw-amount" placeholder="Amount" class="w-full bg-slate-800 p-3 rounded mb-3 outline-none border border-slate-700">
+                <input type="text" id="gcash-num" placeholder="GCash Number (09...)" class="w-full bg-slate-800 p-3 rounded mb-4 outline-none border border-slate-700">
+                <button onclick="requestWithdrawal()" class="btn-gold w-full py-3 rounded-xl">Submit Request</button>
+            </div>
+        </section>
+
+        <!-- Admin Section -->
+        <section id="admin-sec" class="section-content hidden">
+            <div id="admin-login" class="card p-6">
+                <input type="password" id="admin-pass" placeholder="Admin Password" class="w-full bg-slate-800 p-3 rounded mb-3">
+                <button onclick="checkAdmin()" class="btn-gold w-full py-2 rounded">Access Dashboard</button>
+            </div>
+            <div id="admin-panel" class="space-y-4">
+                <h3 class="font-bold">Pending Withdrawals</h3>
+                <div id="admin-withdrawals" class="text-xs space-y-2"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around p-3 text-slate-400 text-xs">
+        <button onclick="showSection('home')" class="nav-item active flex flex-col items-center">
+            <i class="fas fa-home text-lg"></i><span>Home</span>
+        </button>
+        <button onclick="showSection('leaderboard')" class="nav-item flex flex-col items-center">
+            <i class="fas fa-chart-line text-lg"></i><span>Top</span>
+        </button>
+        <button onclick="showSection('chat')" class="nav-item flex flex-col items-center">
+            <i class="fas fa-comments text-lg"></i><span>Chat</span>
+        </button>
+        <button onclick="showSection('admin')" class="nav-item flex flex-col items-center">
+            <i class="fas fa-user-shield text-lg"></i><span>Admin</span>
+        </button>
+    </nav>
+
+    <!-- Firebase SDKs -->
     <script type="module" src="app.js"></script>
 </body>
 </html>
