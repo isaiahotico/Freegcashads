@@ -16,7 +16,7 @@ const fb = initializeApp(firebaseConfig);
 const db = getDatabase(fb);
 
 let user = null;
-let uid = localStorage.getItem('ph_gold_uid');
+let uid = localStorage.getItem('ph_turbo_uid');
 
 const app = {
     init: async () => {
@@ -26,7 +26,7 @@ const app = {
             const snap = await get(ref(db, `users/${uid}`));
             if (snap.exists()) {
                 user = snap.val();
-                app.checkDailyReset();
+                app.checkResets();
                 app.launch();
             } else {
                 document.getElementById('login-screen').classList.remove('hidden');
@@ -37,7 +37,7 @@ const app = {
     register: async () => {
         const name = document.getElementById('reg-name').value.trim();
         const gcash = document.getElementById('reg-gcash').value.trim();
-        if (name.length < 3 || gcash.length < 10) return alert("Invalid inputs");
+        if (name.length < 3 || gcash.length < 10) return alert("Please fill all details!");
 
         uid = 'U' + Math.floor(Math.random() * 9000000);
         user = {
@@ -48,7 +48,7 @@ const app = {
             referredBy: null, lastLBClaim: ""
         };
         await set(ref(db, `users/${uid}`), user);
-        localStorage.setItem('ph_gold_uid', uid);
+        localStorage.setItem('ph_turbo_uid', uid);
         app.launch();
     },
 
@@ -58,15 +58,20 @@ const app = {
         return `${d.getFullYear()}-W${Math.ceil((((d - start) / 86400000) + start.getDay() + 1) / 7)}`;
     },
 
-    checkDailyReset: async () => {
+    checkResets: async () => {
         const today = new Date().toDateString();
+        const updates = {};
         if (user.dailyDate !== today) {
-            await update(ref(db, `users/${uid}`), {
-                dailyAds: 0,
-                dailyEarnings: 0,
-                dailyDate: today
-            });
+            updates[`users/${uid}/dailyAds`] = 0;
+            updates[`users/${uid}/dailyEarnings`] = 0;
+            updates[`users/${uid}/dailyDate`] = today;
         }
+        const thisWeek = app.getWeek();
+        if (user.weeklyId !== thisWeek) {
+            updates[`users/${uid}/weeklyAds`] = 0;
+            updates[`users/${uid}/weeklyId`] = thisWeek;
+        }
+        if (Object.keys(updates).length > 0) await update(ref(db), updates);
     },
 
     launch: () => {
@@ -87,49 +92,37 @@ const app = {
             document.getElementById('p-name').innerText = user.username;
             document.getElementById('p-gcash').innerText = user.gcash;
             document.getElementById('p-bonus').innerText = `₱${(user.pendingBonus || 0).toFixed(4)}`;
+            document.getElementById('st-d').innerText = user.dailyAds || 0;
+            document.getElementById('st-o').innerText = user.totalAds || 0;
             
             const isWeek = user.weeklyId === app.getWeek();
-            document.getElementById('st-d').innerText = user.dailyAds || 0;
-            document.getElementById('st-w').innerText = isWeek ? user.weeklyAds : 0;
-            document.getElementById('st-o').innerText = user.totalAds;
             document.getElementById('lb-progress').innerText = `${isWeek ? user.weeklyAds : 0} / 10000`;
-        });
-
-        // Global Stats
-        onValue(ref(db, 'stats'), s => {
-            const gs = s.val() || {};
-            const d = new Date().toDateString();
-            const w = app.getWeek();
-            document.getElementById('gst-d').innerText = `₱${(gs[d] || 0).toFixed(2)}`;
-            document.getElementById('gst-w').innerText = `₱${(gs[w] || 0).toFixed(2)}`;
-            document.getElementById('gst-o').innerText = `₱${(gs.total || 0).toFixed(2)}`;
         });
     },
 
     // AD ENGINE
-    playPremium: async () => {
-        if (app.cd.premium > 0) return;
-        try {
-            await show_10276123('pop');
-            await show_10337795('pop');
-            await show_10337853('pop');
-            app.grantReward(0.0043);
-            app.startCD('premium', 15);
-        } catch (e) {}
-    },
-
-    playRandom: async () => {
-        if (app.cd.random > 0) return;
+    runAdSequence: async (count) => {
         const zones = ['show_10276123', 'show_10337795', 'show_10337853'];
-        const randomZone = zones[Math.floor(Math.random() * zones.length)];
-        try {
-            await window[randomZone]('pop');
-            app.grantReward(0.0060);
-            app.startCD('random', 45);
-        } catch (e) {}
+        for (let i = 0; i < count; i++) {
+            const zone = zones[i % zones.length];
+            try {
+                if (typeof window[zone] === 'function') {
+                    await window[zone](); // Inline/Interstitial
+                } else {
+                    console.log("Zone missing");
+                }
+            } catch (e) { console.warn("Ad skip", e); }
+        }
     },
 
-    grantReward: async (amt) => {
+    playTurbo: async () => {
+        if (app.cd.turbo > 0) return;
+        await app.runAdSequence(3);
+        app.reward(0.0210);
+        app.startCD('turbo', 60);
+    },
+
+    reward: async (amt) => {
         const d = new Date().toDateString();
         const w = app.getWeek();
         const updates = {};
@@ -139,16 +132,7 @@ const app = {
         updates[`users/${uid}/totalAds`] = (user.totalAds || 0) + 1;
         updates[`users/${uid}/dailyAds`] = (user.dailyAds || 0) + 1;
         updates[`users/${uid}/weeklyAds`] = (user.weeklyId === w ? user.weeklyAds : 0) + 1;
-        updates[`users/${uid}/weeklyId`] = w;
 
-        // Stats
-        const sSnap = await get(ref(db, 'stats'));
-        const gs = sSnap.val() || {};
-        updates['stats/total'] = (gs.total || 0) + amt;
-        updates[`stats/${d}`] = (gs[d] || 0) + amt;
-        updates[`stats/${w}`] = (gs[w] || 0) + amt;
-
-        // Referral Commission (8%)
         if (user.referredBy) {
             const rSnap = await get(ref(db, `users/${user.referredBy}`));
             if (rSnap.exists()) {
@@ -158,7 +142,7 @@ const app = {
         await update(ref(db), updates);
     },
 
-    cd: { premium: 0, random: 0, chat: 0 },
+    cd: { turbo: 0, chat: 0 },
     startCD: (t, s) => {
         app.cd[t] = s;
         const box = document.getElementById(`box-${t}`);
@@ -169,7 +153,7 @@ const app = {
         const itv = setInterval(() => {
             app.cd[t]--;
             if(timer) timer.querySelector('.cd-val').innerText = app.cd[t] + 's';
-            if(t === 'chat') document.getElementById('chat-cd-label').innerText = `Gold CD: ${app.cd[t]}s`;
+            if(t === 'chat') document.getElementById('chat-cd-label').innerText = `REWARD CD: ${app.cd[t]}s`;
             if (app.cd[t] <= 0) {
                 clearInterval(itv);
                 if(box) box.classList.remove('hidden-el');
@@ -182,48 +166,37 @@ const app = {
     // REFERRALS
     syncReferral: async () => {
         const code = document.getElementById('ref-input').value.trim();
-        if(!code || code === user.username) return alert("Invalid code");
-        const q = query(ref(db, 'users'), orderByChild('username'));
-        const snap = await get(q);
+        if(!code || code === user.username) return alert("Invalid Username");
+        const snap = await get(query(ref(db, 'users'), orderByChild('username')));
         let found = null;
         snap.forEach(c => { if(c.val().username === code) found = c.key; });
         if(found) {
             await update(ref(db, `users/${uid}`), { referredBy: found });
-            alert("Referral Synced Successfully!");
+            alert("Referral Synced!");
         } else { alert("User not found."); }
     },
 
     claimBonus: async () => {
-        if (!user.pendingBonus || user.pendingBonus <= 0) return alert("No bonus to claim");
-        const b = user.pendingBonus;
-        await update(ref(db, `users/${uid}`), { balance: user.balance + b, pendingBonus: 0 });
-        alert(`Claimed ₱${b.toFixed(4)} Referral Bonus!`);
+        if (!user.pendingBonus || user.pendingBonus <= 0) return alert("Nothing to claim");
+        await update(ref(db, `users/${uid}`), { balance: user.balance + user.pendingBonus, pendingBonus: 0 });
+        alert("Commission Claimed!");
     },
 
     // LEADERBOARD
     loadLB: () => {
-        // Daily Earners
         onValue(query(ref(db, 'users'), orderByChild('dailyEarnings'), limitToLast(10)), s => {
             const list = document.getElementById('lb-daily'); list.innerHTML = "";
             let data = []; s.forEach(c => data.push(c.val()));
             data.reverse().forEach((u, i) => {
-                list.innerHTML += `<div class="gold-card p-3 rounded-xl flex justify-between text-xs font-bold"><span>#${i+1} ${u.username}</span><span class="text-green-400">₱${u.dailyEarnings.toFixed(2)}</span></div>`;
-            });
-        });
-        // Weekly Ads
-        onValue(query(ref(db, 'users'), orderByChild('weeklyAds'), limitToLast(10)), s => {
-            const list = document.getElementById('lb-ads'); list.innerHTML = "";
-            let data = []; s.forEach(c => data.push(c.val()));
-            data.reverse().forEach((u, i) => {
-                list.innerHTML += `<div class="gold-card p-3 rounded-xl flex justify-between text-xs font-bold"><span>#${i+1} ${u.username}</span><span class="text-blue-400">${u.weeklyAds || 0} ADS</span></div>`;
+                list.innerHTML += `<div class="gold-card p-4 rounded-2xl flex justify-between items-center"><span class="font-black text-slate-400">#${i+1} ${u.username}</span><span class="text-green-400 font-bold">₱${u.dailyEarnings.toFixed(2)}</span></div>`;
             });
         });
     },
 
     claimLB: async () => {
         const w = app.getWeek();
-        if(user.weeklyAds < 10000) return alert("You need 10,000 Ads!");
-        if(user.lastLBClaim === w) return alert("Claimed this week!");
+        if(user.weeklyAds < 10000) return alert("Goal not reached!");
+        if(user.lastLBClaim === w) return alert("Already claimed!");
         await update(ref(db, `users/${uid}`), { balance: user.balance + 25, lastLBClaim: w });
         alert("₱25.00 Reward Bank Claimed!");
     },
@@ -232,20 +205,15 @@ const app = {
     sendChatMessage: async () => {
         const msg = document.getElementById('chat-input').value.trim();
         if(!msg) return;
-        try {
-            // Sequence Required to Send
-            await show_10276123('pop');
-            await show_10337795('pop');
-            await show_10337853('pop');
-            
-            await push(ref(db, 'messages'), { u: user.username, t: msg, uid, time: serverTimestamp() });
-            document.getElementById('chat-input').value = "";
-            
-            if(app.cd.chat <= 0) {
-                app.grantReward(0.0200);
-                app.startCD('chat', 300);
-            }
-        } catch(e) {}
+        
+        await app.runAdSequence(3); // 3 Random Ads Gate
+        await push(ref(db, 'messages'), { u: user.username, t: msg, uid, time: serverTimestamp() });
+        document.getElementById('chat-input').value = "";
+        
+        if(app.cd.chat <= 0) {
+            app.reward(0.0212);
+            app.startCD('chat', 300);
+        }
     },
 
     loadChat: () => {
@@ -254,7 +222,7 @@ const app = {
             s.forEach(c => {
                 const m = c.val();
                 const isMe = m.uid === uid;
-                box.innerHTML += `<div class="flex ${isMe?'justify-end':''}"><div class="p-3 rounded-2xl max-w-[80%] text-sm ${isMe?'bg-yellow-500 text-black':'bg-slate-800 text-white'}"><b>${m.u}</b><br>${m.t}</div></div>`;
+                box.innerHTML += `<div class="flex ${isMe?'justify-end':''}"><div class="p-3 rounded-2xl max-w-[85%] text-sm ${isMe?'bg-yellow-500 text-black font-bold':'bg-slate-800 text-slate-200'}"><b>${m.u}</b><br>${m.t}</div></div>`;
             });
             box.scrollTop = box.scrollHeight;
         });
@@ -275,11 +243,11 @@ const app = {
             s.forEach(c => {
                 const f = c.val();
                 const isOwner = f.authorUid === uid;
-                list.innerHTML += `<div class="gold-card p-5 rounded-3xl">
-                    <div class="flex justify-between items-start mb-2"><h4 class="font-black text-yellow-500">${f.title}</h4>${isOwner?`<button onclick="app.editForum('${c.key}')" class="text-[9px] text-blue-400">EDIT</button>`:''}</div>
-                    <p class="text-xs text-slate-300 mb-4">${f.body}</p>
-                    <div id="comm-${c.key}" class="space-y-1 mb-3 border-t border-yellow-500/10 pt-2"></div>
-                    <div class="flex gap-2"><input id="in-${c.key}" placeholder="Comment..." class="flex-1 bg-slate-950 p-2 rounded-lg text-[10px] outline-none border border-yellow-500/10"><button onclick="app.postComment('${c.key}')" class="gold-btn px-3 rounded-lg text-[9px]">Send</button></div>
+                list.innerHTML += `<div class="gold-card p-5 rounded-[2rem]">
+                    <div class="flex justify-between items-start mb-2"><h4 class="font-black text-yellow-500 text-lg italic uppercase">${f.title}</h4>${isOwner?`<button onclick="app.editForum('${c.key}')" class="text-[9px] bg-slate-900 px-2 py-1 rounded text-blue-400">EDIT</button>`:''}</div>
+                    <p class="text-xs text-slate-300 mb-4 whitespace-pre-wrap">${f.body}</p>
+                    <div id="com-${c.key}" class="space-y-2 mb-4 border-t border-yellow-500/10 pt-3"></div>
+                    <div class="flex gap-2"><input id="in-${c.key}" placeholder="Add comment..." class="flex-1 bg-slate-950 p-3 rounded-xl text-[10px] outline-none border border-yellow-500/10"><button onclick="app.postComment('${c.key}')" class="gold-btn px-4 rounded-xl text-[10px]">SEND</button></div>
                 </div>`;
                 app.syncComments(c.key);
             });
@@ -293,8 +261,8 @@ const app = {
 
     syncComments: (id) => {
         onValue(ref(db, `forum/${id}/comments`), s => {
-            const box = document.getElementById(`comm-${id}`); box.innerHTML = "";
-            s.forEach(c => { box.innerHTML += `<p class="text-[9px]"><b class="text-yellow-500">${c.val().u}:</b> ${c.val().t}</p>`; });
+            const box = document.getElementById(`com-${id}`); box.innerHTML = "";
+            s.forEach(c => { box.innerHTML += `<p class="text-[9px] text-slate-400"><b class="text-yellow-500 uppercase tracking-tighter">${c.val().u}:</b> ${c.val().t}</p>`; });
         });
     },
 
@@ -306,19 +274,22 @@ const app = {
 
     // ADMIN
     loadAdmin: () => {
-        const p = prompt("Owner Pass:");
+        const p = prompt("Owner Authentication:");
         if(p !== "Propetas12") return app.nav('home');
         onValue(ref(db, 'withdrawals'), s => {
             const list = document.getElementById('admin-withdrawals'); list.innerHTML = "";
+            let count = 0;
             s.forEach(c => {
                 const w = c.val();
                 if(w.status === 'pending') {
-                    list.innerHTML += `<div class="gold-card p-4 rounded-xl flex justify-between items-center text-[10px]">
-                        <div><b>${w.name}</b><br>₱${w.amount} | ${w.gcash}<br>${w.date} | ${w.time}</div>
-                        <button onclick="app.approvePayout('${c.key}')" class="bg-green-600 px-4 py-2 rounded-lg font-bold">APPROVE</button>
+                    count++;
+                    list.innerHTML += `<div class="gold-card p-4 rounded-2xl flex justify-between items-center text-[10px]">
+                        <div><b>${w.name}</b><br>₱${w.amount} | GCash: ${w.gcash}<br>${w.date} @ ${w.time}</div>
+                        <button onclick="app.approvePayout('${c.key}')" class="bg-green-600 px-4 py-2 rounded-lg font-bold">PAY</button>
                     </div>`;
                 }
             });
+            document.getElementById('admin-pending-count').innerText = `${count} Pending`;
         });
     },
 
@@ -326,14 +297,15 @@ const app = {
 
     // WITHDRAW
     withdraw: async () => {
-        if(user.balance < 1) return alert("Min ₱1.00");
+        if(user.balance < 1) return alert("Min. ₱1.00 Required");
         const now = new Date();
-        await push(ref(db, 'withdrawals'), {
+        const request = {
             uid, name: user.username, gcash: user.gcash, amount: user.balance, status: 'pending',
             date: now.toLocaleDateString(), time: now.toLocaleTimeString(), timestamp: serverTimestamp()
-        });
+        };
+        await push(ref(db, 'withdrawals'), request);
         await update(ref(db, `users/${uid}`), { balance: 0 });
-        alert("Request Sent!");
+        alert("Withdrawal Logged Successfully!");
     },
 
     loadHistory: () => {
@@ -342,9 +314,9 @@ const app = {
             s.forEach(c => {
                 const w = c.val();
                 if(w.uid === uid) {
-                    list.innerHTML += `<div class="gold-card p-4 rounded-xl flex justify-between items-center">
-                        <div><p class="font-black text-yellow-500">₱${w.amount.toFixed(2)}</p><p class="text-[9px] text-slate-500">${w.date} ${w.time}</p></div>
-                        <span class="text-[9px] font-black uppercase ${w.status==='paid'?'text-green-400':'text-yellow-500'}">${w.status}</span>
+                    list.innerHTML += `<div class="gold-card p-4 rounded-2xl flex justify-between items-center">
+                        <div><p class="font-black text-yellow-500 italic">₱${w.amount.toFixed(2)}</p><p class="text-[9px] text-slate-500">${w.date} ${w.time}</p></div>
+                        <span class="text-[10px] font-black uppercase tracking-widest ${w.status==='paid'?'text-green-500':'text-yellow-600'}">${w.status}</span>
                     </div>`;
                 }
             });
@@ -356,20 +328,7 @@ const app = {
         const pRef = ref(db, `presence/${uid}`);
         set(pRef, { username: user.username, last_online: serverTimestamp() });
         onDisconnect(pRef).remove();
-        setInterval(() => update(pRef, { last_online: serverTimestamp() }), 60000);
-        
-        onValue(ref(db, 'presence'), s => {
-            const list = document.getElementById('online-list'); list.innerHTML = "";
-            const now = Date.now();
-            let count = 0;
-            s.forEach(c => {
-                if(now - c.val().last_online < 300000) { // 5 mins
-                    count++;
-                    list.innerHTML += `<div class="gold-card p-3 rounded-xl text-center text-[10px] font-bold text-green-400 border border-green-400/20">${c.val().username}</div>`;
-                }
-            });
-            document.getElementById('online-indicator').innerText = `${count} Users Online`;
-        });
+        onValue(ref(db, 'presence'), s => { document.getElementById('online-indicator').innerText = `● ${s.size} Online`; });
     },
 
     nav: (id) => {
