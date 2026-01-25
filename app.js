@@ -1,6 +1,6 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, get, update, push, onValue, query, orderByChild, limitToLast, serverTimestamp, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, set, get, update, push, onValue, query, orderByChild, limitToLast, serverTimestamp, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBwpa8mA83JAv2A2Dj0rh5VHwodyv5N3dg",
@@ -15,11 +15,8 @@ const firebaseConfig = {
 const fb = initializeApp(firebaseConfig);
 const db = getDatabase(fb);
 
-const ZONES = ['show_10276123', 'show_10337795', 'show_10337853'];
 let user = null;
-let uid = localStorage.getItem('ph_uid');
-let cd = { premium: 0, turbo: 0, chat: 0 };
-let activeTopicId = null;
+let uid = localStorage.getItem('ph_gold_uid');
 
 const app = {
     init: async () => {
@@ -29,6 +26,7 @@ const app = {
             const snap = await get(ref(db, `users/${uid}`));
             if (snap.exists()) {
                 user = snap.val();
+                app.checkDailyReset();
                 app.launch();
             } else {
                 document.getElementById('login-screen').classList.remove('hidden');
@@ -41,302 +39,283 @@ const app = {
         const gcash = document.getElementById('reg-gcash').value.trim();
         if (name.length < 3 || gcash.length < 10) return alert("Invalid inputs");
 
-        // Check if username taken
-        const usersSnap = await get(query(ref(db, 'users'), orderByChild('username'), equalsTo(name)));
-        if(usersSnap.exists()) return alert("Username taken");
-
-        uid = 'U' + Math.floor(Math.random() * 900000);
-        user = { 
-            uid, username: name, gcash, balance: 0, 
-            pendingBonus: 0, referredBy: null, totalAds: 0 
+        uid = 'U' + Math.floor(Math.random() * 9000000);
+        user = {
+            uid, username: name, gcash, balance: 0,
+            totalAds: 0, dailyAds: 0, weeklyAds: 0, dailyEarnings: 0, pendingBonus: 0,
+            dailyDate: new Date().toDateString(),
+            weeklyId: app.getWeek(),
+            referredBy: null, lastLBClaim: ""
         };
         await set(ref(db, `users/${uid}`), user);
-        localStorage.setItem('ph_uid', uid);
+        localStorage.setItem('ph_gold_uid', uid);
         app.launch();
+    },
+
+    getWeek: () => {
+        const d = new Date();
+        const start = new Date(d.getFullYear(), 0, 1);
+        return `${d.getFullYear()}-W${Math.ceil((((d - start) / 86400000) + start.getDay() + 1) / 7)}`;
+    },
+
+    checkDailyReset: async () => {
+        const today = new Date().toDateString();
+        if (user.dailyDate !== today) {
+            await update(ref(db, `users/${uid}`), {
+                dailyAds: 0,
+                dailyEarnings: 0,
+                dailyDate: today
+            });
+        }
     },
 
     launch: () => {
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
         app.sync();
+        app.presence();
         app.nav('home');
     },
 
     sync: () => {
         onValue(ref(db, `users/${uid}`), s => {
             user = s.val();
+            if (!user) return;
             document.getElementById('u-name').innerText = user.username;
             document.getElementById('u-balance').innerText = `₱${user.balance.toFixed(4)}`;
-            document.getElementById('big-balance').innerText = `₱${user.balance.toFixed(4)}`;
-            document.getElementById('ref-unclaimed').innerText = `₱${(user.pendingBonus || 0).toFixed(4)}`;
-            app.loadRefList();
+            document.getElementById('big-balance').innerText = `₱${user.balance.toFixed(2)}`;
+            document.getElementById('p-name').innerText = user.username;
+            document.getElementById('p-gcash').innerText = user.gcash;
+            document.getElementById('p-bonus').innerText = `₱${(user.pendingBonus || 0).toFixed(4)}`;
+            
+            const isWeek = user.weeklyId === app.getWeek();
+            document.getElementById('st-d').innerText = user.dailyAds || 0;
+            document.getElementById('st-w').innerText = isWeek ? user.weeklyAds : 0;
+            document.getElementById('st-o').innerText = user.totalAds;
+            document.getElementById('lb-progress').innerText = `${isWeek ? user.weeklyAds : 0} / 10000`;
+        });
+
+        // Global Stats
+        onValue(ref(db, 'stats'), s => {
+            const gs = s.val() || {};
+            const d = new Date().toDateString();
+            const w = app.getWeek();
+            document.getElementById('gst-d').innerText = `₱${(gs[d] || 0).toFixed(2)}`;
+            document.getElementById('gst-w').innerText = `₱${(gs[w] || 0).toFixed(2)}`;
+            document.getElementById('gst-o').innerText = `₱${(gs.total || 0).toFixed(2)}`;
         });
     },
 
-    // --- ADS LOGIC ---
-    playSequence: async (type) => {
-        if (cd[type] > 0) return;
-        
-        // Sequential 3 Ads
-        for (const zone of ZONES) {
-            try { if (window[zone]) await window[zone](); } catch (e) {}
-        }
+    // AD ENGINE
+    playPremium: async () => {
+        if (app.cd.premium > 0) return;
+        try {
+            await show_10276123('pop');
+            await show_10337795('pop');
+            await show_10337853('pop');
+            app.grantReward(0.0043);
+            app.startCD('premium', 15);
+        } catch (e) {}
+    },
 
-        // Reward
-        const reward = 0.0102;
-        await app.grantReward(reward);
-        app.startCD(type, 45);
+    playRandom: async () => {
+        if (app.cd.random > 0) return;
+        const zones = ['show_10276123', 'show_10337795', 'show_10337853'];
+        const randomZone = zones[Math.floor(Math.random() * zones.length)];
+        try {
+            await window[randomZone]('pop');
+            app.grantReward(0.0060);
+            app.startCD('random', 45);
+        } catch (e) {}
     },
 
     grantReward: async (amt) => {
-        const updates = {
-            balance: (user.balance || 0) + amt,
-            totalAds: (user.totalAds || 0) + 1
-        };
-        await update(ref(db, `users/${uid}`), updates);
+        const d = new Date().toDateString();
+        const w = app.getWeek();
+        const updates = {};
+        
+        updates[`users/${uid}/balance`] = (user.balance || 0) + amt;
+        updates[`users/${uid}/dailyEarnings`] = (user.dailyEarnings || 0) + amt;
+        updates[`users/${uid}/totalAds`] = (user.totalAds || 0) + 1;
+        updates[`users/${uid}/dailyAds`] = (user.dailyAds || 0) + 1;
+        updates[`users/${uid}/weeklyAds`] = (user.weeklyId === w ? user.weeklyAds : 0) + 1;
+        updates[`users/${uid}/weeklyId`] = w;
 
-        // 8% Commision to Referrer
+        // Stats
+        const sSnap = await get(ref(db, 'stats'));
+        const gs = sSnap.val() || {};
+        updates['stats/total'] = (gs.total || 0) + amt;
+        updates[`stats/${d}`] = (gs[d] || 0) + amt;
+        updates[`stats/${w}`] = (gs[w] || 0) + amt;
+
+        // Referral Commission (8%)
         if (user.referredBy) {
-            const refUserRef = ref(db, `users/${user.referredBy}`);
-            const refSnap = await get(refUserRef);
-            if (refSnap.exists()) {
-                const comm = amt * 0.08;
-                await update(refUserRef, {
-                    pendingBonus: (refSnap.val().pendingBonus || 0) + comm
-                });
+            const rSnap = await get(ref(db, `users/${user.referredBy}`));
+            if (rSnap.exists()) {
+                updates[`users/${user.referredBy}/pendingBonus`] = (rSnap.val().pendingBonus || 0) + (amt * 0.08);
             }
         }
+        await update(ref(db), updates);
     },
 
-    startCD: (type, seconds) => {
-        cd[type] = seconds;
-        const btnBox = document.getElementById(`box-${type}`);
-        const timerBox = document.getElementById(`timer-${type}`);
-        const display = timerBox.querySelector('.cd-val');
+    cd: { premium: 0, random: 0, chat: 0 },
+    startCD: (t, s) => {
+        app.cd[t] = s;
+        const box = document.getElementById(`box-${t}`);
+        const timer = document.getElementById(`timer-${t}`);
+        if(box) box.classList.add('hidden-el');
+        if(timer) timer.classList.remove('hidden-el');
 
-        btnBox.classList.add('hidden-timer');
-        timerBox.classList.remove('hidden-timer');
-
-        const ticker = setInterval(() => {
-            cd[type]--;
-            if (display) display.innerText = cd[type] + 's';
-            if (type === 'chat') document.getElementById('chat-cd').innerText = cd[type];
-
-            if (cd[type] <= 0) {
-                clearInterval(ticker);
-                btnBox.classList.remove('hidden-timer');
-                timerBox.classList.add('hidden-timer');
-                if (type === 'chat') document.getElementById('chat-reward-box').classList.add('hidden-timer');
+        const itv = setInterval(() => {
+            app.cd[t]--;
+            if(timer) timer.querySelector('.cd-val').innerText = app.cd[t] + 's';
+            if(t === 'chat') document.getElementById('chat-cd-label').innerText = `Gold CD: ${app.cd[t]}s`;
+            if (app.cd[t] <= 0) {
+                clearInterval(itv);
+                if(box) box.classList.remove('hidden-el');
+                if(timer) timer.classList.add('hidden-el');
+                if(t === 'chat') document.getElementById('chat-cd-label').innerText = "";
             }
         }, 1000);
     },
 
-    // --- REFERRAL SYSTEM ---
-    claimReferral: async () => {
+    // REFERRALS
+    syncReferral: async () => {
         const code = document.getElementById('ref-input').value.trim();
-        if (code === user.username) return alert("Cannot refer yourself");
-        
+        if(!code || code === user.username) return alert("Invalid code");
         const q = query(ref(db, 'users'), orderByChild('username'));
         const snap = await get(q);
-        let foundUid = null;
-        snap.forEach(c => { if(c.val().username === code) foundUid = c.key; });
-
-        if (foundUid) {
-            await update(ref(db, `users/${uid}`), { referredBy: foundUid });
-            alert("Referrer set successfully!");
-        } else {
-            alert("Username not found");
-        }
-    },
-
-    loadRefList: async () => {
-        const q = query(ref(db, 'users'), orderByChild('referredBy'));
-        const snap = await get(q);
-        const list = document.getElementById('ref-list');
-        list.innerHTML = "";
-        let count = 0;
-        snap.forEach(c => {
-            if (c.val().referredBy === uid) {
-                count++;
-                list.innerHTML += `<div class="glass p-3 rounded-xl flex justify-between text-xs">
-                    <span>${c.val().username}</span>
-                    <span class="text-yellow-500 font-bold">Active</span>
-                </div>`;
-            }
-        });
-        document.getElementById('ref-count').innerText = count;
+        let found = null;
+        snap.forEach(c => { if(c.val().username === code) found = c.key; });
+        if(found) {
+            await update(ref(db, `users/${uid}`), { referredBy: found });
+            alert("Referral Synced Successfully!");
+        } else { alert("User not found."); }
     },
 
     claimBonus: async () => {
-        if (!user.pendingBonus || user.pendingBonus <= 0) return alert("Nothing to claim");
-        const bonus = user.pendingBonus;
-        await update(ref(db, `users/${uid}`), {
-            balance: (user.balance || 0) + bonus,
-            pendingBonus: 0
-        });
-        alert(`Claimed ₱${bonus.toFixed(4)}`);
+        if (!user.pendingBonus || user.pendingBonus <= 0) return alert("No bonus to claim");
+        const b = user.pendingBonus;
+        await update(ref(db, `users/${uid}`), { balance: user.balance + b, pendingBonus: 0 });
+        alert(`Claimed ₱${b.toFixed(4)} Referral Bonus!`);
     },
 
-    // --- FORUM LOGIC ---
-    postTopic: async () => {
-        const title = document.getElementById('topic-title').value;
-        const desc = document.getElementById('topic-desc').value;
-        if (!title || !desc) return;
-        await push(ref(db, 'topics'), {
-            title, desc, author: user.username, authorUid: uid, timestamp: serverTimestamp()
+    // LEADERBOARD
+    loadLB: () => {
+        // Daily Earners
+        onValue(query(ref(db, 'users'), orderByChild('dailyEarnings'), limitToLast(10)), s => {
+            const list = document.getElementById('lb-daily'); list.innerHTML = "";
+            let data = []; s.forEach(c => data.push(c.val()));
+            data.reverse().forEach((u, i) => {
+                list.innerHTML += `<div class="gold-card p-3 rounded-xl flex justify-between text-xs font-bold"><span>#${i+1} ${u.username}</span><span class="text-green-400">₱${u.dailyEarnings.toFixed(2)}</span></div>`;
+            });
         });
-        app.closeModal('modal-topic');
-        app.loadTopics();
-    },
-
-    loadTopics: () => {
-        onValue(query(ref(db, 'topics'), limitToLast(20)), s => {
-            const list = document.getElementById('topics-list');
-            list.innerHTML = "";
-            s.forEach(c => {
-                const t = c.val();
-                const isMine = t.authorUid === uid;
-                list.innerHTML += `
-                    <div class="glass p-4 rounded-2xl active:scale-95 transition" onclick="app.viewTopic('${c.key}')">
-                        <div class="flex justify-between">
-                            <h4 class="font-bold text-yellow-500">${t.title}</h4>
-                            ${isMine ? `<button onclick="event.stopPropagation(); app.editTopic('${c.key}')" class="text-[10px] text-blue-400">EDIT</button>` : ''}
-                        </div>
-                        <p class="text-xs text-slate-400 mt-1 line-clamp-1">${t.desc}</p>
-                    </div>`;
+        // Weekly Ads
+        onValue(query(ref(db, 'users'), orderByChild('weeklyAds'), limitToLast(10)), s => {
+            const list = document.getElementById('lb-ads'); list.innerHTML = "";
+            let data = []; s.forEach(c => data.push(c.val()));
+            data.reverse().forEach((u, i) => {
+                list.innerHTML += `<div class="gold-card p-3 rounded-xl flex justify-between text-xs font-bold"><span>#${i+1} ${u.username}</span><span class="text-blue-400">${u.weeklyAds || 0} ADS</span></div>`;
             });
         });
     },
 
-    viewTopic: async (tid) => {
-        activeTopicId = tid;
-        const snap = await get(ref(db, `topics/${tid}`));
-        const t = snap.val();
-        const v = document.getElementById('view-content');
-        v.innerHTML = `<h2 class="text-xl font-bold text-yellow-500">${t.title}</h2>
-                       <p class="text-xs text-slate-500 mb-4">By ${t.author}</p>
-                       <p class="text-sm border-b border-slate-800 pb-4 mb-4">${t.desc}</p>
-                       <div id="comments-box" class="space-y-2"></div>`;
-        app.showModal('modal-view');
-        
-        onValue(ref(db, `topics/${tid}/comments`), cs => {
-            const cbox = document.getElementById('comments-box');
-            cbox.innerHTML = "<h5 class='text-[10px] font-bold text-slate-500 uppercase'>Comments</h5>";
-            cs.forEach(c => {
-                const comm = c.val();
-                cbox.innerHTML += `<div class="bg-slate-800/50 p-2 rounded-lg text-xs">
-                    <b class="text-blue-400">${comm.u}:</b> ${comm.t}
-                </div>`;
-            });
-        });
+    claimLB: async () => {
+        const w = app.getWeek();
+        if(user.weeklyAds < 10000) return alert("You need 10,000 Ads!");
+        if(user.lastLBClaim === w) return alert("Claimed this week!");
+        await update(ref(db, `users/${uid}`), { balance: user.balance + 25, lastLBClaim: w });
+        alert("₱25.00 Reward Bank Claimed!");
     },
 
-    postComment: async () => {
-        const val = document.getElementById('comment-input').value;
-        if (!val || !activeTopicId) return;
-        await push(ref(db, `topics/${activeTopicId}/comments`), {
-            u: user.username, t: val
-        });
-        document.getElementById('comment-input').value = "";
-    },
-
-    editTopic: async (tid) => {
-        const snap = await get(ref(db, `topics/${tid}`));
-        const t = snap.val();
-        if (t.authorUid !== uid) return;
-        const newDesc = prompt("Edit Content:", t.desc);
-        if (newDesc) await update(ref(db, `topics/${tid}`), { desc: newDesc });
-    },
-
-    // --- CHAT WITH ADS ---
+    // CHAT
     sendChatMessage: async () => {
-        const input = document.getElementById('chat-input');
-        const txt = input.value.trim();
-        if (!txt) return;
-
-        // Sequence Ads
-        for (const zone of ZONES) {
-            try { if (window[zone]) await window[zone](); } catch (e) {}
-        }
-
-        // Send Message
-        await push(ref(db, 'messages'), {
-            u: user.username, uid, t: txt, time: serverTimestamp()
-        });
-        input.value = "";
-
-        // Reward if not on CD
-        if (cd.chat <= 0) {
-            await app.grantReward(0.015);
-            document.getElementById('chat-reward-box').classList.remove('hidden-timer');
-            app.startCD('chat', 300);
-        }
+        const msg = document.getElementById('chat-input').value.trim();
+        if(!msg) return;
+        try {
+            // Sequence Required to Send
+            await show_10276123('pop');
+            await show_10337795('pop');
+            await show_10337853('pop');
+            
+            await push(ref(db, 'messages'), { u: user.username, t: msg, uid, time: serverTimestamp() });
+            document.getElementById('chat-input').value = "";
+            
+            if(app.cd.chat <= 0) {
+                app.grantReward(0.0200);
+                app.startCD('chat', 300);
+            }
+        } catch(e) {}
     },
 
     loadChat: () => {
-        onValue(query(ref(db, 'messages'), limitToLast(30)), s => {
-            const box = document.getElementById('chat-box');
-            box.innerHTML = "";
+        onValue(query(ref(db, 'messages'), limitToLast(40)), s => {
+            const box = document.getElementById('chat-box'); box.innerHTML = "";
             s.forEach(c => {
                 const m = c.val();
                 const isMe = m.uid === uid;
-                box.innerHTML += `<div class="flex ${isMe?'justify-end':''}"><div class="chat-msg ${isMe?'my-msg':''}">
-                    <p class="text-[9px] font-bold text-yellow-500">${m.u}</p>
-                    <p class="text-sm">${m.t}</p>
-                </div></div>`;
+                box.innerHTML += `<div class="flex ${isMe?'justify-end':''}"><div class="p-3 rounded-2xl max-w-[80%] text-sm ${isMe?'bg-yellow-500 text-black':'bg-slate-800 text-white'}"><b>${m.u}</b><br>${m.t}</div></div>`;
             });
             box.scrollTop = box.scrollHeight;
         });
     },
 
-    // --- UTILS ---
-    nav: (id) => {
-        document.querySelectorAll('main section').forEach(s => s.classList.add('hidden'));
-        document.getElementById(`sec-${id}`).classList.remove('hidden');
-        if (id === 'forum') app.loadTopics();
-        if (id === 'chat') app.loadChat();
-        if (id === 'history') app.loadHistory();
-        if (id === 'admin') app.loadAdmin();
+    // FORUM
+    submitPost: async () => {
+        const t = document.getElementById('post-title').value;
+        const b = document.getElementById('post-body').value;
+        if(!t || !b) return;
+        await push(ref(db, 'forum'), { title: t, body: b, author: user.username, authorUid: uid, time: serverTimestamp() });
+        app.closeModal('modal-post');
     },
 
-    withdraw: async () => {
-        if (user.balance < 1) return alert("Min withdrawal ₱1.00");
-        const amt = user.balance;
-        await push(ref(db, 'withdrawals'), {
-            uid, username: user.username, gcash: user.gcash,
-            amount: amt, status: 'pending', timestamp: serverTimestamp()
-        });
-        await update(ref(db, `users/${uid}`), { balance: 0 });
-        alert("Withdrawal Requested!");
-    },
-
-    loadHistory: () => {
-        onValue(ref(db, 'withdrawals'), s => {
-            const l = document.getElementById('hist-list');
-            l.innerHTML = "";
+    loadForum: () => {
+        onValue(ref(db, 'forum'), s => {
+            const list = document.getElementById('forum-list'); list.innerHTML = "";
             s.forEach(c => {
-                const w = c.val();
-                if(w.uid === uid) {
-                    l.innerHTML += `<div class="glass p-4 rounded-xl flex justify-between">
-                        <span>₱${w.amount.toFixed(2)}</span>
-                        <span class="text-[10px] font-bold uppercase ${w.status==='paid'?'text-green-500':'text-yellow-500'}">${w.status}</span>
-                    </div>`;
-                }
+                const f = c.val();
+                const isOwner = f.authorUid === uid;
+                list.innerHTML += `<div class="gold-card p-5 rounded-3xl">
+                    <div class="flex justify-between items-start mb-2"><h4 class="font-black text-yellow-500">${f.title}</h4>${isOwner?`<button onclick="app.editForum('${c.key}')" class="text-[9px] text-blue-400">EDIT</button>`:''}</div>
+                    <p class="text-xs text-slate-300 mb-4">${f.body}</p>
+                    <div id="comm-${c.key}" class="space-y-1 mb-3 border-t border-yellow-500/10 pt-2"></div>
+                    <div class="flex gap-2"><input id="in-${c.key}" placeholder="Comment..." class="flex-1 bg-slate-950 p-2 rounded-lg text-[10px] outline-none border border-yellow-500/10"><button onclick="app.postComment('${c.key}')" class="gold-btn px-3 rounded-lg text-[9px]">Send</button></div>
+                </div>`;
+                app.syncComments(c.key);
             });
         });
     },
 
+    postComment: (id) => {
+        const t = document.getElementById(`in-${id}`).value;
+        if(t) { push(ref(db, `forum/${id}/comments`), { u: user.username, t }); document.getElementById(`in-${id}`).value = ""; }
+    },
+
+    syncComments: (id) => {
+        onValue(ref(db, `forum/${id}/comments`), s => {
+            const box = document.getElementById(`comm-${id}`); box.innerHTML = "";
+            s.forEach(c => { box.innerHTML += `<p class="text-[9px]"><b class="text-yellow-500">${c.val().u}:</b> ${c.val().t}</p>`; });
+        });
+    },
+
+    editForum: async (id) => {
+        const snap = await get(ref(db, `forum/${id}`));
+        const n = prompt("Edit content:", snap.val().body);
+        if(n) update(ref(db, `forum/${id}`), { body: n });
+    },
+
+    // ADMIN
     loadAdmin: () => {
-        const p = prompt("Admin Pass:");
+        const p = prompt("Owner Pass:");
         if(p !== "Propetas12") return app.nav('home');
         onValue(ref(db, 'withdrawals'), s => {
-            const l = document.getElementById('admin-list');
-            l.innerHTML = "";
+            const list = document.getElementById('admin-withdrawals'); list.innerHTML = "";
             s.forEach(c => {
-                if(c.val().status === 'pending') {
-                    l.innerHTML += `<div class="glass p-3 rounded-xl flex justify-between items-center text-xs">
-                        <span>${c.val().username} - ₱${c.val().amount}</span>
-                        <button onclick="app.approvePayout('${c.key}')" class="bg-green-600 px-3 py-1 rounded">PAY</button>
+                const w = c.val();
+                if(w.status === 'pending') {
+                    list.innerHTML += `<div class="gold-card p-4 rounded-xl flex justify-between items-center text-[10px]">
+                        <div><b>${w.name}</b><br>₱${w.amount} | ${w.gcash}<br>${w.date} | ${w.time}</div>
+                        <button onclick="app.approvePayout('${c.key}')" class="bg-green-600 px-4 py-2 rounded-lg font-bold">APPROVE</button>
                     </div>`;
                 }
             });
@@ -344,7 +323,67 @@ const app = {
     },
 
     approvePayout: (k) => update(ref(db, `withdrawals/${k}`), { status: 'paid' }),
-    showModal: (id) => document.getElementById(id).style.display = 'flex',
+
+    // WITHDRAW
+    withdraw: async () => {
+        if(user.balance < 1) return alert("Min ₱1.00");
+        const now = new Date();
+        await push(ref(db, 'withdrawals'), {
+            uid, name: user.username, gcash: user.gcash, amount: user.balance, status: 'pending',
+            date: now.toLocaleDateString(), time: now.toLocaleTimeString(), timestamp: serverTimestamp()
+        });
+        await update(ref(db, `users/${uid}`), { balance: 0 });
+        alert("Request Sent!");
+    },
+
+    loadHistory: () => {
+        onValue(ref(db, 'withdrawals'), s => {
+            const list = document.getElementById('hist-list'); list.innerHTML = "";
+            s.forEach(c => {
+                const w = c.val();
+                if(w.uid === uid) {
+                    list.innerHTML += `<div class="gold-card p-4 rounded-xl flex justify-between items-center">
+                        <div><p class="font-black text-yellow-500">₱${w.amount.toFixed(2)}</p><p class="text-[9px] text-slate-500">${w.date} ${w.time}</p></div>
+                        <span class="text-[9px] font-black uppercase ${w.status==='paid'?'text-green-400':'text-yellow-500'}">${w.status}</span>
+                    </div>`;
+                }
+            });
+        });
+    },
+
+    // UTILS
+    presence: () => {
+        const pRef = ref(db, `presence/${uid}`);
+        set(pRef, { username: user.username, last_online: serverTimestamp() });
+        onDisconnect(pRef).remove();
+        setInterval(() => update(pRef, { last_online: serverTimestamp() }), 60000);
+        
+        onValue(ref(db, 'presence'), s => {
+            const list = document.getElementById('online-list'); list.innerHTML = "";
+            const now = Date.now();
+            let count = 0;
+            s.forEach(c => {
+                if(now - c.val().last_online < 300000) { // 5 mins
+                    count++;
+                    list.innerHTML += `<div class="gold-card p-3 rounded-xl text-center text-[10px] font-bold text-green-400 border border-green-400/20">${c.val().username}</div>`;
+                }
+            });
+            document.getElementById('online-indicator').innerText = `${count} Users Online`;
+        });
+    },
+
+    nav: (id) => {
+        document.querySelectorAll('main section').forEach(s => s.classList.add('hidden-el'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+        document.getElementById(`sec-${id}`).classList.remove('hidden-el');
+        if(id === 'leaderboard') app.loadLB();
+        if(id === 'chat') app.loadChat();
+        if(id === 'forum') app.loadForum();
+        if(id === 'history') app.loadHistory();
+        if(id === 'admin') app.loadAdmin();
+    },
+
+    openModal: (id) => document.getElementById(id).style.display = 'flex',
     closeModal: (id) => document.getElementById(id).style.display = 'none'
 };
 
