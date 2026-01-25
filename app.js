@@ -16,123 +16,51 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Telegram Init
+// Telegram & User State
 const tg = window.Telegram.WebApp;
-const tgUser = tg.initDataUnsafe?.user || { id: "12345", first_name: "Local", username: "GuestUser" };
-const userId = tgUser.id.toString();
-const myUsername = tgUser.username || `user_${userId}`;
+const user = tg.initDataUnsafe?.user || { id: "0000", first_name: "LocalUser", username: "Guest" };
+const uid = user.id.toString();
+const myUsername = user.username || `user_${uid}`;
 
-let userData = { balance: 0, totalRefEarnings: 0 };
-let cooldowns = { main: 0, pop: 0, chat: 0 };
+let userData = { balance: 0, refEarnings: 0 };
+let cds = { main: 0, pop: 0, chat: 0 };
 
-// 1. App Startup
-async function init() {
-    document.getElementById('display-username').innerText = myUsername;
-    const botUser = "PaperhouseIncAdsBot"; // Replace with your real bot username
-    document.getElementById('ref-link').innerText = `https://t.me/${botUser}/start?startapp=${myUsername}`;
+async function startApp() {
+    tg.expand();
+    document.getElementById('user-tag').innerText = myUsername;
+    document.getElementById('my-code-display').innerText = myUsername;
 
-    // Handle Referral logic
-    const params = new URLSearchParams(window.location.search);
-    const referrerUsername = params.get('tgWebAppStartParam');
-
-    const userRef = ref(db, 'users/' + userId);
-    const snap = await get(userRef);
-
-    if (!snap.exists()) {
-        const newUser = {
-            name: tgUser.first_name,
-            username: myUsername,
-            balance: 0,
-            totalRefEarnings: 0,
-            referredBy: referrerUsername || null
-        };
-        await set(userRef, newUser);
-        await set(ref(db, 'usernames/' + myUsername), userId);
+    const uRef = ref(db, 'users/' + uid);
+    const snap = await get(uRef);
+    if(!snap.exists()) {
+        await set(uRef, { name: user.first_name, username: myUsername, balance: 0, refEarnings: 0, referredBy: null });
+        await set(ref(db, 'usernames/' + myUsername), uid);
     }
 
-    onValue(userRef, (s) => {
+    onValue(uRef, (s) => {
         userData = s.val();
-        document.getElementById('user-balance').innerText = userData.balance.toFixed(4);
-        document.getElementById('total-ref-earn').innerText = (userData.totalRefEarnings || 0).toFixed(4);
+        document.getElementById('bal').innerText = userData.balance.toFixed(4);
+        document.getElementById('ref-bonus-total').innerText = (userData.refEarnings || 0).toFixed(4);
     });
 
-    startGlobalAds();
-    updateCooldownVisuals();
+    // In-App Interstitial: On Open
+    showInApp();
+    // Every 4 minutes
+    setInterval(showInApp, 240000);
+
+    initAds();
+    loopCooldowns();
 }
 
-// 2. Ad & Reward Systems
-async function giveReward(amount) {
-    // 1. Give User Reward
-    const newBal = (userData.balance || 0) + amount;
-    await update(ref(db, 'users/' + userId), { balance: newBal });
-
-    // 2. Referral 8% Logic
-    if (userData.referredBy) {
-        const refBonus = amount * 0.08;
-        const refIdSnap = await get(ref(db, 'usernames/' + userData.referredBy));
-        if (refIdSnap.exists()) {
-            const referrerUid = refIdSnap.val();
-            const referrerRef = ref(db, 'users/' + referrerUid);
-            const rSnap = await get(referrerRef);
-            if (rSnap.exists()) {
-                const rData = rSnap.val();
-                update(referrerRef, {
-                    balance: (rData.balance || 0) + refBonus,
-                    totalRefEarnings: (rData.totalRefEarnings || 0) + refBonus
-                });
-            }
-        }
-    }
+// --- ADS LOGIC ---
+function showInApp() {
+    show_10276123({
+        type: 'inApp',
+        inAppSettings: { frequency: 1, capping: 0, interval: 0, timeout: 0, everyPage: false }
+    });
 }
 
-// Button Ad
-window.watchMainAd = function() {
-    if (Date.now() < cooldowns.main) return;
-    show_10276123().then(() => {
-        giveReward(0.01);
-        cooldowns.main = Date.now() + 45000;
-    });
-};
-
-// Quick Pop Ad
-window.watchQuickPop = function() {
-    if (Date.now() < cooldowns.pop) return;
-    show_10276123('pop').then(() => {
-        giveReward(0.0095);
-        cooldowns.pop = Date.now() + 60000;
-    });
-};
-
-// Chat Triple Ad Logic
-window.sendChatMessage = async function() {
-    if (Date.now() < cooldowns.chat) return tg.showAlert("Chat reward cooling down!");
-    const msg = document.getElementById('chat-input').value;
-    if (!msg) return;
-
-    tg.showConfirm("Watch 3 Interstitial ads to send & earn ₱0.0186?", async (ok) => {
-        if (ok) {
-            try {
-                await show_10276123(); // Ad 1
-                await show_10276123(); // Ad 2
-                await show_10276123(); // Ad 3
-                
-                giveReward(0.0186);
-                push(ref(db, 'chats'), { 
-                    name: myUsername, 
-                    msg: msg, 
-                    time: serverTimestamp() 
-                });
-                document.getElementById('chat-input').value = "";
-                cooldowns.chat = Date.now() + 180000; // 3 mins
-            } catch (e) {
-                tg.showAlert("Ad failed. Try again.");
-            }
-        }
-    });
-};
-
-// 3. Automated Ad Loops
-function startGlobalAds() {
+function initAds() {
     // Popunder - 1 Hour
     setInterval(() => {
         const s = document.createElement('script');
@@ -143,50 +71,119 @@ function startGlobalAds() {
 
     // Native Ad - 30 Minutes
     const loadNative = () => {
-        const slot = document.getElementById('native-slot');
-        slot.innerHTML = "";
+        const container = document.getElementById('native-container');
+        container.innerHTML = "";
         const s = document.createElement('script');
-        s.dataset.zone = '10109465';
-        s.src = 'https://groleegni.net/vignette.min.js';
-        slot.appendChild(s);
+        s.dataset.zone = '10109465'; s.src = 'https://groleegni.net/vignette.min.js';
+        container.appendChild(s);
     };
     loadNative();
     setInterval(loadNative, 1800000);
 }
 
-// 4. Withdrawal System
-window.submitWithdrawal = function() {
-    const amt = parseFloat(document.getElementById('wd-amount').value);
-    const gcash = document.getElementById('wd-gcash').value;
-    if (amt < 1.0) return tg.showAlert("Minimum is ₱1.00");
-    if (amt > userData.balance) return tg.showAlert("Insufficient balance");
-
-    const wdKey = push(ref(db, 'withdrawals')).key;
-    update(ref(db, 'users/' + userId), { balance: userData.balance - amt });
-    set(ref(db, 'withdrawals/' + wdKey), {
-        userId, name: myUsername, amount: amt, gcash, status: "Pending", time: new Date().toLocaleString()
+window.watchMainAd = function() {
+    if (Date.now() < cds.main) return;
+    show_10276123().then(() => {
+        reward(0.01);
+        cds.main = Date.now() + 45000;
     });
-    tg.showAlert("Request Sent! Awaiting Admin Approval.");
 };
 
-// 5. Admin Dashboard Logic
-window.verifyAdmin = function() {
-    if (document.getElementById('admin-pass').value === "Propetas12") {
-        document.getElementById('admin-auth').classList.add('hidden');
-        document.getElementById('admin-dashboard').classList.remove('hidden');
+window.watchQuickPop = function() {
+    if (Date.now() < cds.pop) return;
+    show_10276123('pop').then(() => {
+        reward(0.0095);
+        cds.pop = Date.now() + 60000;
+    });
+};
+
+window.sendChat = async function() {
+    if (Date.now() < cds.chat) return tg.showAlert("Chat cooldown active!");
+    const msg = document.getElementById('chat-in').value;
+    if(!msg) return;
+
+    tg.showConfirm("Watch 3 Ads to send message & earn ₱0.0186?", async (ok) => {
+        if(ok) {
+            await show_10276123(); // Interstitial 1
+            await show_10276123(); // Interstitial 2
+            await show_10276123(); // Interstitial 3
+            reward(0.0186);
+            push(ref(db, 'chats'), { name: myUsername, msg, time: serverTimestamp() });
+            document.getElementById('chat-in').value = "";
+            cds.chat = Date.now() + 180000;
+        }
+    });
+};
+
+async function reward(amt) {
+    const newBal = (userData.balance || 0) + amt;
+    await update(ref(db, 'users/' + uid), { balance: newBal });
+
+    // 8% Ref Logic
+    if (userData.referredBy) {
+        const bonus = amt * 0.08;
+        const refUidSnap = await get(ref(db, 'usernames/' + userData.referredBy));
+        if (refUidSnap.exists()) {
+            const rUid = refUidSnap.val();
+            const rRef = ref(db, 'users/' + rUid);
+            const rSnap = await get(rRef);
+            if (rSnap.exists()) {
+                update(rRef, { 
+                    balance: (rSnap.val().balance || 0) + bonus,
+                    refEarnings: (rSnap.val().refEarnings || 0) + bonus
+                });
+            }
+        }
+    }
+}
+
+// --- REFERRAL SYSTEM ---
+window.applyReferral = async function() {
+    const code = document.getElementById('ref-code-input').value.trim();
+    if (!code || code === myUsername) return tg.showAlert("Invalid code");
+    if (userData.referredBy) return tg.showAlert("Referral already applied!");
+
+    const checkCode = await get(ref(db, 'usernames/' + code));
+    if (checkCode.exists()) {
+        await update(ref(db, 'users/' + uid), { referredBy: code });
+        tg.showAlert("Referrer Sync Successful!");
+    } else {
+        tg.showAlert("User not found!");
+    }
+};
+
+// --- WITHDRAWAL & ADMIN ---
+window.requestPayout = function() {
+    const amt = parseFloat(document.getElementById('wd-amt').value);
+    const num = document.getElementById('wd-num').value;
+    if (amt < 1.0) return tg.showAlert("Min payout is ₱1.00");
+    if (amt > userData.balance) return tg.showAlert("Insufficient balance");
+
+    const key = push(ref(db, 'withdrawals')).key;
+    update(ref(db, 'users/' + uid), { balance: userData.balance - amt });
+    set(ref(db, 'withdrawals/' + key), {
+        userId: uid, name: myUsername, amount: amt, gcash: num, status: "Pending", time: new Date().toLocaleString()
+    });
+    tg.showAlert("Payout Request Submitted!");
+};
+
+window.authAdmin = function() {
+    if (document.getElementById('adm-pass').value === "Propetas12") {
+        document.getElementById('admin-login').classList.add('hidden');
+        document.getElementById('admin-panel').classList.remove('hidden');
         onValue(ref(db, 'withdrawals'), (snap) => {
-            const list = document.getElementById('admin-wd-list');
+            const list = document.getElementById('admin-requests');
             list.innerHTML = "";
-            snap.forEach(child => {
-                const w = child.val();
-                if (w.status === "Pending") {
+            snap.forEach(c => {
+                const w = c.val();
+                if(w.status === "Pending") {
                     list.innerHTML += `
-                    <div class="glass p-3 rounded">
+                    <div class="glass-card p-3">
                         <p>USER: ${w.name} | GCASH: ${w.gcash}</p>
-                        <p class="text-yellow-400 font-bold">₱${w.amount}</p>
+                        <p class="text-yellow-500 font-bold">₱${w.amount}</p>
                         <div class="flex gap-2 mt-2">
-                            <button onclick="approveWD('${child.key}')" class="bg-green-600 px-3 py-1 rounded">Approve</button>
-                            <button onclick="rejectWD('${child.key}', '${w.userId}', ${w.amount})" class="bg-red-600 px-3 py-1 rounded">Reject</button>
+                            <button onclick="approve('${c.key}')" class="bg-green-600 px-4 py-1 rounded">Approve</button>
+                            <button onclick="deny('${c.key}', '${w.userId}', ${w.amount})" class="bg-red-600 px-4 py-1 rounded">Deny</button>
                         </div>
                     </div>`;
                 }
@@ -195,65 +192,55 @@ window.verifyAdmin = function() {
     }
 };
 
-window.approveWD = (key) => update(ref(db, 'withdrawals/' + key), { status: "Approved" });
-window.rejectWD = async (key, uid, amt) => {
-    const uRef = ref(db, 'users/' + uid);
-    const uSnap = await get(uRef);
-    if (uSnap.exists()) {
-        update(uRef, { balance: uSnap.val().balance + amt });
-    }
-    update(ref(db, 'withdrawals/' + key), { status: "Rejected" });
+window.approve = (key) => update(ref(db, 'withdrawals/' + key), { status: "Approved" });
+window.deny = async (key, userId, amt) => {
+    const uRef = ref(db, 'users/' + userId);
+    const s = await get(uRef);
+    if(s.exists()) update(uRef, { balance: s.val().balance + amt });
+    update(ref(db, 'withdrawals/' + key), { status: "Denied/Refunded" });
 };
 
-// UI Helpers
-window.showSection = (id) => {
-    document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
-    document.getElementById(id + '-sec').classList.remove('hidden');
-    if (id === 'chat') loadChat();
-    if (id === 'profile') loadHistory();
-};
-
-function loadChat() {
-    onValue(query(ref(db, 'chats'), limitToLast(15)), (snap) => {
-        const box = document.getElementById('chat-box');
-        box.innerHTML = "";
-        snap.forEach(c => {
-            box.innerHTML += `<div class="p-1"><b class="text-yellow-500">@${c.val().name}:</b> ${c.val().msg}</div>`;
-        });
-        box.scrollTop = box.scrollHeight;
-    });
-}
-
-function loadHistory() {
-    onValue(ref(db, 'withdrawals'), (snap) => {
-        let h = "";
-        snap.forEach(c => {
-            if (c.val().userId === userId) {
-                const sColor = c.val().status === "Approved" ? "text-green-400" : "text-yellow-500";
-                h += `<div class="glass p-3 rounded-xl flex justify-between text-[10px]">
-                    <span>₱${c.val().amount} - ${c.val().time}</span>
-                    <span class="${sColor}">${c.val().status}</span>
-                </div>`;
-            }
-        });
-        document.getElementById('my-history').innerHTML = h || "<p class='text-center text-xs text-slate-600'>Empty</p>";
-    });
-}
-
-function updateCooldownVisuals() {
+// --- UI LOOP ---
+function loopCooldowns() {
     setInterval(() => {
         const now = Date.now();
-        const mainDiff = Math.ceil((cooldowns.main - now)/1000);
-        const popDiff = Math.ceil((cooldowns.pop - now)/1000);
-        const chatDiff = Math.ceil((cooldowns.chat - now)/1000);
+        const m = Math.max(0, Math.ceil((cds.main - now)/1000));
+        const p = Math.max(0, Math.ceil((cds.pop - now)/1000));
+        const c = Math.max(0, Math.ceil((cds.chat - now)/1000));
         
-        document.getElementById('cd-main').innerText = mainDiff > 0 ? `Ready in ${mainDiff}s` : "";
-        document.getElementById('cd-pop').innerText = popDiff > 0 ? `Wait ${popDiff}s` : "";
-        document.getElementById('cd-chat').innerText = chatDiff > 0 ? `Boost ready in ${chatDiff}s` : "";
-        document.getElementById('btn-main-ad').disabled = mainDiff > 0;
-        document.getElementById('btn-pop-ad').disabled = popDiff > 0;
+        document.getElementById('main-cd').innerText = m > 0 ? `Wait ${m}s` : "";
+        document.getElementById('pop-cd').innerText = p > 0 ? `Wait ${p}s` : "";
+        document.getElementById('chat-cd').innerText = c > 0 ? `Boost Ready in ${c}s` : "Boost Ready!";
+        document.getElementById('main-ad-btn').disabled = m > 0;
+        document.getElementById('pop-ad-btn').disabled = p > 0;
     }, 1000);
 }
 
-init();
+window.showSection = (id) => {
+    document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(id + '-sec').classList.remove('hidden');
+    if(id === 'chat') {
+        onValue(query(ref(db, 'chats'), limitToLast(15)), (snap) => {
+            const box = document.getElementById('chat-msgs'); box.innerHTML = "";
+            snap.forEach(c => { box.innerHTML += `<div><b class="text-yellow-500">@${c.val().name}:</b> ${c.val().msg}</div>`; });
+            box.scrollTop = box.scrollHeight;
+        });
+    }
+    if(id === 'ref') {
+        onValue(ref(db, 'withdrawals'), (snap) => {
+            const list = document.getElementById('wd-history'); list.innerHTML = "";
+            snap.forEach(c => {
+                const w = c.val();
+                if(w.userId === uid) {
+                    list.innerHTML += `<div class="glass-card p-3 flex justify-between text-[10px]">
+                        <span>₱${w.amount} (${w.time})</span>
+                        <span class="${w.status === 'Approved' ? 'text-green-500' : 'text-yellow-500'}">${w.status}</span>
+                    </div>`;
+                }
+            });
+        });
+    }
+};
+
+startApp();
