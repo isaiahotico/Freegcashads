@@ -12,126 +12,162 @@
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
 
     <style>
-        body { background-color: #0b0f1a; color: #e2e8f0; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .btn-reward { background: linear-gradient(135deg, #fbbf24, #d97706); color: #000; font-weight: 800; }
-        .btn-reward:disabled { opacity: 0.5; cursor: not-allowed; }
-        .nav-active { color: #fbbf24; border-top: 3px solid #fbbf24; }
-        #native-ad-container { min-height: 100px; }
+        :root {
+            --gold: #f59e0b;
+            --dark-gold: #78350f;
+        }
+        body {
+            background-color: #451a03;
+            background-image: 
+                linear-gradient(335deg, #78350f 23px, transparent 23px),
+                linear-gradient(155deg, #b45309 23px, transparent 23px),
+                linear-gradient(335deg, #78350f 23px, transparent 23px),
+                linear-gradient(155deg, #b45309 23px, transparent 23px);
+            background-size: 58px 58px;
+            background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+        }
+        .shining-gold {
+            background: linear-gradient(120deg, #f59e0b, #fef3c7, #f59e0b);
+            background-size: 200% auto;
+            animation: shine 3s linear infinite;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+        .glass-card { 
+            background: rgba(0, 0, 0, 0.75); 
+            backdrop-filter: blur(10px); 
+            border: 2px solid var(--gold);
+            border-radius: 1.5rem;
+        }
+        .btn-gold { 
+            background: linear-gradient(to bottom, #fbbf24, #d97706); 
+            color: #000; font-weight: bold; 
+            box-shadow: 0 4px 0 #92400e;
+        }
+        .btn-gold:active { transform: translateY(2px); box-shadow: 0 2px 0 #92400e; }
+        .nav-item.active { color: #fbbf24; }
     </style>
 </head>
 <body class="pb-24">
 
-    <!-- Header -->
-    <header class="p-5 glass sticky top-0 z-50 flex justify-between items-center">
+    <!-- Top Bar -->
+    <header class="p-4 glass-card m-2 flex justify-between items-center sticky top-2 z-50">
         <div>
-            <h1 class="text-sm font-black text-yellow-500 italic">PAPERHOUSE INC</h1>
-            <div class="text-[10px] text-green-400">@<span id="display-username">loading...</span></div>
+            <h1 class="shining-gold text-xl">PAPERHOUSE INC</h1>
+
+            <p class="text-[10px] text-yellow-500 font-bold">@<span id="user-tag">loading...</span></p>
         </div>
         <div class="text-right">
             <p class="text-[10px] text-slate-400 uppercase">Balance</p>
-            <p class="text-lg font-bold text-white">₱<span id="user-balance">0.0000</span></p>
+            <p class="text-xl font-black text-yellow-500">₱<span id="bal">0.0000</span></p>
         </div>
     </header>
 
-    <main class="p-4 space-y-4">
+    <main class="p-3 space-y-4">
         
-        <!-- Native Ad Card (Auto updates every 30m) -->
-        <div id="native-ad-container" class="glass rounded-xl p-2 overflow-hidden">
-            <p class="text-[9px] text-slate-500 mb-1">Sponsored</p>
-            <div id="native-slot"></div>
+        <!-- Native Ad Card Slot -->
+        <div id="native-card" class="glass-card p-2 text-center overflow-hidden min-h-[120px]">
+            <p class="text-[9px] text-yellow-600 mb-1 italic">Exclusive Sponsor</p>
+            <div id="native-container"></div>
         </div>
 
-        <!-- HOME SECTION -->
+        <!-- HOME -->
         <section id="home-sec" class="section-content space-y-4">
-            <div class="glass p-6 rounded-3xl text-center">
-                <h2 class="text-lg font-bold mb-1">Earn ₱0.01</h2>
-                <button id="btn-main-ad" onclick="watchMainAd()" class="btn-reward w-full py-4 rounded-2xl shadow-lg">WATCH AD</button>
-                <p id="cd-main" class="text-[10px] text-red-400 mt-2"></p>
+            <div class="glass-card p-6 text-center">
+                <i class="fas fa-coins text-4xl text-yellow-500 mb-2"></i>
+                <h2 class="text-lg font-bold">Rewarded Interstitial</h2>
+                <p class="text-xs text-slate-400 mb-4">Earn ₱0.0100 per Ad</p>
+                <button id="main-ad-btn" onclick="watchMainAd()" class="btn-gold w-full py-4 rounded-xl">WATCH AD NOW</button>
+                <p id="main-cd" class="text-xs text-red-400 mt-2"></p>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
-
-                <div class="glass p-4 rounded-2xl text-center">
-                    <p class="text-xs font-bold">Quick Pop</p>
-                    <p class="text-[10px] text-slate-400">₱0.0095</p>
-                    <button id="btn-pop-ad" onclick="watchQuickPop()" class="bg-blue-600 text-[10px] px-3 py-1 mt-2 rounded-full">Claim</button>
-                    <p id="cd-pop" class="text-[9px] text-red-400 mt-1"></p>
+                <div class="glass-card p-4 text-center">
+                    <p class="text-xs font-bold">Quick Reward</p>
+                    <p class="text-[10px] text-yellow-600">₱0.0095</p>
+                    <button id="pop-ad-btn" onclick="watchQuickPop()" class="bg-yellow-600 text-black text-[10px] px-4 py-1 mt-2 rounded-full font-bold">CLAIM</button>
+                    <p id="pop-cd" class="text-[10px] text-red-400 mt-1"></p>
                 </div>
-                <div class="glass p-4 rounded-2xl text-center" onclick="showSection('profile')">
-                    <p class="text-xs font-bold">Referral</p>
-                    <p class="text-[10px] text-slate-400">8% Bonus</p>
-                    <span class="text-yellow-500 text-[10px]">Invite Friends</span>
+                <div class="glass-card p-4 text-center" onclick="showSection('ref')">
+                    <p class="text-xs font-bold">Invite Code</p>
+                    <p class="text-[10px] text-yellow-600">Earn 8%</p>
+                    <p class="text-[10px] text-blue-400 mt-2">Open Panel</p>
                 </div>
             </div>
         </section>
 
-        <!-- CHAT SECTION -->
+        <!-- CHAT -->
         <section id="chat-sec" class="section-content hidden space-y-3">
-            <div class="bg-blue-900/20 border border-blue-700/50 p-3 rounded-xl text-[10px]">
-                💬 <b>3X AD BOOST:</b> Send a message to watch 3 Interstitial ads and earn <b>₱0.0186</b>!
-            </div>
-            <div class="glass h-[300px] rounded-2xl flex flex-col">
-                <div id="chat-box" class="flex-grow overflow-y-auto p-4 space-y-2 text-sm"></div>
-                <div class="p-3 flex gap-2">
-                    <input type="text" id="chat-input" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 flex-grow outline-none text-xs" placeholder="Type message...">
-                    <button id="btn-chat-send" onclick="sendChatMessage()" class="bg-yellow-500 text-black px-4 rounded-lg"><i class="fas fa-paper-plane"></i></button>
-                </div>
-                <p id="cd-chat" class="text-center text-[9px] text-red-400 pb-2"></p>
-            </div>
-        </section>
-
-        <!-- PROFILE / REFERRAL SECTION -->
-        <section id="profile-sec" class="section-content hidden space-y-4">
-            <div class="glass p-5 rounded-2xl">
-                <h3 class="text-yellow-500 font-bold text-sm mb-2">REFERRAL SYSTEM (8%)</h3>
-                <p class="text-[10px] text-slate-400 mb-3">Share your link and earn 8% of all your friends' ad earnings forever!</p>
-                <div class="bg-slate-900 p-2 rounded text-[10px] break-all border border-slate-700" id="ref-link">loading...</div>
-                <div class="mt-3 flex justify-between text-xs">
-                    <span>Total Ref Earnings:</span>
-                    <span class="text-green-400 font-bold">₱<span id="total-ref-earn">0.00</span></span>
+            <div class="glass-card h-[350px] flex flex-col overflow-hidden">
+                <div id="chat-msgs" class="flex-grow overflow-y-auto p-4 space-y-3 text-sm"></div>
+                <div class="p-3 bg-black/50 flex gap-2">
+                    <input type="text" id="chat-in" class="bg-slate-900 border border-yellow-900 rounded-lg px-3 py-2 flex-grow text-xs" placeholder="Message to watch 3 ads...">
+                    <button onclick="sendChat()" class="btn-gold px-4 rounded-lg"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
-
-            <div class="glass p-5 rounded-2xl">
-                <h3 class="text-white font-bold text-sm mb-4">WITHDRAW (Min ₱1.00)</h3>
-                <input type="number" id="wd-amount" placeholder="Amount" class="w-full bg-slate-900 p-3 rounded-xl mb-2 text-xs outline-none">
-                <input type="text" id="wd-gcash" placeholder="GCash Number" class="w-full bg-slate-900 p-3 rounded-xl mb-4 text-xs outline-none">
-                <button onclick="submitWithdrawal()" class="btn-reward w-full py-3 rounded-xl text-xs">SUBMIT GCASH REQUEST</button>
-            </div>
-
-            <h3 class="text-xs font-bold px-1 uppercase tracking-widest text-slate-500">Payout History</h3>
-            <div id="my-history" class="space-y-2"></div>
+            <p id="chat-cd" class="text-center text-xs text-red-400"></p>
         </section>
 
-        <!-- ADMIN SECTION -->
+        <!-- REFERRAL & WITHDRAW -->
+        <section id="ref-sec" class="section-content hidden space-y-4">
+            <div class="glass-card p-5">
+                <h3 class="shining-gold text-sm mb-3">REFERRAL CODE</h3>
+                <p class="text-[11px] text-slate-400 mb-2">Enter your friend's username to give them 8% commission on your earnings.</p>
+                <div class="flex gap-2">
+                    <input type="text" id="ref-code-input" class="bg-slate-900 border border-slate-700 rounded-lg p-2 flex-grow text-xs" placeholder="Enter Username (e.g. JohnDoe)">
+                    <button onclick="applyReferral()" class="btn-gold px-4 py-2 rounded-lg text-xs">Apply</button>
+                </div
+
+>
+                <div class="mt-4 flex justify-between items-center text-xs border-t border-yellow-900 pt-3">
+                    <span>Your Code: <b class="text-yellow-500" id="my-code-display">...</b></span>
+                    <span>Bonus: <b class="text-green-400">₱<span id="ref-bonus-total">0.00</span></b></span>
+                </div>
+            </div>
+
+            <div class="glass-card p-5">
+                <h3 class="shining-gold text-sm mb-4">GCASH WITHDRAWAL</h3>
+                <input type="number" id="wd-amt" placeholder="Amount (Min 1.00)" class="w-full bg-slate-900 p-3 rounded-lg mb-2 text-xs">
+                <input type="text" id="wd-num" placeholder="GCash Number" class="w-full bg-slate-900 p-3 rounded-lg mb-4 text-xs">
+                <button onclick="requestPayout()" class="btn-gold w-full py-3 rounded-lg">SUBMIT PAYOUT</button>
+            </div>
+
+            <h3 class="text-xs font-bold text-yellow-700 px-1 uppercase">Transaction History</h3>
+            <div id="wd-history" class="space-y-2"></div>
+        </section>
+
+        <!-- ADMIN -->
         <section id="admin-sec" class="section-content hidden space-y-4">
-            <div id="admin-auth" class="glass p-6 rounded-2xl">
-                <input type="password" id="admin-pass" placeholder="A
-
-dmin Password" class="w-full bg-slate-900 p-3 rounded-xl mb-3 outline-none">
-                <button onclick="verifyAdmin()" class="bg-white text-black w-full py-2 rounded-xl font-bold">Login</button>
+            <div id="admin-login" class="glass-card p-6">
+                <input type="password" id="adm-pass" placeholder="Password" class="w-full bg-slate-900 p-3 rounded-lg mb-3">
+                <button onclick="authAdmin()" class="btn-gold w-full py-2 rounded-lg">LOGIN</button>
             </div>
-            <div id="admin-dashboard" class="hidden space-y-4">
-                <h2 class="font-black text-red-500 text-sm italic">MANUAL APPROVALS</h2>
-                <div id="admin-wd-list" class="space-y-2 text-[10px]"></div>
+            <div id="admin-panel" class="hidden space-y-3">
+                <h2 class="text-red-500 font-bold">MANUAL APPROVALS</h2>
+                <div id="admin-requests" class="space-y-2 text-[10px]"></div>
             </div>
         </section>
+
     </main>
 
     <!-- Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 glass border-t border-slate-800 flex justify-around items-center h-16 z-50">
-        <button onclick="showSection('home')" class="nav-btn nav-active flex flex-col items-center flex-1">
-            <i class="fas fa-home text-sm"></i><span class="text-[9px]">Home</span>
+    <nav class="fixed bottom-0 left-0 right-0 glass-card mx-2 mb-2 flex justify-around items-center h-16 z-50">
+        <button onclick="showSection('home')" class="nav-item flex flex-col items-center flex-1">
+            <i class="fas fa-home text-lg"></i><span class="text-[10px]">Home</span>
         </button>
-        <button onclick="showSection('chat')" class="nav-btn flex flex-col items-center flex-1">
-            <i class="fas fa-comment text-sm"></i><span class="text-[9px]">Chat</span>
+        <button onclick="showSection('chat')" class="nav-item flex flex-col items-center flex-1">
+            <i class="fas fa-comments text-lg"></i><span class="text-[10px]">Chat</span>
         </button>
-        <button onclick="showSection('profile')" class="nav-btn flex flex-col items-center flex-1">
-            <i class="fas fa-user-friends text-sm"></i><span class="text-[9px]">Refer</span>
+        <button onclick="showSection('ref')" class="nav-item flex flex-col items-center flex-1">
+            <i class="fas fa-wallet text-lg"></i><span class="text-[10px]">Wallet</span>
         </button>
-        <button onclick="showSection('admin')" class="nav-btn flex flex-col items-center flex-1">
-            <i class="fas fa-tools text-sm"></i><span class="text-[9px]">Admin</span>
+        <button onclick="showSection('admin')" class="nav-item flex flex-col items-center flex-1">
+            <i class="fas fa-user-shield text-lg"></i><span class="text-[10px]">Admin</span>
         </button>
     </nav>
 
