@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Monetag SDK -->
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
+
     <style>
         body { background: #020617; color: #e2e8f0; font-family: 'Inter', sans-serif; }
         .gold-gradient { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
@@ -52,13 +55,41 @@
                     <p class="text-slate-400 text-sm mb-1">Available to Withdraw</p>
                     <h1 id="big-balance" class="text-5xl font-black text-white mb-6">₱0.00</h1>
                     <div id="cooldown-box" class="hidden mb-4 text-xs font-bold text-yellow-500 bg-yellow-500/10 py-2 rounded-full">
-                        NEXT AD IN: <span id="ad-timer">30</span>s
+                        NEXT AD IN: <span id="ad-timer">05</span>s
                     </div>
                     <button onclick="app.requestWithdraw()" class="w-full py-3 rounded-xl bg-white text-black font-bold text-sm">CASH OUT NOW</button>
                 </div>
 
                 <!-- Ad Buttons -->
                 <div class="grid grid-cols-2 gap-4" id="ad-container">
+                    <button onclick="app.playAd('inter')" class="ad-btn glass p-6 rounded-3xl flex flex-col items-center hover:bg-slate-800 transition">
+                        <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mb-3">
+                            <i class="fas fa-bolt text-blue-400 text-xl"></i>
+                        </div>
+                        <span class="font-bold text-sm">Turbo Ad</span>
+                        <span class="text-[10px] text-slate-500">Earn ₱0.01</span>
+                    </button>
+                    <button onclick="app.playAd('pop')" class="ad-btn glass p-6 rounded-3xl flex flex-col items-center hover:bg-slate-800 transition">
+                        <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-3">
+                            <i class="fas fa-rocket text-purple-400 text-xl"></i>
+                        </div>
+                        <span class="font-bold text-sm">Premium Ad</span>
+                        <span class="text-[10px] text-slate-500">Earn ₱0.01</span>
+                    </button>
+                    <button onclick="app.playAd('inter')" class="ad-btn glass p-6 rounded-3xl flex flex-col items-center hover:bg-slate-800 transition">
+                        <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mb-3">
+                            <i class="fas fa-bolt text-blue-400 text-xl"></i>
+                        </div>
+                        <span class="font-bold text-sm">Turbo Ad</span>
+                        <span class="text-[10px] text-slate-500">Earn ₱0.01</span>
+                    </button>
+                    <button onclick="app.playAd('pop')" class="ad-btn glass p-6 rounded-3xl flex flex-col items-center hover:bg-slate-800 transition">
+                        <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-3">
+                            <i class="fas fa-rocket text-purple-400 text-xl"></i>
+                        </div>
+                        <span class="font-bold text-sm">Premium Ad</span>
+                        <span class="text-[10px] text-slate-500">Earn ₱0.01</span>
+                    </button>
                     <button onclick="app.playAd('inter')" class="ad-btn glass p-6 rounded-3xl flex flex-col items-center hover:bg-slate-800 transition">
                         <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center mb-3">
                             <i class="fas fa-bolt text-blue-400 text-xl"></i>
