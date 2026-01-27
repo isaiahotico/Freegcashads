@@ -38,14 +38,7 @@ const app = {
         
         // Monetag In-App
         show_10276123({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
-    
-        show_10337853({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
-    
-        show_10337795({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
-    
-                                                       
     },
-
 
     register: async () => {
         const name = document.getElementById('reg-name').value.trim();
@@ -103,8 +96,7 @@ const app = {
         if (cooldownTime > 0) return;
 
         const adPromise = (type === 'inter') ? show_10276123() : show_10276123('pop');
-        const adPromise = (type === 'inter') ? show_10337853() : show_10337853('pop');
-        const adPromise = (type === 'inter') ? show_10337795() : show_10337795('pop'); 
+        
         adPromise.then(() => {
             app.rewardLogic();
             app.startCooldown();
@@ -139,7 +131,7 @@ const app = {
     },
 
     startCooldown: () => {
-        cooldownTime = 39;
+        cooldownTime = 30;
         document.getElementById('ad-container').classList.add('cooldown-active');
         document.getElementById('cooldown-box').classList.remove('hidden');
         
@@ -155,7 +147,7 @@ const app = {
     },
 
     requestWithdraw: async () => {
-        if (currentUser.balance < 0.02) return alert("Minimum withdrawal is ₱0.02");
+        if (currentUser.balance < 1.00) return alert("Minimum withdrawal is ₱1.00");
         
         const req = {
             uid: userId,
