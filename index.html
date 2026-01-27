@@ -1,3 +1,4 @@
+ChatGPT | Midjourney:
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,8 +9,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Monetag SDK -->
     <script src='//libtl.com/sdk.js' data-zone='10276123' data-sdk='show_10276123'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337795' data-sdk='show_10337795'></script>
-    <script src='//libtl.com/sdk.js' data-zone='10337853' data-sdk='show_10337853'></script>
     <style>
         body { background: #020617; color: #e2e8f0; font-family: 'Inter', sans-serif; }
         .gold-gradient { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
@@ -42,7 +41,7 @@
             <div class="text-right">
 
                 <p class="text-[10px] text-slate-400 uppercase font-bold">Balance</p>
-                <h2 id="balance-display" class="text-xl font-black text-white">₱0.0000</h2>
+                <h2 id="balance-display" class="text-xl font-black text-white">₱0.00</h2>
             </div>
         </header>
 
@@ -52,9 +51,9 @@
                 <div class="glass rounded-[2rem] p-8 text-center relative overflow-hidden">
                     <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-wallet text-6xl"></i></div>
                     <p class="text-slate-400 text-sm mb-1">Available to Withdraw</p>
-                    <h1 id="big-balance" class="text-5xl font-black text-white mb-6">₱0.0000</h1>
+                    <h1 id="big-balance" class="text-5xl font-black text-white mb-6">₱0.00</h1>
                     <div id="cooldown-box" class="hidden mb-4 text-xs font-bold text-yellow-500 bg-yellow-500/10 py-2 rounded-full">
-                        NEXT AD IN: <span id="ad-timer">40</span>s
+                        NEXT AD IN: <span id="ad-timer">30</span>s
                     </div>
                     <button onclick="app.requestWithdraw()" class="w-full py-3 rounded-xl bg-white text-black font-bold text-sm">CASH OUT NOW</button>
                 </div>
@@ -96,9 +95,7 @@
                         <p class="text-[10px] text-slate-400">Total Referrals</p>
                         <p id="ref-count" class="text-xl font-bold">0</p>
                     </div>
-                    <div class="gl
-
-ass p-4 rounded-2xl text-center">
+                    <div class="glass p-4 rounded-2xl text-center">
                         <p class="text-[10px] text-slate-400">Total Commissions</p>
                         <p id="ref-earnings" class="text-xl font-bold text-green-400">₱0.00</p>
                     </div>
