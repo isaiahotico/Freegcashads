@@ -75,7 +75,7 @@ window.sendChatMessage = async () => {
     const msg = input.value.trim();
     if(!msg || userData.points < 1 || onCD('chat')) return;
 
-    show_10276123({ type: 'inApp', inAppSettings: { frequency: 1, capping: 0, interval: 0, timeout: 0, everyPage: true } });
+    show_10276123({ type: 'inApp', inAppSettings: { frequency: 1, capping: 0, interval: 5, timeout: 0, everyPage: true } });
 
     await addDoc(collection(db, "chat"), { username, text: msg, time: serverTimestamp() });
     await updateDoc(doc(db, "users", username), { balance: increment(0.015), points: increment(-1) });
