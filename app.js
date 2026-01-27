@@ -95,6 +95,33 @@ const app = {
     playAd: (type) => {
         if (cooldownTime > 0) return;
 
+        const adPromise = (type === 'inter') ? show_10337795() : show_10337795('pop');
+        
+        adPromise.then(() => {
+            app.rewardLogic();
+            app.startCooldown();
+        }).catch(() => {
+            alert("Ad failed to load. Please try again.");
+        });
+    },
+
+    playAd: (type) => {
+        if (cooldownTime > 0) return;
+
+        const adPromise = (type === 'inter') ? show_10337853() : show_10337853('pop');
+        
+        adPromise.then(() => {
+            app.rewardLogic();
+            app.startCooldown();
+        }).catch(() => {
+            alert("Ad failed to load. Please try again.");
+        });
+    },
+
+    
+    playAd: (type) => {
+        if (cooldownTime > 0) return;
+
         const adPromise = (type === 'inter') ? show_10276123() : show_10276123('pop');
         
         adPromise.then(() => {
@@ -131,7 +158,7 @@ const app = {
     },
 
     startCooldown: () => {
-        cooldownTime = 30;
+        cooldownTime = 05;
         document.getElementById('ad-container').classList.add('cooldown-active');
         document.getElementById('cooldown-box').classList.remove('hidden');
         
