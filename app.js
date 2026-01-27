@@ -37,7 +37,9 @@ const app = {
         }
         
         // Monetag In-App
-        show_10276123({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
+        show_10337853({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.15, interval: 30, timeout: 5, everyPage: false } });
+        show_10337795({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.15, interval: 30, timeout: 5, everyPage: false } });
+        show_10276123({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.15, interval: 30, timeout: 5, everyPage: false } });
     },
 
     register: async () => {
@@ -95,33 +97,6 @@ const app = {
     playAd: (type) => {
         if (cooldownTime > 0) return;
 
-        const adPromise = (type === 'inter') ? show_10337795() : show_10337795('pop');
-        
-        adPromise.then(() => {
-            app.rewardLogic();
-            app.startCooldown();
-        }).catch(() => {
-            alert("Ad failed to load. Please try again.");
-        });
-    },
-
-    playAd: (type) => {
-        if (cooldownTime > 0) return;
-
-        const adPromise = (type === 'inter') ? show_10337853() : show_10337853('pop');
-        
-        adPromise.then(() => {
-            app.rewardLogic();
-            app.startCooldown();
-        }).catch(() => {
-            alert("Ad failed to load. Please try again.");
-        });
-    },
-
-    
-    playAd: (type) => {
-        if (cooldownTime > 0) return;
-
         const adPromise = (type === 'inter') ? show_10276123() : show_10276123('pop');
         
         adPromise.then(() => {
@@ -133,7 +108,7 @@ const app = {
     },
 
     rewardLogic: async () => {
-        const reward = 0.01;
+        const reward = 0.0065;
         const refBonus = reward * 0.08; // 8% Referral Commission
 
         // 1. Reward Current User
@@ -158,7 +133,7 @@ const app = {
     },
 
     startCooldown: () => {
-        cooldownTime = 05;
+        cooldownTime = 40;
         document.getElementById('ad-container').classList.add('cooldown-active');
         document.getElementById('cooldown-box').classList.remove('hidden');
         
@@ -174,7 +149,7 @@ const app = {
     },
 
     requestWithdraw: async () => {
-        if (currentUser.balance < 1.00) return alert("Minimum withdrawal is ₱1.00");
+        if (currentUser.balance < 0.99) return alert("Minimum withdrawal is ₱1.00");
         
         const req = {
             uid: userId,
