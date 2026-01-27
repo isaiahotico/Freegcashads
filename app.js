@@ -115,6 +115,27 @@ const app = {
             balance: parseFloat(newBalance.toFixed(4)),
             totalAds: (currentUser.totalAds || 0) + 1
         });
+         // Leaderboard
+    loadLeaderboard: () => {
+        const lbRef = query(ref(db, 'users'), orderByChild('balance'), limitToLast(200)); // Top 200
+        onValue(lbRef, (snapshot) => {
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = "";
+            let users = [];
+            snapshot.forEach(child => { users.push(child.val()); });
+            users.sort((a, b) => b.balance - a.balance).forEach((u, i) => { // Re-sort in JS if limitToLast is not enough
+                list.innerHTML += `
+                    <div class="glass p-4 rounded-xl flex justify-between items-center">
+                        <span class="flex items-center gap-2">#${i+1} 
+                            <button onclick="app.showUserProfile('${u.uid}')" class="font-bold text-white hover:text-yellow-500">${u.username}</button>
+                        </span>
+                        <span class="text-green-400 font-bold">₱${u.balance.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+            if (users.length === 0) list.innerHTML = `<p class="text-center text-slate-500 py-10">No users yet.</p>`;
+        });
+    },
 
         // 2. Reward Upliner (Referral System)
         if (currentUser.referredBy) {
