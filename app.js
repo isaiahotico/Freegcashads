@@ -38,10 +38,12 @@ const app = {
         
         // Monetag In-App
         show_10276123({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
-    },
+    
         show_10337853({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
-    },
-        show_10337795{ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
+    
+        show_10337795({ type: 'inApp', inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false } });
+    
+                                                       
     },
 
 
@@ -100,8 +102,9 @@ const app = {
     playAd: (type) => {
         if (cooldownTime > 0) return;
 
-        const adPromise = (type === 'inter') ? show_10276123() : show_10337853() : show_10337795() : show_10276123('pop');
-        
+        const adPromise = (type === 'inter') ? show_10276123() : show_10276123('pop');
+        const adPromise = (type === 'inter') ? show_10337853() : show_10337853('pop');
+        const adPromise = (type === 'inter') ? show_10337795() : show_10337795('pop'); 
         adPromise.then(() => {
             app.rewardLogic();
             app.startCooldown();
