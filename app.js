@@ -349,24 +349,24 @@ const app = {
     },
 
     // Leaderboard
+    if (section === 'leaderboard') app.loadLeaderboard();
+    },
+
     loadLeaderboard: () => {
-        const lbRef = query(ref(db, 'users'), orderByChild('balance'), limitToLast(200)); // Top 200
+        const lbRef = query(ref(db, 'users'), orderByChild('balance'), limitToLast(10));
         onValue(lbRef, (snapshot) => {
             const list = document.getElementById('leaderboard-list');
             list.innerHTML = "";
             let users = [];
             snapshot.forEach(child => { users.push(child.val()); });
-            users.sort((a, b) => b.balance - a.balance).forEach((u, i) => { // Re-sort in JS if limitToLast is not enough
+            users.reverse().forEach((u, i) => {
                 list.innerHTML += `
                     <div class="glass p-4 rounded-xl flex justify-between items-center">
-                        <span class="flex items-center gap-2">#${i+1} 
-                            <button onclick="app.showUserProfile('${u.uid}')" class="font-bold text-white hover:text-yellow-500">${u.username}</button>
-                        </span>
+                        <span>#${i+1} ${u.username}</span>
                         <span class="text-green-400 font-bold">₱${u.balance.toFixed(2)}</span>
                     </div>
                 `;
             });
-            if (users.length === 0) list.innerHTML = `<p class="text-center text-slate-500 py-10">No users yet.</p>`;
         });
     },
 
