@@ -208,7 +208,7 @@ const app = {
     },
 
     requestWithdraw: async () => {
-        if (currentUser.balance < 1) return alert("Minimum withdrawal is ₱1");
+        if (currentUser.balance < 1.00) return alert("Minimum withdrawal is ₱1.00");
         
         const req = {
             uid: userId,
