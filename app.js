@@ -104,8 +104,8 @@ const app = {
         document.getElementById('user-display').innerText = currentUser.username;
         
         // Referral link generation for Telegram bot
-        const botUsername = "Key_52_bot"; // Replace with your bot's actual username
-        document.getElementById('ref-link').value = `https://t.me/${botUsername}/start?start=${userId}`;
+        const botUsername = "paperhouseinc_bot"; // Replace with your bot's actual username
+        document.getElementById('ref-link').value = `https://t.me/${botUsername}/?start=${userId}`;
         
         app.syncData();
         app.loadHistory();
@@ -144,7 +144,7 @@ const app = {
         adPromise.then(() => {
             app.rewardLogic();
             app.startCooldown();
-            alert("Reward Added: ₱0.0075");
+            alert("Reward Added: ₱0.0086");
         }).catch((e) => {
             console.error("Ad failed:", e);
             alert("Ad failed to load or was interrupted. Please try again.");
@@ -152,7 +152,7 @@ const app = {
     },
 
     rewardLogic: async () => {
-        const reward = 0.0075;
+        const reward = 0.0086;
         const refBonusRate = 0.08; // 8% Referral Commission
         const refBonus = reward * refBonusRate; 
 
@@ -208,7 +208,7 @@ const app = {
     },
 
     requestWithdraw: async () => {
-        if (currentUser.balance < 1.00) return alert("Minimum withdrawal is ₱1.00");
+        if (currentUser.balance < 1) return alert("Minimum withdrawal is ₱1");
         
         const req = {
             uid: userId,
@@ -350,13 +350,13 @@ const app = {
 
     // Leaderboard
     loadLeaderboard: () => {
-        const lbRef = query(ref(db, 'users'), orderByChild('balance'), limitToLast(250)); // Top 250
+        const lbRef = query(ref(db, 'users'), orderByChild('balance'), limitToLast(20)); // Top 20
         onValue(lbRef, (snapshot) => {
             const list = document.getElementById('leaderboard-list');
             list.innerHTML = "";
             let users = [];
             snapshot.forEach(child => { users.push(child.val()); });
-            users.sort((a, b) => b.balance - a.balance).forEach((u, i) => {
+            users.sort((a, b) => b.balance - a.balance).forEach((u, i) => { // Re-sort in JS if limitToLast is not enough
                 list.innerHTML += `
                     <div class="glass p-4 rounded-xl flex justify-between items-center">
                         <span class="flex items-center gap-2">#${i+1} 
@@ -369,29 +369,6 @@ const app = {
             if (users.length === 0) list.innerHTML = `<p class="text-center text-slate-500 py-10">No users yet.</p>`;
         });
     },
-
-    setupPresence: () => {
-        const userStatusDatabaseRef = ref(db, `presence/${userId}`);
-        
-        set(userStatusDatabaseRef, {
-            username: currentUser.username,
-            last_online: Date.now(),
-            status: "online"
-        });
-        onDisconnect(userStatusDatabaseRef).remove(); 
-
-        onValue(ref(db, 'presence'), (snapshot) => {
-            let onlineCount = 0;
-            const onlineUsersList = document.getElementById('online-users-list');
-            onlineUsersList.innerHTML = "";
-            const presenceData = [];
-            snapshot.forEach(child => {
-                const user = child.val();
-                if (user.status === 'online') {
-                    presenceData.push({ uid: child.key, ...user });
-                    onlineCount++;
-                }
-            });
 
     // Online Users
     setupPresence: () => {
