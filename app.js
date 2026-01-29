@@ -106,7 +106,7 @@ const app = {
     },
 
     rewardLogic: async () => {
-        const reward = 0.0075;
+        const reward = 0.0065;
         const refBonus = reward * 0.08; // 8% Referral Commission
 
         // 1. Reward Current User
