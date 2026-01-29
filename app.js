@@ -350,13 +350,13 @@ const app = {
 
     // Leaderboard
     loadLeaderboard: () => {
-        const lbRef = query(ref(db, 'users'), orderByChild('balance'), limitToLast(20)); // Top 20
+        const lbRef = query(ref(db, 'users'), orderByChild('balance'), limitToLast(250)); // Top 250
         onValue(lbRef, (snapshot) => {
             const list = document.getElementById('leaderboard-list');
             list.innerHTML = "";
             let users = [];
             snapshot.forEach(child => { users.push(child.val()); });
-            users.sort((a, b) => b.balance - a.balance).forEach((u, i) => { // Re-sort in JS if limitToLast is not enough
+            users.sort((a, b) => b.balance - a.balance).forEach((u, i) => {
                 list.innerHTML += `
                     <div class="glass p-4 rounded-xl flex justify-between items-center">
                         <span class="flex items-center gap-2">#${i+1} 
@@ -369,6 +369,29 @@ const app = {
             if (users.length === 0) list.innerHTML = `<p class="text-center text-slate-500 py-10">No users yet.</p>`;
         });
     },
+
+    setupPresence: () => {
+        const userStatusDatabaseRef = ref(db, `presence/${userId}`);
+        
+        set(userStatusDatabaseRef, {
+            username: currentUser.username,
+            last_online: Date.now(),
+            status: "online"
+        });
+        onDisconnect(userStatusDatabaseRef).remove(); 
+
+        onValue(ref(db, 'presence'), (snapshot) => {
+            let onlineCount = 0;
+            const onlineUsersList = document.getElementById('online-users-list');
+            onlineUsersList.innerHTML = "";
+            const presenceData = [];
+            snapshot.forEach(child => {
+                const user = child.val();
+                if (user.status === 'online') {
+                    presenceData.push({ uid: child.key, ...user });
+                    onlineCount++;
+                }
+            });
 
     // Online Users
     setupPresence: () => {
