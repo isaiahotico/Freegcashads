@@ -131,7 +131,7 @@ const app = {
     },
 
     startCooldown: () => {
-        cooldownTime = 30;
+        cooldownTime = 39;
         document.getElementById('ad-container').classList.add('cooldown-active');
         document.getElementById('cooldown-box').classList.remove('hidden');
         
