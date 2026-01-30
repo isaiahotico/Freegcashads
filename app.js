@@ -95,7 +95,7 @@ const app = {
     playAd: (type) => {
         if (cooldownTime > 0) return;
 
-        const adPromise = (type === 'inter') ? show_10276123() : show_10276123('pop');
+        const adPromise = (type === 'inter') ? show_10276123() : show_10276123();
         
         adPromise.then(() => {
             app.rewardLogic();
