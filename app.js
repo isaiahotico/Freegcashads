@@ -127,34 +127,30 @@ async function creditReward() {
     });
 }
 
-// Chat System (As requested)
+// Chat System
 window.sendMessage = () => {
     const text = document.getElementById('chat-input').value;
     if (!text) return;
     push(ref(db, 'chat'), {
-        user: username,
-        uid: userId,
+        user: userId,
         msg: text,
         timestamp: Date.now()
     });
     document.getElementById('chat-input').value = '';
 };
 
-function loadChat() {
-    onValue(query(ref(db, 'chat'), limitToLast(20)), (snapshot) => {
-        const chatBox = document.getElementById('chat-box');
-        chatBox.innerHTML = '';
-        snapshot.forEach(child => {
-            const data = child.val();
-            chatBox.innerHTML += `
-                <div class="bg-white/5 p-2 rounded-xl">
-                    <span class="text-cyan-400 text-[10px] font-bold cursor-pointer" onclick="viewUser('${data.uid}')">@${data.user}:</span> 
-                    <p class="text-sm text-gray-200">${data.msg}</p>
-                </div>`;
-        });
-        chatBox.scrollTop = chatBox.scrollHeight;
+onValue(query(ref(db, 'chat'), limitToLast(20)), (snapshot) => {
+    const chatBox = document.getElementById('chat-box');
+    chatBox.innerHTML = '';
+    snapshot.forEach(child => {
+        const data = child.val();
+        chatBox.innerHTML += `<div class="bg-white/5 p-2 rounded">
+            <span class="text-cyan-400 text-xs font-bold">${data.user}:</span> 
+            <span class="text-sm">${data.msg}</span>
+        </div>`;
     });
-}
+    chatBox.scrollTop = chatBox.scrollHeight;
+});
 
 // History Logic (As requested)
 function loadHistory() {
