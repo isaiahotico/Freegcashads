@@ -325,7 +325,7 @@ window.requestWithdrawal = function() {
     const gcash = document.getElementById('gcash-num').value;
     const amount = parseFloat(document.getElementById('wd-amount').value);
     
-    if(amount < 0.02) return tg.showAlert("Minimum withdrawal is ₱1");
+    if(amount < 0.994) return tg.showAlert("Minimum withdrawal is ₱1");
     if(amount > userBalance) return tg.showAlert("Insufficient balance!");
     if(gcash.length < 10) return tg.showAlert("Enter valid GCash number");
 
