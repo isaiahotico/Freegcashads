@@ -14,7 +14,7 @@ const firebaseConfig = {
 };
 
 const HIGH_REWARD = 0.0065;
-const RANDOM_REWARD = 0.0012;
+const RANDOM_REWARD = 0.012;
 const HIGH_COOLDOWN_MS = 30 * 1000; // 30 seconds
 const RANDOM_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
 const INITIAL_AD_COOLDOWN_MS = 3 * 60 * 1000; // 3 minutes
@@ -247,7 +247,7 @@ window.watchHighRewardAd = function() {
     });
 };
 
-// 2. Random Popup Reward Ad (0.0012, 10 min cooldown)
+// 2. Random Popup Reward Ad (0.012, 10 min cooldown)
 window.watchRandomRewardAd = function() {
     if (Date.now() - lastRandomReward < RANDOM_COOLDOWN_MS) {
         return tg.showAlert("Please wait for the 10-minute cooldown.");
