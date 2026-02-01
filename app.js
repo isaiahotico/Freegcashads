@@ -13,7 +13,7 @@ const firebaseConfig = {
     appId: "1:608086825364:web:3a8e628d231b52c6171781"
 };
 
-const HIGH_REWARD = 0.0102;
+const HIGH_REWARD = 0.0065;
 const RANDOM_REWARD = 0.012;
 const HIGH_COOLDOWN_MS = 30 * 1000; // 30 seconds
 const RANDOM_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
