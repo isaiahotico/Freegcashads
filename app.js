@@ -20,9 +20,9 @@ const RANDOM_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
 const INITIAL_AD_COOLDOWN_MS = 3 * 60 * 1000; // 3 minutes
 
 const AD_ZONES = [
-    'show_10276123',
-    'show_10337853',
-    'show_10337795'
+    'show_10555663',
+    'show_10555746',
+    'show_10555727'
      ];
 
 const PSYCHOLOGICAL_TIPS = [
