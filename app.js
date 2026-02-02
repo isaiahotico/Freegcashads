@@ -13,17 +13,15 @@ const firebaseConfig = {
     appId: "1:608086825364:web:3a8e628d231b52c6171781"
 };
 
-const HIGH_REWARD = 0.0102;
+const HIGH_REWARD = 0.0065;
 const RANDOM_REWARD = 0.012;
 const HIGH_COOLDOWN_MS = 30 * 1000; // 30 seconds
 const RANDOM_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
 const INITIAL_AD_COOLDOWN_MS = 3 * 60 * 1000; // 3 minutes
 
 const AD_ZONES = [
-    'show_10276123', 
-    'show_10337795', 
-    'show_10337853'
-];
+    'show_10276123' 
+     ];
 
 const PSYCHOLOGICAL_TIPS = [
     "Tip: Consistency is key. Small earnings daily build a big balance!",
