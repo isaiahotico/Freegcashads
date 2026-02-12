@@ -13,11 +13,11 @@ const firebaseConfig = {
     appId: "1:608086825364:web:3a8e628d231b52c6171781"
 };
 
-const HIGH_REWARD = 0.0102;
-const RANDOM_REWARD = 0.012;
-const HIGH_COOLDOWN_MS = 30 * 1000; // 30 seconds
-const RANDOM_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
-const INITIAL_AD_COOLDOWN_MS = 3 * 60 * 1000; // 3 minutes
+const HIGH_REWARD = 0.0820;
+const RANDOM_REWARD = 0.076;
+const HIGH_COOLDOWN_MS = 7200 * 1000; // 30 seconds
+const RANDOM_COOLDOWN_MS = 120 * 60 * 1000; // 120 minutes
+const INITIAL_AD_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
 
 const AD_ZONES = [
     'show_10555663',
@@ -211,9 +211,9 @@ function showInitialAd() {
         adFunction({
             type: 'inApp',
             inAppSettings: {
-                frequency: 2, 
+                frequency: 5, 
                 capping: 0.1,
-                interval: 30,
+                interval: 45,
                 timeout: 5,
                 everyPage: false
             }
@@ -231,7 +231,7 @@ function showInitialAd() {
 // 1. High Reward Ad (0.0065, 30s cooldown)
 window.watchHighRewardAd = function() {
     if (Date.now() - lastHighReward < HIGH_COOLDOWN_MS) {
-        return tg.showAlert("Please wait for the 30-second cooldown.");
+        return tg.showAlert("Please wait for the 7200-second cooldown.");
     }
     
     tg.MainButton.setText("LOADING AD...").show();
@@ -250,7 +250,7 @@ window.watchHighRewardAd = function() {
 // 2. Random Popup Reward Ad (0.012, 10 min cooldown)
 window.watchRandomRewardAd = function() {
     if (Date.now() - lastRandomReward < RANDOM_COOLDOWN_MS) {
-        return tg.showAlert("Please wait for the 10-minute cooldown.");
+        return tg.showAlert("Please wait for the 120-minute cooldown.");
     }
 
     tg.MainButton.setText("LOADING REWARD...").show();
