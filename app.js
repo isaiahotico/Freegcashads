@@ -15,7 +15,7 @@ const firebaseConfig = {
 
 const HIGH_REWARD = 0.0101;
 const RANDOM_REWARD = 0.0760;
-const HIGH_COOLDOWN_MS = 100 * 1000; // 10 seconds
+const HIGH_COOLDOWN_MS = 10 * 1000; // 10 seconds
 const RANDOM_COOLDOWN_MS = 20 * 60 * 1000; // 20 minutes
 const INITIAL_AD_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
 
