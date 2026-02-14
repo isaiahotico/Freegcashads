@@ -138,7 +138,65 @@ Daily ad Schedule of reward  1:00pm-6:00pm=0.0102 per ad 6:01pm-7:00am=0.0065 pe
     </div>
 
     <div class="container mx-auto p-4">
-        
+        <!-- Smart Floating Ad Card with "Help People" Button -->
+<div id="ad-card" style="
+    position: fixed;
+    bottom: 15px;
+    right: 50%;
+    transform: translateX(50%);
+    width: 160px;
+    height: 120px; /* increased height to fit button */
+    z-index: 9999;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    display: none;
+    background-color: #fff;
+    text-align: center;
+    font-family: sans-serif;
+">
+    <iframe id="ad-iframe"
+        src="https://omg10.com/4/10589174"
+        frameborder="0"
+        style="border:none;width:100%;height:90px;object-fit:contain;">
+    </iframe>
+    <button id="help-btn" style="
+        width: 100%;
+        height: 30px;
+        border: none;
+        background-color: #28a745;
+        color: #fff;
+        font-size: 12px;
+        cursor: pointer;
+    ">Click to Help People in Need</button>
+</div>
+
+<script>
+const adCard = document.getElementById('ad-card');
+const helpBtn = document.getElementById('help-btn');
+const adURL = "https://omg10.com/4/10589174"; // your single ad URL
+
+function showAd() {
+    adCard.style.display = 'block'; // show the ad
+
+    // Hide after 15 seconds
+    setTimeout(() => {
+        adCard.style.display = 'none';
+    }, 15000);
+
+    // Repeat every 30 seconds
+    setTimeout(showAd, 30000);
+}
+
+// Show initial ad
+showAd();
+
+// Button click logic
+helpBtn.addEventListener('click', () => {
+    window.open(adURL, '_blank'); // open ad in new tab
+    alert("Thank you! Your click helps people in need! ❤️"); // popup message
+});
+</script>
         <!-- HOME PAGE -->
         <div id="home" class="page active">
             <div class="glass-card p-6 text-center mb-4">
