@@ -289,7 +289,17 @@ helpBtn.addEventListener('click', () => {
         <button onclick="showPage('wallet')" class="nav-item"><i class="fas fa-wallet text-xl"></i></button>
         <button onclick="showPage('admin')" class="nav-item"><i class="fas fa-user-shield text-xl"></i></button>
     </div>
-
+       <script src="https://inapp.telega.io/sdk/v1/sdk.js"></script>
+<script>
+  const ads = window.TelegaIn.AdsController.create_miniapp({
+    token: 'd3762408-afb4-40e6-ae29-6e3f2ba0dbaa' });
+</script>
+ads.ad_show({
+  adBlockUuid: "d0e821d0-c65c-439b-b5ad-ec20547fd62a"
+});
+    ads.ad_show({
+  adBlockUuid: "d0e821d0-c65c-439b-b5ad-ec20547fd62a"
+});
     <!-- Firebase SDKs -->
     <script type="module" src="app.js"></script>
 </body>
