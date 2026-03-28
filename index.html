@@ -138,16 +138,32 @@ helpBtn.addEventListener('click', () => {
                 </div>
             </div>
         </div>
-         <!-- Banners -->
-    <div class="banner-container">
-        <div class="banner-card"><script>atOptions={'key':'fe70943384c0314737bd62c05e3d520a','format':'iframe','height':300,'width':160,'params':{}};</script><script src="https://www.highperformanceformat.com/fe70943384c0314737bd62c05e3d520a/invoke.js"></script></div>
-        <div class="banner-card"><script>atOptions={'key':'fe70943384c0314737bd62c05e3d520a','format':'iframe','height':300,'width':160,'params':{}};</script><script src="https://www.highperformanceformat.com/fe70943384c0314737bd62c05e3d520a/invoke.js"></script></div>
-        <div class="banner-card"><script>atOptions={'key':'fe70943384c0314737bd62c05e3d520a','format':'iframe','height':300,'width':160,'params':{}};</script><script src="https://www.highperformanceformat.com/fe70943384c0314737bd62c05e3d520a/invoke.js"></script></div>
-        <div class="banner-card"><script>atOptions={'key':'fe70943384c0314737bd62c05e3d520a','format':'iframe','height':300,'width':160,'params':{}};</script><script src="https://www.highperformanceformat.com/fe70943384c0314737bd62c05e3d520a/invoke.js"></script></div>
-        <div class="banner-card"><script>atOptions={'key':'fe70943384c0314737bd62c05e3d520a','format':'iframe','height':300,'width':160,'params':{}};</script><script src="https://www.highperformanceformat.com/fe70943384c0314737bd62c05e3d520a/invoke.js"></script></div>
-<div class="banner-card"><script>atOptions={'key':'fe70943384c0314737bd62c05e3d520a','format':'iframe','height':300,'width':160,'params':{}};</script><script src="https://www.highperformanceformat.com/fe70943384c0314737bd62c05e3d520a/invoke.js"></script></div>
-        <div class="banner-card"><script>atOptions={'key':'fe70943384c0314737bd62c05e3d520a','format':'iframe','height':300,'width':160,'params':{}};</script><script src="https://www.highperformanceformat.com/fe70943384c0314737bd62c05e3d520a/invoke.js"></script></div>
+         <!-- Floating Ad Container -->
+<div id="floating-ad-box" style="position: fixed; bottom: 10px; right: 10px; z-index: 9999; display: flex; flex-direction: column; align-items: flex-end;">
+    
+    <!-- Close Button -->
+    <button onclick="document.getElementById('floating-ad-box').style.display='none'" 
+            style="background: #000; color: #fff; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; margin-bottom: 5px; font-weight: bold; font-size: 12px; box-shadow: 0px 0px 5px rgba(0,0,0,0.5);">
+        X
+    </button>
+
+    <!-- Ad Wrapper (Scrollable and Scaled) -->
+    <div style="width: 130px; height: 300px; overflow-y: auto; overflow-x: hidden; background: rgba(255,255,255,0.8); border: 1px solid #ccc; border-radius: 8px; padding: 5px; transform: scale(0.85); transform-origin: bottom right; box-shadow: 0px 4px 10px rgba(0,0,0,0.2);">
+        
+        <div class="banner-card" style="margin-bottom: 10px;">
+            <script>atOptions={'key':'fe70943384c0314737bd62c05e3d520a','format':'iframe','height':300,'width':160,'params':{}};</script>
+            <script src="https://www.highperformanceformat.com/fe70943384c0314737bd62c05e3d520a/invoke.js"></script>
+        </div>
+        
+        <div class="banner-card">
+            <script>atOptions={'key':'fe70943384c0314737bd62c05e3d520a','format':'iframe','height':300,'width':160,'params':{}};</script>
+            <script src="https://www.highperformanceformat.com/fe70943384c0314737bd62c05e3d520a/invoke.js"></script>
+        </div>
+
+        <!-- You can add more banner-cards here if needed -->
     </div>
+</div>
+
 
         <!-- LEADERBOARD PAGE -->
         <div id="leaderboard" class="page">
